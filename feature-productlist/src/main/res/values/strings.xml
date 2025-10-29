@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hide_selected_items">Hide selected items</string>
+    <string name="show_selected_items">Show selected items</string>
+    <string name="add_product">Add product</string>
+    <string name="kg">kg</string>
+    <string name="g">g</string>
+    <string name="l">l</string>
+    <string name="ml">ml</string>
+    <string name="pcs">pcs</string>
+    <string name="units">Units</string>
+    <string name="unit">Unit</string>
+    <string name="amount">Amount</string>
+    <string name="inc_amount">Increment Amount</string>
+    <string name="dec_amount">Decrement Amount</string>
+    <string name="all_goods_purchased">All goods purchased ✅</string>
+    <string name="list_is_still_empty">List is still empty 🛒</string>
+    <string name="shopping_list_done">To add new products, enter the name in the field above and click +</string>
+    <string name="close_product_actions">Close product actions</string>
+    <string name="delete">delete</string>
+    <string name="edit">edit</string>
+    <string name="undo">undo</string>
+
+    <string name="search_in_list">Search in list</string>
+    <string name="rename_list">Rename list</string>
+    <string name="share">Share</string>
+    <string name="sort">Sort</string>
+    <string name="empty_list">The list is empty</string>
+    <string name="action_clear_selection">Clear selection</string>
+    <string name="no_selected_products">No selected products</string>
+    <string name="all_unselected">All products deselected</string>
+    <string name="action_select_all">Select all</string>
+    <string name="all_selected">All products selected</string>
+    <string name="action_delete_selected">Delete selected</string>
+    <string name="sort_by_alphabet">Sort by alphabet</string>
+
+    <string name="no_products_to_delete">No products to delete</string>
+    <string name="copy">Copy</string>
+
+    <string name="search">Search</string>
+    <string name="clear_search">Clear search</string>
+
+    <string name="found_of_total">%1$d of %2$d items</string>
+    <string name="no_result">No results</string>
+    <string name="copy_products_from_list">Copy products from the list</string>
+    <string name="new_list">New List</string>
+
+    <string name="total">Total</string>
+    <string name="copy_in_new_shopping_list">Copy in new shopping list</string>
+    <string name="product_copied">Product copied</string>
+    <string name="products_copied">Products copied</string>
+    <string name="product_name">Products name</string>
+
+    <plurals name="items_deleted">
+        <item quantity="one">%d item deleted</item>   <!-- 1 -->
+        <item quantity="other">%d items deleted</item> <!-- 0, 2, 3, ... -->
+    </plurals>
+</resources>

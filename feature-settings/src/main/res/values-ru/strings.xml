@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings">Настройки</string>
+    <string name="select_primary_color">Выберите основой цвет</string>
+    <string name="app_theme">Тема приложения</string>
+    <string name="app_version">Версия %1$s</string>
+</resources>

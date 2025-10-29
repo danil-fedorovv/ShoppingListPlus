@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="11">
+      <module name="ShoppingListPlus.core" target="17" />
+      <module name="ShoppingListPlus.core-appearance" target="17" />
+      <module name="ShoppingListPlus.core-di" target="17" />
+      <module name="ShoppingListPlus.data" target="17" />
+      <module name="ShoppingListPlus.domain" target="17" />
+      <module name="ShoppingListPlus.domain.main" target="17" />
+      <module name="ShoppingListPlus.domain.test" target="17" />
+      <module name="ShoppingListPlus.navigation" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

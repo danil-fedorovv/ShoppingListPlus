@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="list_deleted">Список удален</string>
+    <string name="lists_deleted">Все cписки удалены</string>
+    <string name="archive">Архив</string>
+    <string name="delete">удалить</string>
+    <string name="restore">восстановить</string>
+    <string name="moved_to_trash">Перемещен в корзину</string>
+    <string name="deleted_today">Сегодня</string>
+    <string name="deleted_yesterday">Вчера</string>
+    <string name="undo">отмена</string>
+    <string name="this_list_is_empty">Этот список пуст</string>
+
+    <string name="search">Искать</string>
+    <string name="deleteAll">Удалить все</string>
+
+    <string name="archive_empty_title">Здесь вы найдёте все удалённые списки</string>
+    <string name="archive_empty_subtitle">Вы можете восстановить их или удалить навсегда</string>
+
+
+
+
+
+
+
+    <plurals name="deleted_days_ago">
+        <item quantity="one">%d день назад</item>
+        <item quantity="few">%d дня назад</item>
+        <item quantity="many">%d дней назад</item>
+        <item quantity="other">%d дней назад</item>
+    </plurals>
+</resources>

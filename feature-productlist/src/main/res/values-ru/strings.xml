@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hide_selected_items">Скрыть отмеченные товары</string>
+    <string name="show_selected_items">Показать отмеченные товары</string>
+    <string name="add_product">Добавить товар</string>
+    <string name="kg">кг</string>
+    <string name="g">г</string>
+    <string name="l">л</string>
+    <string name="ml">мл</string>
+    <string name="pcs">шт</string>
+    <string name="units">Единицы</string>
+    <string name="unit">"Единица "</string>
+    <string name="amount">Кол-во</string>
+    <string name="inc_amount">Увеличить количество</string>
+    <string name="dec_amount">"Уменьшить количество "</string>
+    <string name="all_goods_purchased">Все товары куплены ✅</string>
+    <string name="list_is_still_empty">Список пока пуст 🛒</string>
+    <string name="shopping_list_done">Чтобы добавить новые продукты, введите название в поле сверху и нажмите +</string>
+    <string name="close_product_actions">Закрыть действия продукта</string>
+    <string name="delete">удалить</string>
+    <string name="edit">редактировать</string>
+    <string name="undo">отмена</string>
+
+    <string name="action_clear_selection">Снять отметки со всех товаров</string>
+    <string name="no_selected_products">Нет отмеченных товаров</string>
+    <string name="all_unselected">Отметки со всех товаров сняты</string>
+    <string name="action_select_all">Отметить все товары</string>
+    <string name="all_selected">Все товары отмечены</string>
+    <string name="action_delete_selected">Удалить отмеченные товары</string>
+    <string name="no_products_to_delete">Нет товаров для удаления</string>
+    <string name="empty_list">Список пуст</string>
+
+    <string name="search_in_list">Поиск в списке</string>
+    <string name="rename_list">Переименовать список</string>
+    <string name="share">Поделиться</string>
+    <string name="sort">Сортировка</string>
+    <string name="sort_by_alphabet">Сортировать по алфавиту</string>
+
+    <string name="search">Поиск</string>
+    <string name="clear_search">Очистить поиск</string>
+
+    <string name="found_of_total">%1$d из %2$d товаров</string>
+    <string name="no_result">Нет результатов</string>
+
+    <string name="copy">Копировать</string>
+    <string name="total">Всего</string>
+    <string name="copy_products_from_list">Копировать товары из списка</string>
+    <string name="new_list">Новый список</string>
+
+    <string name="copy_in_new_shopping_list">Копировать в новый лист</string>
+    <string name="product_copied">Товар скопирован</string>
+    <string name="products_copied">Товары скопированы</string>
+    <string name="product_name">Название товара</string>
+
+    <plurals name="items_deleted">
+        <item quantity="one">%d товар удалён</item>
+        <item quantity="few">%d товара удалено</item>
+        <item quantity="many">%d товаров удалено</item>
+        <item quantity="other">%d товаров удалено</item>
+    </plurals>
+
+</resources>

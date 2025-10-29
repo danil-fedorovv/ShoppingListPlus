@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="navback">Navigate Back</string>
+    <string name="menu">Menu</string>
+    <string name="share_shopping_list">Share shopping list</string>
+    <string name="rename_list">Rename list</string>
+    <string name="save">Save</string>
+    <string name="new_list">new list</string>
+    <string name="delete">delete</string>
+    <string name="edit">edit</string>
+    <string name="close_product_actions">Close product actions</string>
+    <string name="copy">Copy</string>
+
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="whats_new">👋 Welcome to Shopping List +</string>
+
+    <string name="feature_swipe">
+        👉 Add items and manage them with simple swipes: right — delete, left — mark as purchased
+    </string>
+
+    <string name="feature_edit">
+        ✏️ Tap an item to edit its name, quantity, or unit of measurement
+    </string>
+
+    <string name="feature_multi_select">
+        👆 Hold an item to select several at once — you can delete or copy them
+    </string>
+
+    <string name="feature_ps">
+        💡 Purchased items automatically move to the bottom of the list
+    </string>
+</resources>

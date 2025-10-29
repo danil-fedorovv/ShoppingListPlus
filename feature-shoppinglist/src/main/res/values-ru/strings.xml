@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="my_lists">Мои списки</string>
+    <string name="settings">Настройки</string>
+    <string name="archive">Архив</string>
+    <string name="trash">Корзина</string>
+    <string name="add">Добавить</string>
+
+    <string name="undo">отмена</string>
+    <string name="new_list">Новый список</string>
+    <string name="shopping_list">Список покупок</string>
+    <string name="add_new_list">Добавить новый список</string>
+
+
+    <string name="rename">Переименовать</string>
+    <string name="share">Поделиться</string>
+    <string name="copy">Копировать</string>
+    <string name="copy_suffix"> — копия</string>
+    <string name="delete">Удалить</string>
+    <string name="list_copied">Список скопирован</string>
+
+    <string name="edit">редактировать</string>
+    <string name="close_list_actions">Закрыть действия листа</string>
+
+    <string name="empty_lists_title">Давайте спланируем покупки!</string>
+    <string name="empty_lists_subtitle">Нажмите «+ Новый список» внизу, чтобы добавить первый список</string>
+
+    <plurals name="lists_copied">
+        <item quantity="one">%d Список скопирован</item>
+        <item quantity="few">%d списка скопировано</item>
+        <item quantity="many">%d списков скопировано</item>
+        <item quantity="other">%d списков скопировано</item>
+    </plurals>
+
+    <plurals name="lists_deleted">
+        <item quantity="one">%d список удалён</item>
+        <item quantity="few">%d скиска удалено</item>
+        <item quantity="many">%d списков удалено</item>
+        <item quantity="other">%d списков удалено</item>
+    </plurals>
+</resources>
