@@ -19,10 +19,10 @@ import danilfedorov.domain_core.usecase.shoppinglist.CreateListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.GetListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.GetShoppingListByIdUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RenameShoppingListUseCase
-import io.avdev.productlist.R
 import danilfedorov.feature_productlist.internal.presenter.mvi.Action
 import danilfedorov.feature_productlist.internal.presenter.mvi.Effect
 import danilfedorov.feature_productlist.internal.presenter.mvi.ScreenState
+import io.avdev.productlist.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,7 +50,7 @@ internal class ProductListViewModel(
     private val changeSortByAlphabetUseCase: ChangeSortByAlphabetUseCase,
     private val getShoppingListsUseCase: GetListsUseCase,
     private val getShoppingListProgressUseCase: GetShoppingListProgressUseCase,
-    private val createListUseCase: CreateListUseCase
+    private val createListUseCase: CreateListUseCase,
 ) : ViewModel() {
 
     private val _screenState = MutableStateFlow(ScreenState())
@@ -409,7 +409,7 @@ internal class ProductListViewModel(
             if (_screenState.value.products.isEmpty()) {
                 withContext(Dispatchers.Main) {
                     _effect.emit(Effect.ShowSnackbarInfo(res.getString(R.string.empty_list)))
-                    _screenState.update { it.copy(isOptionsSheetVisible = false)}
+                    _screenState.update { it.copy(isOptionsSheetVisible = false) }
                 }
             } else {
                 withContext(Dispatchers.Main) {
@@ -432,13 +432,12 @@ internal class ProductListViewModel(
 
     private fun clearSelection() {
         viewModelScope.launch {
-            if(_screenState.value.products.isEmpty()) {
+            if (_screenState.value.products.isEmpty()) {
                 _effect.emit(Effect.ShowSnackbarInfo(res.getString(R.string.empty_list)))
-                _screenState.update { it.copy(isOptionsSheetVisible = false)}
-            }
-            else if (_screenState.value.products.any { !it.isSelected }) {
+                _screenState.update { it.copy(isOptionsSheetVisible = false) }
+            } else if (_screenState.value.products.any { !it.isSelected }) {
                 _effect.emit(Effect.ShowSnackbarInfo(res.getString(R.string.no_selected_products)))
-                _screenState.update { it.copy(isOptionsSheetVisible = false)}
+                _screenState.update { it.copy(isOptionsSheetVisible = false) }
             } else {
                 withContext(Dispatchers.Main) {
                     _screenState.update {
@@ -482,7 +481,17 @@ internal class ProductListViewModel(
     private fun shareShoppingList(context: Context) {
         viewModelScope.launch(Dispatchers.Main) {
             _screenState.update { it.copy(isOptionsSheetVisible = false) }
-            shareListUtil(context, _screenState.value.products.map { it.name })
+            val products = _screenState.value.products.map {
+                buildString {
+                    append(it.name)
+                    if (it.amount.isNotEmpty()) {
+                        append(" ")
+                        append(it.amount)
+                        append(it.unit)
+                    }
+                }
+            }
+            shareListUtil(context, products)
         }
     }
 
@@ -532,7 +541,12 @@ internal class ProductListViewModel(
 
     private fun enableSearchMode() {
         viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update { it.copy(searchMode = true, isOptionsSheetVisible = false) }
+            _screenState.update {
+                it.copy(
+                    searchMode = true,
+                    isOptionsSheetVisible = false
+                )
+            }
         }
     }
 
@@ -596,7 +610,8 @@ internal class ProductListViewModel(
             val selectedProducts = _screenState.value.multiSelectProducts
 
             val copiedProducts = selectedProducts.map { product ->
-                val newId = createProductUseCase(product.copy(id = 0L, listId = shoppingListId))
+                val newId =
+                    createProductUseCase(product.copy(id = 0L, listId = shoppingListId))
                 product.copy(id = newId, listId = shoppingListId)
             }
 

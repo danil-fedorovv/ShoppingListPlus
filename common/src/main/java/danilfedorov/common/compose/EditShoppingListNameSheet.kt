@@ -2,6 +2,7 @@
 
 package danilfedorov.common.compose
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,9 +20,11 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.R
+import danilfedorov.common.core_res.fruitImages
 import danilfedorov.common.extension.modifier.noRippleClickable
 
 @Composable
@@ -50,6 +53,11 @@ fun EditShoppingListNameSheet(
                 .padding(vertical = 8.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(fruitImages.random()),
+                contentDescription = null,
+            )
+            Spacer(Modifier.height(8.dp))
             Text(
                 text = title,
                 style = typography.titleLarge,

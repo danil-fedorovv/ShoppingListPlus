@@ -5,8 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -35,17 +37,23 @@ class MainActivity : ComponentActivity() {
             val initialDarkTheme = appearanceRepository.themeFlow.first()
             val initialColorIndex = appearanceRepository.colorIndexFlow.first()
             setContent {
+                val isSystemInDarkTheme = isSystemInDarkTheme()
                 val darkTheme by appearanceRepository.themeFlow.collectAsState(initial = initialDarkTheme)
+                LaunchedEffect(darkTheme) {
+                    if (darkTheme == null) {
+                        appearanceRepository.setTheme(isSystemInDarkTheme)
+                    }
+                }
                 val colorIndex by appearanceRepository.colorIndexFlow.collectAsState(initial = initialColorIndex)
 
                 ShoppingListTheme(
-                    isDarkTheme = darkTheme,
+                    isDarkTheme = darkTheme ?: isSystemInDarkTheme,
                     primaryColor = colors[colorIndex]
                 ) {
                     Column(Modifier.background(colorScheme.background)) {
                         ShoppingListAppNavigation(modifier = Modifier.weight(1f))
                         YandexStickyBanner(
-                            isDarkTheme = darkTheme
+                            isDarkTheme = darkTheme ?: isSystemInDarkTheme
                         )
                     }
                 }

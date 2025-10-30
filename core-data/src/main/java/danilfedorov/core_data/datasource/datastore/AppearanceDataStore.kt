@@ -17,8 +17,8 @@ class AppearanceDataStore(private val context: Context) {
         private val KEY_COLOR = intPreferencesKey("KEY_COLOR")
     }
 
-    val themeFlow: Flow<Boolean> = context.dataStore.data.map {
-        it[KEY_THEME] ?: false
+    val themeFlow: Flow<Boolean?> = context.dataStore.data.map {
+        it[KEY_THEME]
     }
 
     val colorIndexFlow: Flow<Int> = context.dataStore.data.map {

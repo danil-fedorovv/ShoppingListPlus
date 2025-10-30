@@ -9,7 +9,7 @@ class AppearanceRepositoryImpl(
     private val appearanceDataStore: AppearanceDataStore
 ): AppearanceRepository {
 
-    override val themeFlow: Flow<Boolean>
+    override val themeFlow: Flow<Boolean?>
         get() = appearanceDataStore.themeFlow
 
     override val colorIndexFlow: Flow<Int>

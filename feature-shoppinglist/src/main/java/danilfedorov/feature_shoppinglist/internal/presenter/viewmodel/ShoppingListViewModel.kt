@@ -40,7 +40,7 @@ internal class ShoppingListViewModel(
     private val getTotalProductCountUseCase: GetTotalProductCountUseCase,
     private val getProductListByListIdUseCase: GetProductListByListIdUseCase,
     private val createProductUseCase: CreateProductUseCase,
-    private val res: Resources
+    private val res: Resources,
 ) : ViewModel() {
 
     private val _screenState = MutableStateFlow(ScreenState())
@@ -73,7 +73,10 @@ internal class ShoppingListViewModel(
                         list.id to (selected to total)
                     }.collect { (id, counts) ->
                         _screenState.update { state ->
-                            state.copy(progress = state.progress + (id to counts), isLoading = false)
+                            state.copy(
+                                progress = state.progress + (id to counts),
+                                isLoading = false
+                            )
                         }
                     }
                 }
@@ -202,7 +205,17 @@ internal class ShoppingListViewModel(
     private fun shareShoppingList(id: Long, context: Context) {
         viewModelScope.launch(Dispatchers.Main) {
             val products = withContext(Dispatchers.IO) { getProductListByListIdUseCase(id) }
-            shareListUtil(context, products.map { it.name })
+            val productString = products.map {
+                buildString {
+                    append(it.name)
+                    if (it.amount.isNotEmpty()) {
+                        append(" ")
+                        append(it.amount)
+                        append(it.unit)
+                    }
+                }
+            }
+            shareListUtil(context, productString)
         }
     }
 
@@ -351,15 +364,18 @@ internal class ShoppingListViewModel(
                 )
             }
 
-            _effect.emit(Effect.ShowSnackbarInfo(
-                res.getQuantityString(
-                    R.plurals.lists_copied,
-                    selectedLists.size,
-                    selectedLists.size
+            _effect.emit(
+                Effect.ShowSnackbarInfo(
+                    res.getQuantityString(
+                        R.plurals.lists_copied,
+                        selectedLists.size,
+                        selectedLists.size
+                    )
                 )
-            ))
+            )
         }
     }
+
     private fun generateCopyName(originalName: String): String {
         val suffix = res.getString(R.string.copy_suffix) // например "копия"
         val regex = Regex("""(.*)\s+$suffix(?:\s+(\d+))?$""", RegexOption.IGNORE_CASE)
