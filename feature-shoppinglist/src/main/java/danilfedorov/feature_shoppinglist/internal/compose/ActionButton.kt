@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import danilfedorov.common.extension.modifier.noRippleClickable
@@ -22,10 +21,9 @@ internal fun ActionButton(
     color: Color,
     width: Dp,
     cornerShape: Shape = RectangleShape,
-    icon: ImageVector? = null,
-    iconRes: Int? = null,
+    painterId: Int,
     contentDescription: String? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -35,18 +33,10 @@ internal fun ActionButton(
             .noRippleClickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        when {
-            icon != null -> Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = colorScheme.background
-            )
-
-            iconRes != null -> Icon(
-                painter = painterResource(id = iconRes),
-                contentDescription = contentDescription,
-                tint = colorScheme.background
-            )
-        }
+        Icon(
+            painter = painterResource(painterId),
+            contentDescription = contentDescription,
+            tint = colorScheme.background
+        )
     }
 }

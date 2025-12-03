@@ -9,6 +9,8 @@
       <module name="ShoppingListPlus.domain" target="17" />
       <module name="ShoppingListPlus.domain.main" target="17" />
       <module name="ShoppingListPlus.domain.test" target="17" />
+      <module name="ShoppingListPlus.feature-subscription" target="17" />
+      <module name="ShoppingListPlus.feature_premium" target="17" />
       <module name="ShoppingListPlus.navigation" target="17" />
     </bytecodeTargetLevel>
   </component>

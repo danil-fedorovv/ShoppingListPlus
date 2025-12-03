@@ -18,7 +18,7 @@ fun AppModalBottomSheet(
     sheetState: SheetState,
     onDismissRequest: () -> Unit,
     backgroundColor: Color = colorScheme.onBackground,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     ModalBottomSheet(
         modifier = modifier,
@@ -30,6 +30,7 @@ fun AppModalBottomSheet(
             DragHandle(
                 backgroundColor = backgroundColor
             )
+
         },
         content = content,
     )

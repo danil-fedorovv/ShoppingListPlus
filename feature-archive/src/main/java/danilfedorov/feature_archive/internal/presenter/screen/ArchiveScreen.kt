@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import danilfedorov.archive.R
 import danilfedorov.common.compose.EmptyContent
 import danilfedorov.feature_archive.internal.compose.ArchiveItem
 import danilfedorov.feature_archive.internal.compose.ArchiveProductsSheet
@@ -37,7 +38,6 @@ import danilfedorov.feature_archive.internal.compose.ArchiveTopBar
 import danilfedorov.feature_archive.internal.presenter.mvi.Action
 import danilfedorov.feature_archive.internal.presenter.mvi.Effect
 import danilfedorov.feature_archive.internal.presenter.mvi.ScreenState
-import io.avdev.archive.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
@@ -55,15 +55,13 @@ fun ArchiveScreen(
 
     LaunchedEffect(effect) {
         effect.collect { effect ->
-            when (effect) {
-                is Effect.ShowSnackbarDelete -> {
 
-                    snackbarJob?.let {
-                        action(Action.ConfirmDeleteArchive())
-                        it.cancelAndJoin()
-                    }
+            snackbarHostState.currentSnackbarData?.dismiss()
+            snackbarJob?.cancelAndJoin()
 
-                    snackbarJob = launch {
+            snackbarJob = launch {
+                when (effect) {
+                    is Effect.ShowSnackbarDelete -> {
                         val result = snackbarHostState.showSnackbar(
                             message = effect.message,
                             actionLabel = undoString,
@@ -129,7 +127,8 @@ fun ArchiveScreen(
         topBar = {
             ArchiveTopBar(
                 navHome = { action(Action.NavHome()) },
-                deleteAll = { action(Action.DeleteAll()) }
+                deleteAll = { action(Action.DeleteAll()) },
+                showDeleteIcon = screenState.archiveLists.isNotEmpty()
             )
         },
         bottomBar = {
@@ -175,11 +174,14 @@ fun ArchiveScreen(
             }
         }
     }
-    if (screenState.isProductsSheetExpandName.isNotEmpty()) {
+    if (screenState.isArchiveProductsExpanded != null) {
+        val archive = screenState.isArchiveProductsExpanded
         ArchiveProductsSheet(
-            archiveName = screenState.isProductsSheetExpandName,
+            archiveName = archive.name,
             productList = screenState.productList,
-            onDismiss = { action(Action.DismissProductsSheet()) }
+            onDismiss = { action(Action.DismissProductsSheet()) },
+            onDelete = { action(Action.DeleteArchive(archive)) },
+            onRestore = { action(Action.RestoreArchive(archive)) }
         )
     }
 }

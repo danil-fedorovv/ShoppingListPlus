@@ -1,4 +1,4 @@
-package io.avdev.feature_shoppinglist
+package danilfedorov.feature_shoppinglist
 
 import org.junit.Test
 

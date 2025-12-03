@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.extension.modifier.noRippleClickable
-import io.avdev.productlist.R
+import danilfedorov.productlist.R
 
 @Composable
 fun SearchInfoColumn(
@@ -43,7 +43,7 @@ fun SearchInfoColumn(
         Spacer(Modifier.height(8.dp))
         Box(
             modifier = Modifier
-                .background(color = colorScheme.primary, shape = shapes.large)
+                .background(color = colorScheme.primary, shape = shapes.medium)
                 .noRippleClickable(onClickClear),
             contentAlignment = Alignment.Center
         ) {

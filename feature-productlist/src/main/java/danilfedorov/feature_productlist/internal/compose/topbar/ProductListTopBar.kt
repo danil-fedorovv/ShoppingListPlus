@@ -2,7 +2,9 @@
 
 package danilfedorov.feature_productlist.internal.compose.topbar
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -30,9 +33,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import danilfedorov.common.R
 import danilfedorov.common.compose.AppTextField
+import danilfedorov.common.core_res.green
+import danilfedorov.common.extension.modifier.elevatedCard
 import danilfedorov.common.extension.modifier.noRippleClickable
+import danilfedorov.productlist.R
 
 
 @Composable
@@ -45,7 +50,8 @@ fun ProductListTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
     draftAddProduct: String,
     onChangeAddProduct: (String) -> Unit,
-    addProduct: () -> Unit
+    addProduct: () -> Unit,
+    connectionStatus: Boolean?,
 ) {
     CenterAlignedTopAppBar(
         expandedHeight = 128.dp,
@@ -62,7 +68,8 @@ fun ProductListTopBar(
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .height(32.dp)
+                        .height(32.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
                         Modifier.weight(1f),
@@ -83,15 +90,34 @@ fun ProductListTopBar(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    Icon(
-                        imageVector = Icons.Filled.MoreVert,
-                        contentDescription = stringResource(R.string.menu),
-                        tint = colorScheme.secondary,
+                    if (connectionStatus != null) {
+                        val bgColor = if (connectionStatus) green
+                        else colorScheme.outline
+                        Box(
+                            Modifier
+                                .size(14.dp)
+                                .elevatedCard(bgColor)
+                                .background(
+                                    color = bgColor,
+                                    shape = CircleShape
+                                )
+                        )
+                    }
+                    Box(
                         modifier = Modifier
                             .size(32.dp)
-                            .noRippleClickable(onClickOptions)
+                            .noRippleClickable(onClickOptions),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = stringResource(danilfedorov.common.R.string.menu),
+                            tint = colorScheme.secondary,
+                            modifier = Modifier
+                                .size(26.dp)
 
-                    )
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -100,8 +126,8 @@ fun ProductListTopBar(
                     onValueChange = { onChangeAddProduct(it) },
                     trailingIcon = {
                         Icon(
-                            painter = painterResource(io.avdev.productlist.R.drawable.ic_slp),
-                            contentDescription = stringResource(io.avdev.productlist.R.string.add_product),
+                            painter = painterResource(R.drawable.ic_slp),
+                            contentDescription = stringResource(R.string.add_product),
                             modifier = Modifier
                                 .noRippleClickable {
                                     addProduct()
@@ -113,7 +139,7 @@ fun ProductListTopBar(
                     onDone = { addProduct() },
                     placeholder = {
                         Text(
-                            text = stringResource(io.avdev.productlist.R.string.add_product),
+                            text = stringResource(R.string.add_product),
                             style = typography.titleMedium,
                             color = colorScheme.outline
                         )
@@ -129,7 +155,7 @@ fun ProductListTopBar(
             containerColor = colorScheme.onBackground,
             scrolledContainerColor = colorScheme.onBackground,
 
-        ),
+            ),
         scrollBehavior = scrollBehavior
     )
 

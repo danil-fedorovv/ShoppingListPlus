@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "io.avdev.archive"
+    namespace = "danilfedorov.archive"
     compileSdk {
         version = release(36)
     }

@@ -4,4 +4,32 @@
     <string name="select_primary_color">Select primary color</string>
     <string name="app_theme">App theme</string>
     <string name="app_version">Version %1$s</string>
+
+    <string name="change_color_title">Change App Color</string>
+    <string name="change_color_subtitle">Watch a short video to change the color</string>
+    <string name="change_color_primary_button">Watch Video</string>
+    <string name="change_color_secondary_button">Cancel</string>
+
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_application">Application</string>
+    <string name="settings_primary_color">Primary Color</string>
+    <string name="settings_dark_theme">Dark Theme</string>
+    <string name="settings_fruit_collection">Fruit Collection</string>
+    <string name="settings_disable_ads">Disable Ads</string>
+    <string name="settings_rate_app">Rate App</string>
+    <string name="settings_contact_us">Contact Us</string>
+    <string name="switch_on">On</string>
+    <string name="switch_off">Off</string>
+    <string name="switch_system">As on device</string>
+    <string name="feedback_subject">App Feedback</string>
+    <string name="feedback_prefilled_message">
+    <![CDATA[
+    Hi, Shopping List + team!
+
+    I\'d like to leave some feedback about the app:
+
+
+    Thank you for making the app better ❤️
+    ]]>
+</string>
 </resources>

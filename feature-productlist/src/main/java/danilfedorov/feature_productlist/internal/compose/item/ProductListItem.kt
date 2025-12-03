@@ -32,7 +32,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.compose.AnimatedCheckbox
@@ -47,13 +46,20 @@ import kotlinx.coroutines.launch
 internal fun ProductListItem(
     product: Product,
     screenState: ScreenState,
-    backgroundColor: Color,
-    textColor: Color,
     action: (Action) -> Unit,
     isInMultiSelect: Boolean
 ) {
+    var isSelected by remember(product.roomId) { mutableStateOf(product.isSelected) }
 
-    var isSelected by remember(product.id) { mutableStateOf(product.isSelected) }
+    val backgroundColor by animateColorAsState(
+        targetValue = if(isSelected) colorScheme.background else colorScheme.onBackground,
+        animationSpec = tween(durationMillis = 350)
+    )
+
+    val textColor by animateColorAsState(
+        targetValue = if(isSelected) colorScheme.outline else colorScheme.secondary,
+        animationSpec = tween(durationMillis = 350)
+    )
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -62,8 +68,9 @@ internal fun ProductListItem(
 
     val animatedBackground by animateColorAsState(
         targetValue = if (isInMultiSelect) highlightOpaque else backgroundColor,
-        animationSpec = tween(durationMillis = 250)
+        animationSpec = tween(durationMillis = 350)
     )
+
 
     Row(
         modifier = Modifier

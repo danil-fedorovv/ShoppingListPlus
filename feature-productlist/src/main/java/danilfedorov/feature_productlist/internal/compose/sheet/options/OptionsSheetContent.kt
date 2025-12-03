@@ -5,17 +5,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import io.avdev.productlist.R
-import danilfedorov.feature_productlist.internal.compose.RowsContainer
+import danilfedorov.common.compose.OptionRow
+import danilfedorov.common.compose.RowsContainer
+import danilfedorov.productlist.R
 
 @Composable
 fun OptionsSheetContent(
@@ -35,7 +33,7 @@ fun OptionsSheetContent(
                 listOf(
                     {
                         OptionRow(
-                            icon = Icons.Rounded.Search,
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_search),
                             text = stringResource(R.string.search_in_list),
                             onClick = { search() }
                         )
@@ -48,14 +46,14 @@ fun OptionsSheetContent(
                 listOf(
                     {
                         OptionRow(
-                            icon = Icons.Rounded.Edit,
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_edit),
                             text = stringResource(R.string.rename_list),
                             onClick = { renameList() }
                         )
                     },
                     {
                         OptionRow(
-                            painter = painterResource(R.drawable.ic_share),
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_share),
                             text = stringResource(R.string.share),
                             onClick = { shareList() }
                         )

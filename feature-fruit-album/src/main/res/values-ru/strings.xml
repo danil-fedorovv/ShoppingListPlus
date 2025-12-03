@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unlocked">Разблокировано</string>
+    <string name="unlock_random_fruit_title">Разблокируй случайный фрукт</string>
+    <string name="cta">Собери их всех, чтобы \n сделать свои списки ярче!</string>
+    <string name="title_all_unlocked">Все фрукты собраны</string>
+    <string name="subtitle_all_unlocked">ты настоящий коллекционер</string>
+    <string name="new_fruit_unlocked_title">Новый фрукт разблокирован!</string>
+    <string name="new_fruit_unlocked_button">Отлично</string>
+</resources>

@@ -1,5 +1,3 @@
-import com.android.build.gradle.ProguardFiles.getDefaultProguardFile
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -8,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "io.avdev.productlist"
+    namespace = "danilfedorov.productlist"
     compileSdk = 36
 
     defaultConfig {
@@ -34,6 +32,7 @@ android {
 dependencies {
     implementation(project(":core-domain"))
     implementation(project(":common"))
+    implementation(project(":shared_shoppinglist"))
 
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)

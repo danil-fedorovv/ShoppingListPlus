@@ -51,8 +51,11 @@
     <string name="products_copied">Products copied</string>
     <string name="product_name">Products name</string>
 
+    <string name="connection_status_online">Online · changes are syncing</string>
+    <string name="connection_status_offline">No connection · changes will sync when online</string>
+
     <plurals name="items_deleted">
-        <item quantity="one">%d item deleted</item>   <!-- 1 -->
-        <item quantity="other">%d items deleted</item> <!-- 0, 2, 3, ... -->
+        <item quantity="one">%d item deleted</item>
+        <item quantity="other">%d items deleted</item>
     </plurals>
 </resources>

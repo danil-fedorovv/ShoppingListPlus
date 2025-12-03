@@ -8,6 +8,8 @@ import danilfedorov.feature_shoppinglist.internal.di.DaggerShoppingListComponent
 internal class ShoppingListViewModelFactory(
     val navArchive: () -> Unit,
     val navSettings: () -> Unit,
+    val navSubscription: () -> Unit,
+    val navFruitAlbum: () -> Unit,
     val navProduct: (id: Long) -> Unit,
     val deps: ShoppingListDeps
 ) : ViewModelProvider.Factory {
@@ -16,18 +18,25 @@ internal class ShoppingListViewModelFactory(
         val component = DaggerShoppingListComponent.factory().create(deps)
 
         return ShoppingListViewModel(
-            navArchive,
-            navSettings,
-            navProduct,
-            component.getListsUseCase,
-            component.createListUseCase,
-            component.archiveShoppingListsUseCase,
-            component.renameShoppingListUseCase,
-            component.getSelectedProductCountUseCase,
-            component.getTotalProductCountUseCase,
-            component.getProductListByListIdUseCase,
-            component.createProductUseCase,
-            component.res
+            navArchive = navArchive,
+            navSettings = navSettings,
+            navSubscription = navSubscription,
+            navFruitAlbum = navFruitAlbum,
+            navProducts = navProduct,
+            observeShoppingListsUseCase = component.observeShoppingListsUseCase,
+            createListUseCase = component.createListUseCase,
+            archiveShoppingListsUseCase = component.archiveShoppingListsUseCase,
+            renameShoppingListUseCase = component.renameShoppingListUseCase,
+            getSelectedProductCountUseCase = component.getSelectedProductCountUseCase,
+            getTotalProductCountUseCase = component.getTotalProductCountUseCase,
+            getProductListByListIdUseCase = component.getProductListByListIdUseCase,
+            fetchListUseCase = component.fetchListUseCase,
+            insertProductsUseCase = component.insertProductsUseCase,
+            pushListUseCase = component.pushListUseCase,
+            getRemoteShoppingListNameUseCase = component.getRemoteShoppingListNameUseCase,
+            observeRemoteListNameUseCase = component.observeRemoteListNameUseCase,
+            getRandomActiveUnlockedFruitUseCase = component.getRandomActiveUnlockedFruitUseCase,
+            res = component.res
         ) as T
     }
 }

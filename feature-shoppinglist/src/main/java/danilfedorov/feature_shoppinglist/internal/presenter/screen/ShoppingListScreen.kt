@@ -50,17 +50,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import danilfedorov.common.compose.ActionRow
-import danilfedorov.common.compose.EditShoppingListNameSheet
 import danilfedorov.common.compose.EmptyContent
 import danilfedorov.common.compose.NoRippleInteractionSource
-import io.avdev.feature_shoppinglist.R
-import danilfedorov.feature_shoppinglist.internal.compose.item.ShoppingListItemContainer
+import danilfedorov.feature_shoppinglist.R
 import danilfedorov.feature_shoppinglist.internal.compose.ShoppingListTopBar
+import danilfedorov.feature_shoppinglist.internal.compose.item.ShoppingListItemContainer
+import danilfedorov.feature_shoppinglist.internal.compose.sheet.deeplink.FetchListResultSheet
+import danilfedorov.feature_shoppinglist.internal.compose.sheet.deeplink.FetchListSheetState
 import danilfedorov.feature_shoppinglist.internal.compose.sheet.options.ListOptionsSheet
 import danilfedorov.feature_shoppinglist.internal.presenter.mvi.Action
 import danilfedorov.feature_shoppinglist.internal.presenter.mvi.Effect
 import danilfedorov.feature_shoppinglist.internal.presenter.mvi.ScreenState
+import danilfedorov.shared_shoppinglist.presentation.compose.ActionRow
+import danilfedorov.shared_shoppinglist.presentation.compose.sheet.editname.EditShoppingListNameSheet
+import danilfedorov.shared_shoppinglist.presentation.compose.sheet.loading.LoadingSheet
+import danilfedorov.shared_shoppinglist.presentation.compose.sheet.push_list.PushListResultSheet
+import danilfedorov.shared_shoppinglist.presentation.compose.sheet.push_list.PushListSheetState
+import danilfedorov.shared_shoppinglist.presentation.compose.sheet.share.ShareListSheet
+import danilfedorov.shared_shoppinglist.presentation.mvi.SharedAction
+import danilfedorov.shared_shoppinglist.presentation.mvi.SharedScreenState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
@@ -69,10 +77,12 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun ShoppingListScreen(
     screenState: ScreenState,
+    sharedScreenState: SharedScreenState,
     action: (Action) -> Unit,
-    effect: Flow<Effect>
+    sharedAction: (SharedAction) -> Unit,
+    effect: Flow<Effect>,
 ) {
-
+    val context = LocalContext.current
     val listState = rememberLazyListState()
     var snackbarJob by remember { mutableStateOf<Job?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -82,7 +92,6 @@ internal fun ShoppingListScreen(
             durationMillis = 500
         )
     )
-    val context = LocalContext.current
     val res = LocalResources.current
     val undoString = stringResource(R.string.undo).uppercase()
 
@@ -94,28 +103,20 @@ internal fun ShoppingListScreen(
 
     LaunchedEffect(effect) {
         effect.collect { effect ->
-            when (effect) {
-                is Effect.ShowSnackbarInfo -> {
 
-                    snackbarJob?.cancelAndJoin()
+            snackbarHostState.currentSnackbarData?.dismiss()
+            snackbarJob?.cancelAndJoin()
 
-                    snackbarJob = launch {
+            snackbarJob = launch {
+                when (effect) {
+                    is Effect.ShowSnackbarInfo -> {
                         snackbarHostState.showSnackbar(
                             message = effect.message,
                             duration = SnackbarDuration.Short
                         )
                     }
-                }
 
-                is Effect.ShowSnackbarDelete -> {
-
-                    snackbarJob?.let {
-                        action(Action.ConfirmDeleteList())
-                        it.cancelAndJoin()
-                    }
-
-
-                    snackbarJob = launch {
+                    is Effect.ShowSnackbarDelete -> {
                         val result = snackbarHostState.showSnackbar(
                             message = res.getQuantityString(
                                 R.plurals.lists_deleted,
@@ -126,10 +127,9 @@ internal fun ShoppingListScreen(
                             duration = SnackbarDuration.Short
                         )
 
-                        if (result == SnackbarResult.ActionPerformed) {
-                            action(Action.RestoreState())
-                        } else {
-                            action(Action.ConfirmDeleteList())
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> action(Action.RestoreState())
+                            SnackbarResult.Dismissed -> action(Action.ConfirmDeleteList())
                         }
                     }
                 }
@@ -140,6 +140,18 @@ internal fun ShoppingListScreen(
     Scaffold(
         topBar = {
             ShoppingListTopBar(
+                navFruitAlbum = {
+                    snackbarJob?.let {
+                        action(Action.ConfirmDeleteList())
+                    }
+                    action(Action.NavigateFruitAlbum())
+                },
+                navSubscription = {
+                    snackbarJob?.let {
+                        action(Action.ConfirmDeleteList())
+                    }
+                    action(Action.NavigateSubscription())
+                },
                 navArchive = {
                     snackbarJob?.let {
                         action(Action.ConfirmDeleteList())
@@ -258,22 +270,23 @@ internal fun ShoppingListScreen(
                     shoppingList = shoppingList,
                     selected = selected,
                     total = total,
-                    navProduct = {
+                    navProduct = { shoppingListId ->
                         snackbarJob?.let {
                             action(Action.ConfirmDeleteList())
                         }
-                        action(Action.NavigateProduct(it))
+                        action(Action.NavigateProduct(shoppingListId))
                     },
-                    deleteList = { action(Action.DeleteList(shoppingList)) },
-                    shareList = { action(Action.ShareList(shoppingList.id, context)) },
-                    renameList = { action(Action.ShowRenameListSheet(shoppingList)) },
+                    shareList = { sharedAction(SharedAction.ShowShareListSheet(shoppingList)) },
+                    renameList = { sharedAction(SharedAction.ShowRenameListSheet(shoppingList)) },
                     extendedId = screenState.extendedListId,
                     extendShoppingList = { action(Action.ExtendList(it)) },
                     onClickOptions = { action(Action.ShowListOptions(shoppingList)) },
                     addMultiSelect = { action(Action.AddMultiSelect(shoppingList)) },
                     removeMultiSelect = { action(Action.RemoveMultiSelect(shoppingList)) },
                     isMultiSelectMode = screenState.multiSelectLists.isNotEmpty(),
-                    isMultiSelect = screenState.multiSelectLists.any { it.id == shoppingList.id }
+                    isMultiSelect = screenState.multiSelectLists.any { it.id == shoppingList.id },
+                    isLiveEditMode = shoppingList.remoteListId != null,
+                    deleteList = { action(Action.DeleteList(shoppingList)) }
                 )
             }
             item {
@@ -287,6 +300,7 @@ internal fun ShoppingListScreen(
         if (screenState.isAddListSheetVisible) {
             EditShoppingListNameSheet(
                 title = stringResource(R.string.add_new_list),
+                titleImageResId = sharedScreenState.renameSheetFruitResId,
                 placeholderText = stringResource(R.string.new_list),
                 buttonText = stringResource(R.string.add),
                 autoFocus = false,
@@ -297,33 +311,100 @@ internal fun ShoppingListScreen(
                 onDismissRequest = { action(Action.HideAddListSheet()) }
             )
         }
-        if (screenState.renameListId != null) {
+        if (sharedScreenState.renamingList != null) {
             EditShoppingListNameSheet(
-                value = screenState.draftRenameList,
-                onValueChange = { action(Action.ChangeRenameList(it)) },
-                onClick = { action(Action.RenameList(screenState.renameListId)) },
-                onDismissRequest = { action(Action.HideRenameListSheet()) }
+                value = sharedScreenState.tempListName,
+                titleImageResId = sharedScreenState.renameSheetFruitResId,
+                onValueChange = { sharedAction(SharedAction.ChangeTempListName(it)) },
+                onClick = { sharedAction(SharedAction.SaveListName) },
+                onDismissRequest = { sharedAction(SharedAction.HideRenameListSheet) }
             )
         }
         if (screenState.listOptions != null) {
             val listOptions = screenState.listOptions
             ListOptionsSheet(
                 listName = listOptions.name,
-                onRename = { action(Action.ShowRenameListSheet(listOptions)) },
-                onShare = { action(Action.ShareList(listOptions.id, context)) },
+                onRename = { sharedAction(SharedAction.ShowRenameListSheet(listOptions)) },
+                onShare = {
+                    action(Action.HideListOptions())
+                    sharedAction(SharedAction.ShowShareListSheet(listOptions))
+                },
                 onDelete = { action(Action.DeleteList(listOptions)) },
                 onCopy = { action(Action.CopyList(listOptions)) },
                 onDismiss = { action(Action.HideListOptions()) }
 
             )
         }
+
+        if (sharedScreenState.isShareListSheetVisible) {
+            ShareListSheet(
+                shareText = {
+                    sharedAction(
+                        SharedAction.ShareText(
+                            context = context,
+                            shoppingList = screenState.sharedShoppingList,
+                        )
+                    )
+                },
+                shareLink = {
+                    sharedAction(
+                        SharedAction.ShareLink(
+                            context = context,
+                            shoppingList = screenState.sharedShoppingList,
+                        )
+                    )
+                },
+                liveEditLink = {
+                    sharedAction(
+                        SharedAction.ShareLiveEditLink(
+                            context = context,
+                            shoppingList = screenState.sharedShoppingList
+                        )
+                    )
+                },
+                dismissRequest = {
+                    sharedAction(SharedAction.HideShareListSheet())
+                })
+        }
+
+        if (screenState.fetchListSheetState is FetchListSheetState.Loading) {
+            LoadingSheet(
+                title = stringResource(danilfedorov.shared_shoppinglist.R.string.unpacking_list)
+            )
+        }
+
+        if (screenState.fetchListSheetState !is FetchListSheetState.Hidden &&
+            screenState.fetchListSheetState !is FetchListSheetState.Loading
+        ) {
+            FetchListResultSheet(
+                fetchListSheetState = screenState.fetchListSheetState,
+                onClickJoin = { action(Action.OnClickJoinOrRetry()) },
+                onClickAddList = { action(Action.OnClickAddUnzipList()) },
+                onDismissRequest = { action(Action.HideDeepLingSheet) }
+            )
+        }
+
+        if (sharedScreenState.pushListSheetState !is PushListSheetState.Hidden) {
+            PushListResultSheet(
+                pushListSheetState = sharedScreenState.pushListSheetState,
+                onClickRetry = { context, shoppingList, products ->
+                    sharedAction(SharedAction.ShareLiveEditLink(context, shoppingList, products))
+                },
+                onDismissRequest = { sharedAction(SharedAction.HidePushListSheet) }
+            )
+        }
+        if (sharedScreenState.isLinkLoading) {
+            LoadingSheet(
+                title = stringResource(danilfedorov.shared_shoppinglist.R.string.packing_list)
+            )
+        }
         ActionRow(
             modifier = Modifier.padding(innerPadding),
             visible = screenState.multiSelectLists.isNotEmpty(),
             multiSelectCount = screenState.multiSelectLists.size,
-            onClickEdit = { action(Action.ShowRenameListSheet(screenState.multiSelectLists.first())) },
+            onClickEdit = { sharedAction(SharedAction.ShowRenameListSheet(screenState.multiSelectLists.first())) },
             onClickCopy = { action(Action.MultiCopy()) },
-            onClickDelete = { action(Action.MultiDelete()) },
+            onClickDelete = { action(Action.DeleteLists(screenState.multiSelectLists)) },
             onDismiss = { action(Action.ClearMultiSelect()) }
         )
     }

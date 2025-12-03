@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.extension.modifier.noRippleClickable
-import io.avdev.productlist.R
+import danilfedorov.productlist.R
 
 @Composable
 fun UnitSelection(

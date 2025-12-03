@@ -7,6 +7,6 @@ data class ScreenState(
     val archiveLists: List<ShoppingList> = emptyList(),
     val progress: Map<Long, String> = emptyMap(),
     val isLoading: Boolean = true,
-    val isProductsSheetExpandName: String = "",
+    val isArchiveProductsExpanded: ShoppingList? = null,
     val productList: List<Product> = emptyList()
 )

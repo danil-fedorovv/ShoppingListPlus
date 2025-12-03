@@ -5,8 +5,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import danilfedorov.common.compose.util.daggerViewModel
 import danilfedorov.feature_productlist.internal.presenter.screen.ProductListScreen
-import danilfedorov.feature_productlist.internal.presenter.viewmodel.ProductListViewModel
-import danilfedorov.feature_productlist.internal.presenter.viewmodel.ProductListViewModelFactory
+import danilfedorov.feature_productlist.internal.presenter.viewmodel.ProductsViewModel
+import danilfedorov.feature_productlist.internal.presenter.viewmodel.ProductsViewModelFactory
 
 @Composable
 fun ProductListScreenEntry(
@@ -14,15 +14,18 @@ fun ProductListScreenEntry(
     onNavigateHome : () -> Unit 
 ) {
     val deps = (LocalContext.current.applicationContext as ProductListDepsProvider).productListDeps
-    val viewModel: ProductListViewModel = daggerViewModel {
-        ProductListViewModelFactory(id, onNavigateHome, deps)
+    val viewModel: ProductsViewModel = daggerViewModel {
+        ProductsViewModelFactory(id, onNavigateHome, deps)
     }
 
     val screenState = viewModel.screenState.collectAsState()
+    val sharedScreenState = viewModel.sharedState.collectAsState()
 
     ProductListScreen(
         screenState = screenState.value,
-        action = { viewModel.action(it) },
+        sharedScreenState = sharedScreenState.value,
+        action = viewModel::action,
+        sharedAction = viewModel::sharedAction,
         effect = viewModel.effect
     )
 }

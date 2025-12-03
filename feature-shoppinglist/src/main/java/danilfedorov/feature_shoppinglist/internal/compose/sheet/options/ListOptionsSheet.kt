@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
@@ -16,9 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.compose.AppModalBottomSheet
-import io.avdev.feature_shoppinglist.R
+import danilfedorov.common.compose.OptionRow
+import danilfedorov.common.compose.RowsContainer
+import danilfedorov.feature_shoppinglist.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +29,7 @@ fun ListOptionsSheet(
     onShare: () -> Unit,
     onDelete: () -> Unit,
     onCopy: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -40,21 +41,23 @@ fun ListOptionsSheet(
         backgroundColor = colorScheme.background
     ) {
         Column(
-            modifier = Modifier.padding(bottom = 8.dp)
-                .padding(horizontal = 8.dp),
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = listName,
                 style = typography.titleLarge,
                 color = colorScheme.secondary,
+                textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(16.dp))
             RowsContainer(
                 listOf(
                     {
                         OptionRow(
-                            icon = Icons.Rounded.Edit,
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_edit),
                             text = stringResource(R.string.rename),
                             onClick = {
                                 onDismiss()
@@ -64,7 +67,7 @@ fun ListOptionsSheet(
                     },
                     {
                         OptionRow(
-                            painter = painterResource(R.drawable.ic_share),
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_share),
                             text = stringResource(R.string.share),
                             onClick = {
                                 onDismiss()

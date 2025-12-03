@@ -1,5 +1,3 @@
-import com.android.build.gradle.ProguardFiles.getDefaultProguardFile
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -35,6 +33,9 @@ android {
 dependencies {
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
+
+    implementation("com.airbnb.android:lottie-compose:6.5.2")
+    implementation("com.yandex.android:mobileads:7.16.1")
 
     implementation(libs.androidx.foundation)
     implementation(libs.material3)

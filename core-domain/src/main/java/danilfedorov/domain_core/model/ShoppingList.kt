@@ -5,5 +5,6 @@ data class ShoppingList(
     var name: String,
     var isSortedByAlphabet: Boolean = false,
     val deletedAt: Long? = null,
-    val isArchived: Boolean = false
+    val isArchived: Boolean = false,
+    val remoteListId: String? = null
 )

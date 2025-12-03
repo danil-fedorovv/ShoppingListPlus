@@ -4,17 +4,22 @@ import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 import danilfedorov.domain_core.repository.AppearanceRepository
+import danilfedorov.domain_core.repository.FruitAlbumRepository
+import danilfedorov.domain_core.repository.PremiumRepository
 import danilfedorov.domain_core.repository.ProductRepository
 import danilfedorov.domain_core.repository.ShoppingListRepository
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [DatabaseModule::class, MapperModule::class, DataStoreModule::class, RepositoryModule::class])
+@Component(modules = [DatabaseModule::class, MapperModule::class,
+    DataStoreModule::class, RepositoryModule::class])
 interface DataComponent {
 
     val productRepository: ProductRepository
     val shoppingListRepository: ShoppingListRepository
     val appearanceRepository: AppearanceRepository
+    val premiumRepository: PremiumRepository
+    val fruitAlbumRepository: FruitAlbumRepository
 
     @Component.Factory
     interface Factory {

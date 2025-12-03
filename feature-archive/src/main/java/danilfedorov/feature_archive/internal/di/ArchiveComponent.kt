@@ -7,7 +7,7 @@ import danilfedorov.domain_core.usecase.product.GetProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.product.GetSelectedProductCountUseCase
 import danilfedorov.domain_core.usecase.product.GetTotalProductCountUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.DeleteListsUseCase
-import danilfedorov.domain_core.usecase.shoppinglist.GetArchivedShoppingListsUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveArchivedShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RestoreShoppingListUseCase
 import danilfedorov.feature_archive.api.ArchiveDeps
 
@@ -17,7 +17,7 @@ import danilfedorov.feature_archive.api.ArchiveDeps
     modules = [UseCaseModule::class]
 )
 interface ArchiveComponent {
-    val getArchivedShoppingListsUseCase: GetArchivedShoppingListsUseCase
+    val observeArchivedShoppingListsUseCase: ObserveArchivedShoppingListsUseCase
     val getSelectedProductCountUseCase: GetSelectedProductCountUseCase
     val getTotalProductCountUseCase: GetTotalProductCountUseCase
     val deleteListsUseCase: DeleteListsUseCase

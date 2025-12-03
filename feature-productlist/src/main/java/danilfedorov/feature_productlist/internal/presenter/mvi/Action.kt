@@ -1,11 +1,10 @@
 package danilfedorov.feature_productlist.internal.presenter.mvi
 
-import android.content.Context
 import danilfedorov.domain_core.model.Product
 
 sealed class Action {
     class InitEditProduct(val product: Product): Action()
-    class EditProduct(val id: Long) : Action()
+    class EditProduct(val product: Product) : Action()
     class OnChangeProductName(val newValue: String): Action()
     class OnChangeAmount(val newValue: String) : Action()
     class IncAmount(): Action()
@@ -31,11 +30,6 @@ sealed class Action {
     class SelectAll(): Action()
     class ClearSelection(): Action()
     class DeleteAllSelected(): Action()
-    class ShareShoppingList(val context: Context): Action()
-    class ShowRenameListSheet(): Action()
-    class DismissRenameListSheet(): Action()
-    class OnChangeShoppingListName(val newValue: String): Action()
-    class SaveNewShoppingListName(): Action()
     class EnableSearchMode(): Action()
     class DisableSearchMode(): Action()
     class OnChangeSearchValue(val newValue: String): Action()
@@ -46,5 +40,4 @@ sealed class Action {
     class DismissCopySheet(): Action()
     class CopyProducts(val shoppingListId: Long): Action()
     class CreateNewListAndCopy(): Action()
-
 }

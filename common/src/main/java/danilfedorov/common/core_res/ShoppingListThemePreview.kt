@@ -10,9 +10,9 @@ val DarkColorScheme = darkColorScheme(
     surface = surface,
     onSurface = onSurface,
     outline = outline,
-    onPrimary = TextWhite,
+    secondary = TextWhite,
     error = red,
-    primary = green
+    primary = lime
 )
 
 

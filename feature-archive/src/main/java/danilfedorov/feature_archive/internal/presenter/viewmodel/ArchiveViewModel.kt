@@ -3,36 +3,38 @@ package danilfedorov.feature_archive.internal.presenter.viewmodel
 import android.content.res.Resources
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import danilfedorov.archive.R
 import danilfedorov.domain_core.model.ShoppingList
 import danilfedorov.domain_core.usecase.product.GetProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.product.GetSelectedProductCountUseCase
 import danilfedorov.domain_core.usecase.product.GetTotalProductCountUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.DeleteListsUseCase
-import danilfedorov.domain_core.usecase.shoppinglist.GetArchivedShoppingListsUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveArchivedShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RestoreShoppingListUseCase
 import danilfedorov.feature_archive.internal.presenter.mvi.Action
 import danilfedorov.feature_archive.internal.presenter.mvi.Effect
 import danilfedorov.feature_archive.internal.presenter.mvi.ScreenState
-import io.avdev.archive.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ArchiveViewModel(
     private val navHome: () -> Unit,
-    private val getArchivedShoppingListsUseCase: GetArchivedShoppingListsUseCase,
+    private val observeArchivedShoppingListsUseCase: ObserveArchivedShoppingListsUseCase,
     private val getSelectedProductCountUseCase: GetSelectedProductCountUseCase,
     private val getTotalProductCountUseCase: GetTotalProductCountUseCase,
     private val deleteListsUseCase: DeleteListsUseCase,
     private val getProductListByListIdUseCase: GetProductListByListIdUseCase,
     private val restoreShoppingListUseCase: RestoreShoppingListUseCase,
-    private val res: Resources
+    private val res: Resources,
 ) : ViewModel() {
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()
@@ -40,40 +42,46 @@ class ArchiveViewModel(
     private val _effect = MutableSharedFlow<Effect>()
     val effect = _effect.asSharedFlow()
 
-    private var undoState: ScreenState? = null
-    private var deleteArchiveList = mutableListOf<ShoppingList>()
+    private var recentlyDeletedIds = MutableStateFlow<Set<Long>>(emptySet())
 
     init {
         viewModelScope.launch {
-            val archives =
-                withContext(Dispatchers.IO) { getArchivedShoppingListsUseCase() }.reversed()
+            val a = observeArchivedShoppingListsUseCase()
+                .combine(recentlyDeletedIds) { archives, deletedIds ->
+                    archives.filter {
+                        it.id !in deletedIds
+                    }
+                }.onEach { filteredArchives ->
+                    _screenState.update {
+                        it.copy(
+                            archiveLists = filteredArchives,
+                            isLoading = false
+                        )
+                    }
 
-            _screenState.update { it.copy(archiveLists = archives) }
+                    if (filteredArchives.isEmpty()) return@onEach
 
-            if (archives.isEmpty()) {
-                _screenState.update { it.copy(isLoading = false) }
-                return@launch
-            }
-
-            archives.forEach { list ->
-                viewModelScope.launch {
-                    combine(
-                        getSelectedProductCountUseCase(list.id),
-                        getTotalProductCountUseCase(list.id)
-                    ) { selected, total ->
-                        list.id to "$selected/$total"
-                    }.collect { (id, progressString) ->
-                        _screenState.update { state ->
-                            state.copy(
-                                progress = state.progress + (id to progressString),
-                                isLoading = false
-                            )
+                    filteredArchives.forEach { list ->
+                        launch {
+                            combine(
+                                getSelectedProductCountUseCase(list.id),
+                                getTotalProductCountUseCase(list.id)
+                            ) { selected, total ->
+                                list.id to "$selected/$total"
+                            }.collect { (id, progressString) ->
+                                _screenState.update { state ->
+                                    state.copy(
+                                        progress = state.progress + (id to progressString)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
-            }
+                .launchIn(this)
         }
     }
+
 
     fun action(action: Action) {
         when (action) {
@@ -89,43 +97,31 @@ class ArchiveViewModel(
     }
 
     private fun restoreArchive(archive: ShoppingList) {
-        viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update {
-                it.copy(archiveLists = it.archiveLists - archive)
-            }
-            deleteArchiveList.remove(archive)
-            undoState?.let {
-                undoState = it.copy(archiveLists = it.archiveLists - archive)
-            }
-            withContext(Dispatchers.IO) { restoreShoppingListUseCase(archive.id) }
+        viewModelScope.launch(Dispatchers.IO) {
+            restoreShoppingListUseCase(archive.id)
         }
     }
 
     private fun deleteArchive(archive: ShoppingList) {
         viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update {
-                undoState = it
-                deleteArchiveList.add(archive)
-                it.copy(archiveLists = it.archiveLists - archive)
+            if (recentlyDeletedIds.value.isNotEmpty()) {
+                deleteListsUseCase(recentlyDeletedIds.value.toList())
             }
+            recentlyDeletedIds.value = setOf(archive.id)
             _effect.emit(Effect.ShowSnackbarDelete(res.getString(R.string.list_deleted)))
         }
     }
 
     private fun restoreState() {
-        undoState?.let { undoState ->
-            _screenState.update {
-                undoState
-            }
-            deleteArchiveList.clear()
-            this.undoState = null
-        }
+        recentlyDeletedIds.value = emptySet()
     }
 
     private fun confirmDelete() {
-        viewModelScope.launch(Dispatchers.IO) {
-            deleteListsUseCase(deleteArchiveList.map { it.id })
-            deleteArchiveList.clear()
+        if (recentlyDeletedIds.value.isNotEmpty()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                deleteListsUseCase(recentlyDeletedIds.value.toList())
+                recentlyDeletedIds.value = emptySet()
+            }
         }
     }
 
@@ -136,7 +132,7 @@ class ArchiveViewModel(
             _screenState.update {
                 it.copy(
                     productList = productList,
-                    isProductsSheetExpandName = archive.name
+                    isArchiveProductsExpanded = archive
                 )
             }
         }
@@ -145,18 +141,17 @@ class ArchiveViewModel(
     private fun dismissProductsSheet() {
         viewModelScope.launch(Dispatchers.Main) {
             _screenState.update {
-                it.copy(isProductsSheetExpandName = "")
+                it.copy(isArchiveProductsExpanded = null)
             }
         }
     }
 
     private fun deleteAll() {
         viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update {
-                undoState = it
-                deleteArchiveList.addAll(it.archiveLists)
-                it.copy(archiveLists = emptyList())
+            if (recentlyDeletedIds.value.isNotEmpty()) {
+                deleteListsUseCase(recentlyDeletedIds.value.toList())
             }
+            recentlyDeletedIds.value = _screenState.value.archiveLists.map { it.id }.toSet()
             _effect.emit(Effect.ShowSnackbarDelete(res.getString(R.string.lists_deleted)))
         }
     }

@@ -16,8 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.core_res.ShoppingListThemePreview
 import danilfedorov.common.extension.modifier.noRippleClickable
-import io.avdev.productlist.R
-
+import danilfedorov.productlist.R
 
 @Composable
 @Preview

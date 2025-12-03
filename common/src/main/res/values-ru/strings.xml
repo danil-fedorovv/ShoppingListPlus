@@ -6,9 +6,38 @@
     <string name="rename_list">Переименовать список</string>
     <string name="save">Сохранить</string>
     <string name="new_list">Новый список</string>
-
     <string name="close_product_actions">Закрыть действия продукта</string>
     <string name="delete">удалить</string>
     <string name="edit">редактировать</string>
     <string name="copy">Копировать</string>
+    <string name="dismiss">закрыть</string>
+    <string name="title_collection">Ваша коллекция</string>
+
+
+    <string name="fruit_grape">Виноград</string>
+    <string name="fruit_strawberry">Клубника</string>
+    <string name="fruit_cherry">Вишня</string>
+    <string name="fruit_raspberry">Малина</string>
+    <string name="fruit_mango">Манго</string>
+    <string name="fruit_orange">Апельсин</string>
+    <string name="fruit_pineapple">Ананас</string>
+    <string name="fruit_dragon_fruit">Драконий фрукт</string>
+    <string name="fruit_kiwi">Киви</string>
+    <string name="fruit_banana">Банан</string>
+    <string name="fruit_watermelon">Арбуз</string>
+    <string name="fruit_papaya">Папайя</string>
+    <string name="fruit_peach">Персик</string>
+    <string name="fruit_pomegranate">Гранат</string>
+    <string name="fruit_apple">Яблоко</string>
+    <string name="fruit_pear">Груша</string>
+    <string name="fruit_avocado">Авокадо</string>
+    <string name="fruit_mangosteen">Мангустин</string>
+    <string name="fruit_blueberry">Черника</string>
+    <string name="fruit_plum">Слива</string>
+    <string name="fruit_longan">Лонган</string>
+    <string name="fruit_persimmon">Хурма</string>
+
+    <string name="ad_load_failed">Не удалось загрузить рекламу</string>
+    <string name="watch_short_ad">Посмотри короткую рекламу</string>
+
 </resources>

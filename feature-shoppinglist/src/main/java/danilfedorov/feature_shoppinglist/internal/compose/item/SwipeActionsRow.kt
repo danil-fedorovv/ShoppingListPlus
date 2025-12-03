@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +18,6 @@ import danilfedorov.common.core_res.blue
 import danilfedorov.common.core_res.green
 import danilfedorov.common.core_res.red
 import danilfedorov.feature_shoppinglist.internal.compose.ActionButton
-import io.avdev.feature_shoppinglist.R
 
 @Composable
 internal fun BoxScope.SwipeActionsRow(
@@ -46,7 +43,7 @@ internal fun BoxScope.SwipeActionsRow(
         ActionButton(
             color = blue,
             width = 50.dp,
-            icon = Icons.Rounded.Edit,
+            painterId = danilfedorov.common.R.drawable.ic_edit,
             contentDescription = "edit",
             onClick = onEdit
         )
@@ -54,7 +51,7 @@ internal fun BoxScope.SwipeActionsRow(
         ActionButton(
             color = green,
             width = 50.dp,
-            iconRes = R.drawable.ic_share,
+            painterId = danilfedorov.common.R.drawable.ic_share,
             contentDescription = "share",
             onClick = onShare
         )
@@ -63,7 +60,7 @@ internal fun BoxScope.SwipeActionsRow(
             color = red,
             width = 50.dp,
             cornerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
-            iconRes = danilfedorov.common.R.drawable.ic_trash,
+            painterId = danilfedorov.common.R.drawable.ic_trash,
             contentDescription = "delete",
             onClick = onDelete
         )

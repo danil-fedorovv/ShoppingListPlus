@@ -31,12 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.compose.NoRippleInteractionSource
 import danilfedorov.common.core_res.ShoppingListThemePreview
 import danilfedorov.common.extension.modifier.noRippleClickable
 import danilfedorov.domain_core.model.ShoppingList
+import danilfedorov.feature_shoppinglist.R
 import danilfedorov.feature_shoppinglist.internal.compose.CircleDone
 import danilfedorov.feature_shoppinglist.internal.compose.EmptyCircle
 
@@ -47,7 +49,7 @@ private fun ShoppingListItemPreview() {
         ShoppingListItem(
             shoppingList = ShoppingList(
                 0,
-                "myshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglistmyshoppinglist"
+                "asdsadsadsadssdasdadsa"
             ),
             selected = 16,
             total = 30,
@@ -56,7 +58,8 @@ private fun ShoppingListItemPreview() {
             addMultiSelect = {},
             isMultiSelect = false,
             isMultiSelectMode = false,
-            removeMultiSelect = {}
+            removeMultiSelect = {},
+            isLiveEditMode = true
         )
     }
 }
@@ -71,7 +74,8 @@ internal fun ShoppingListItem(
     addMultiSelect: (ShoppingList) -> Unit,
     removeMultiSelect: (ShoppingList) -> Unit,
     isMultiSelectMode: Boolean,
-    isMultiSelect: Boolean
+    isMultiSelect: Boolean,
+    isLiveEditMode: Boolean,
 ) {
     val progressIndicator = if (total > 0) {
         selected.toFloat() / total.toFloat()
@@ -113,7 +117,8 @@ internal fun ShoppingListItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = shoppingList.name,
+                text = shoppingList.name + if (isLiveEditMode)
+                    " " + stringResource(R.string.shared_editing) else "",
                 style = typography.titleLarge,
                 color = colorScheme.secondary,
                 modifier = Modifier.weight(1f)
@@ -124,7 +129,13 @@ internal fun ShoppingListItem(
                     .size(30.dp)
                     .background(Color.Transparent)
                     .noRippleClickable {
-                        onClickOptions()
+                        if (isMultiSelect && isMultiSelectMode) {
+                            removeMultiSelect(shoppingList)
+                        } else if (isMultiSelectMode) {
+                            addMultiSelect(shoppingList)
+                        } else {
+                            onClickOptions()
+                        }
                     },
                 contentAlignment = Alignment.CenterEnd
             ) {
@@ -182,5 +193,4 @@ internal fun ShoppingListItem(
             )
         }
     }
-
 }

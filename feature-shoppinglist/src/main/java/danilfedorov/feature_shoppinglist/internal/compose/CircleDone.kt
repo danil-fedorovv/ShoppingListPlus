@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import io.avdev.feature_shoppinglist.R
+import danilfedorov.feature_shoppinglist.R
 
 @Composable
 fun CircleDone() {

@@ -1,23 +1,32 @@
 package danilfedorov.feature_shoppinglist.internal.presenter.viewmodel
 
-import android.content.Context
 import android.content.res.Resources
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import danilfedorov.common.shareListUtil
+import danilfedorov.common.deeplink.DeepLink
 import danilfedorov.domain_core.model.ShoppingList
-import danilfedorov.domain_core.usecase.product.CreateProductUseCase
+import danilfedorov.domain_core.model.firebase.FetchRemoteListResult
+import danilfedorov.domain_core.model.firebase.GetRemoteListNameResult
+import danilfedorov.domain_core.usecase.fruitalbum.GetRandomActiveUnlockedFruitUseCase
 import danilfedorov.domain_core.usecase.product.GetProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.product.GetSelectedProductCountUseCase
 import danilfedorov.domain_core.usecase.product.GetTotalProductCountUseCase
+import danilfedorov.domain_core.usecase.product.InsertProductsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.ArchiveShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.CreateListUseCase
-import danilfedorov.domain_core.usecase.shoppinglist.GetListsUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.FetchListUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.GetRemoteShoppingListNameUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveRemoteListNameUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveShoppingListsUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.PushListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RenameShoppingListUseCase
+import danilfedorov.feature_shoppinglist.R
+import danilfedorov.feature_shoppinglist.internal.compose.sheet.deeplink.FetchListSheetState
 import danilfedorov.feature_shoppinglist.internal.presenter.mvi.Action
 import danilfedorov.feature_shoppinglist.internal.presenter.mvi.Effect
 import danilfedorov.feature_shoppinglist.internal.presenter.mvi.ScreenState
-import io.avdev.feature_shoppinglist.R
+import danilfedorov.shared_shoppinglist.presentation.mvi.SharedAction
+import danilfedorov.shared_shoppinglist.presentation.viewmodel.BaseListViewModel
+import danilfedorov.shared_shoppinglist.util.ShoppingListCompressor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,20 +37,31 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-internal class ShoppingListViewModel(
+class ShoppingListViewModel(
     private val navArchive: () -> Unit,
     private val navSettings: () -> Unit,
+    private val navSubscription: () -> Unit,
+    private val navFruitAlbum: () -> Unit,
     private val navProducts: (Long) -> Unit,
-    private val getListsUseCase: GetListsUseCase,
+    private val observeShoppingListsUseCase: ObserveShoppingListsUseCase,
     private val createListUseCase: CreateListUseCase,
     private val archiveShoppingListsUseCase: ArchiveShoppingListsUseCase,
-    private val renameShoppingListUseCase: RenameShoppingListUseCase,
     private val getSelectedProductCountUseCase: GetSelectedProductCountUseCase,
     private val getTotalProductCountUseCase: GetTotalProductCountUseCase,
     private val getProductListByListIdUseCase: GetProductListByListIdUseCase,
-    private val createProductUseCase: CreateProductUseCase,
+    private val fetchListUseCase: FetchListUseCase,
+    private val insertProductsUseCase: InsertProductsUseCase,
+    private val getRemoteShoppingListNameUseCase: GetRemoteShoppingListNameUseCase,
+    private val observeRemoteListNameUseCase: ObserveRemoteListNameUseCase,
     private val res: Resources,
-) : ViewModel() {
+    pushListUseCase: PushListUseCase,
+    renameShoppingListUseCase: RenameShoppingListUseCase,
+    getRandomActiveUnlockedFruitUseCase: GetRandomActiveUnlockedFruitUseCase,
+) : BaseListViewModel(
+    pushListUseCase,
+    renameShoppingListUseCase,
+    getRandomActiveUnlockedFruitUseCase
+) {
 
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()
@@ -49,108 +69,176 @@ internal class ShoppingListViewModel(
     private val _effect = MutableSharedFlow<Effect>()
     val effect = _effect.asSharedFlow()
 
-    private var undoState: ScreenState? = null
-    private val recentlyDeletedList = mutableListOf<ShoppingList>()
-
+    private val _recentlyDeletedIds = MutableStateFlow(setOf<Long>())
 
     init {
         viewModelScope.launch {
-            val lists = withContext(Dispatchers.IO) { getListsUseCase() }.reversed()
+            combine(
+                observeShoppingListsUseCase(),
+                _recentlyDeletedIds
+            ) { listsFromDb, deletedIds ->
 
-            _screenState.update { it.copy(shoppingLists = lists) }
+                val filteredLists = listsFromDb.filter { it.id !in deletedIds }
 
-            if (lists.isEmpty()) {
-                _screenState.update { it.copy(isLoading = false) }
-                return@launch
-            }
+                _screenState.update {
+                    it.copy(
+                        shoppingLists = filteredLists,
+                        isLoading = false
+                    )
+                }
 
-            lists.forEach { list ->
-                viewModelScope.launch {
-                    combine(
-                        getSelectedProductCountUseCase(list.id),
-                        getTotalProductCountUseCase(list.id)
-                    ) { selected, total ->
-                        list.id to (selected to total)
-                    }.collect { (id, counts) ->
-                        _screenState.update { state ->
-                            state.copy(
-                                progress = state.progress + (id to counts),
-                                isLoading = false
-                            )
+                if (filteredLists.isEmpty()) return@combine
+
+                filteredLists.forEach { list ->
+                    list.remoteListId?.let { remoteId ->
+                        launch {
+                            observeRemoteListNameUseCase(remoteId).collect {}
                         }
                     }
                 }
-            }
+
+                filteredLists.forEach { list ->
+                    launch {
+                        combine(
+                            getSelectedProductCountUseCase(list.id),
+                            getTotalProductCountUseCase(list.id)
+                        ) { selected, total ->
+                            list.id to (selected to total)
+                        }.collect { (id, counts) ->
+                            _screenState.update { state ->
+                                state.copy(progress = state.progress + (id to counts))
+                            }
+                        }
+                    }
+                }
+            }.collect {}
         }
     }
+
 
     fun action(action: Action) {
         when (action) {
             is Action.NavigateArchive -> navArchive()
             is Action.NavigateSettings -> navSettings()
+            is Action.NavigateSubscription -> navSubscription()
+            is Action.NavigateFruitAlbum -> navFruitAlbum()
             is Action.NavigateProduct -> navProducts(action.id)
 
-            is Action.DeleteList -> deleteList(action.list)
             is Action.ConfirmDeleteList -> confirmDelete()
             is Action.ShowListOptions -> showListOptionsVisible(action.shoppingList)
             is Action.HideListOptions -> hideListOptionsVisible()
-            is Action.ShareList -> {
-                shareShoppingList(action.id, action.context)
-            }
-
             is Action.RestoreState -> restoreState()
+
             is Action.CreateList -> {
                 createList()
             }
 
-            is Action.HideAddListSheet -> switchAddListSheetVisible(false)
-            is Action.ShowAddListSheet -> switchAddListSheetVisible(true)
+            is Action.ShowAddListSheet -> showAddListSheet()
+            is Action.HideAddListSheet -> hideAddListSheet()
             is Action.ChangeDraftListName -> changeAddListName(action.newValue)
             is Action.ExtendList -> extendShoppingList(action.id)
-            is Action.ChangeRenameList -> changeRenameList(action.newValue)
-            is Action.HideRenameListSheet -> hideRenameSheetVisible()
-            is Action.ShowRenameListSheet -> showRenameSheetVisible(action.shoppingList)
-            is Action.RenameList -> renameList(action.id)
             is Action.CopyList -> copyList(action.shoppingList)
             is Action.AddMultiSelect -> addMultiSelect(action.shoppingList)
             is Action.RemoveMultiSelect -> removeMultiSelect(action.shoppingList)
             is Action.ClearMultiSelect -> clearMultiSelect()
             is Action.MultiCopy -> multiCopy()
-            is Action.MultiDelete -> multiDelete()
+            is Action.DeleteLists -> multiDelete()
+
+            is Action.HandleDeepLink -> handleDeepLink(action.deepLink)
+            is Action.HideDeepLingSheet -> hideFetchSheet()
+            is Action.OnClickJoinOrRetry -> onClickJoinOrRetry()
+            is Action.OnClickAddUnzipList -> onClickAddUnzipList()
+            is Action.DeleteList -> delete(action.list)
         }
     }
 
-    private fun deleteList(shoppingList: ShoppingList) {
+    override fun sharedAction(action: SharedAction) {
+        when (action) {
+            is SharedAction.ShareText -> {
+                viewModelScope.launch(Dispatchers.Main) {
+                    val products = action.products.ifEmpty {
+                        withContext(Dispatchers.IO) {
+                            getProductListByListIdUseCase(action.shoppingList?.id ?: 0)
+                        }
+                    }
+
+                    action.shoppingList?.let {
+                        shareText(
+                            context = action.context,
+                            listName = it.name,
+                            products = products
+                        )
+                    }
+                }
+            }
+
+            is SharedAction.ShareLink -> {
+                viewModelScope.launch(Dispatchers.Main) {
+                    val products = action.products.ifEmpty {
+                        withContext(Dispatchers.IO) {
+                            getProductListByListIdUseCase(action.shoppingList?.id ?: 0)
+                        }
+                    }
+
+                    action.shoppingList?.let {
+                        shareZIPLink(
+                            context = action.context,
+                            listName = it.name,
+                            products = products
+                        )
+                    }
+                }
+            }
+
+            is SharedAction.ShareLiveEditLink -> {
+                viewModelScope.launch(Dispatchers.Main) {
+                    val products = action.products.ifEmpty {
+                        withContext(Dispatchers.IO) {
+                            getProductListByListIdUseCase(action.shoppingList?.id ?: 0)
+                        }
+                    }
+
+                    action.shoppingList?.let {
+                        shareLiveEditLink(
+                            context = action.context,
+                            list = it,
+                            products = products
+                        )
+                    }
+                }
+            }
+
+            is SharedAction.ShowShareListSheet -> {
+                _screenState.update {
+                    it.copy(sharedShoppingList = action.shoppingList)
+                }
+                super.showShareListSheet()
+            }
+
+            else -> super.sharedAction(action)
+        }
+    }
+
+
+    private fun delete(list: ShoppingList) {
         viewModelScope.launch {
-            withContext(Dispatchers.Main) {
-                undoState = _screenState.value
-                recentlyDeletedList.add(shoppingList)
-                val lists = _screenState.value.shoppingLists - shoppingList
-                _screenState.update { it.copy(shoppingLists = lists) }
+            if (_recentlyDeletedIds.value.isNotEmpty()) {
+                archiveShoppingListsUseCase(_recentlyDeletedIds.value.toList())
             }
-            withContext(Dispatchers.Main) {
-                _effect.emit(Effect.ShowSnackbarDelete(1))
-            }
+            _recentlyDeletedIds.value = setOf(list.id)
+            _effect.emit(Effect.ShowSnackbarDelete(1))
         }
     }
 
     private fun restoreState() {
-        viewModelScope.launch {
-            withContext(Dispatchers.Main) {
-                undoState?.let { undoState ->
-                    _screenState.update { undoState.copy(extendedListId = null) }
-                    this@ShoppingListViewModel.undoState = null
-                    recentlyDeletedList.clear()
-                }
-            }
-        }
+        _recentlyDeletedIds.value = emptySet()
     }
 
     private fun confirmDelete() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (recentlyDeletedList.isNotEmpty()) {
-                archiveShoppingListsUseCase(recentlyDeletedList.map { it.id })
-                recentlyDeletedList.clear()
+        if (_recentlyDeletedIds.value.isNotEmpty()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                archiveShoppingListsUseCase(_recentlyDeletedIds.value.toList())
+                _recentlyDeletedIds.value = emptySet()
             }
         }
     }
@@ -190,9 +278,18 @@ internal class ShoppingListViewModel(
         }
     }
 
-    private fun switchAddListSheetVisible(isVisible: Boolean) {
+    private fun showAddListSheet() {
+        viewModelScope.launch {
+            getRandomActiveUnlockedFruit()
+            _screenState.update {
+                it.copy(isAddListSheetVisible = true)
+            }
+        }
+    }
+
+    private fun hideAddListSheet() {
         _screenState.update {
-            it.copy(isAddListSheetVisible = isVisible)
+            it.copy(isAddListSheetVisible = false)
         }
     }
 
@@ -202,65 +299,9 @@ internal class ShoppingListViewModel(
         }
     }
 
-    private fun shareShoppingList(id: Long, context: Context) {
-        viewModelScope.launch(Dispatchers.Main) {
-            val products = withContext(Dispatchers.IO) { getProductListByListIdUseCase(id) }
-            val productString = products.map {
-                buildString {
-                    append(it.name)
-                    if (it.amount.isNotEmpty()) {
-                        append(" ")
-                        append(it.amount)
-                        append(it.unit)
-                    }
-                }
-            }
-            shareListUtil(context, productString)
-        }
-    }
-
     private fun extendShoppingList(id: Long?) {
         _screenState.update {
             it.copy(extendedListId = id)
-        }
-    }
-
-    private fun changeRenameList(newValue: String) {
-        _screenState.update {
-            it.copy(draftRenameList = newValue)
-        }
-    }
-
-    private fun showRenameSheetVisible(shoppingList: ShoppingList) {
-        _screenState.update {
-            it.copy(
-                draftRenameList = shoppingList.name,
-                renameListId = shoppingList.id
-            )
-        }
-    }
-
-    private fun hideRenameSheetVisible() {
-        _screenState.update {
-            it.copy(renameListId = null)
-        }
-    }
-
-    private fun renameList(id: Long) {
-        viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update { state ->
-                val newLists = state.shoppingLists.map { list ->
-                    if (list.id == id) list.copy(name = state.draftRenameList)
-                    else list
-                }
-                state.copy(shoppingLists = newLists)
-            }
-            withContext(Dispatchers.IO) {
-                renameShoppingListUseCase(
-                    id = id,
-                    newName = _screenState.value.draftRenameList
-                )
-            }
         }
     }
 
@@ -273,9 +314,7 @@ internal class ShoppingListViewModel(
 
             withContext(Dispatchers.IO) {
                 val products = getProductListByListIdUseCase(shoppingList.id)
-                products.forEach { product ->
-                    createProductUseCase(product.copy(id = 0, listId = id))
-                }
+                insertProductsUseCase(products.map { it.copy(roomId = 0, listId = id) })
             }
 
             val oldProgress = _screenState.value.progress[shoppingList.id] ?: (0 to 0)
@@ -318,66 +357,47 @@ internal class ShoppingListViewModel(
 
     private fun multiDelete() {
         viewModelScope.launch {
-            val deletedItems = _screenState.value.multiSelectLists
-            withContext(Dispatchers.Main) {
-                undoState = _screenState.value
-                recentlyDeletedList.addAll(deletedItems)
-                _screenState.update { it.copy(shoppingLists = it.shoppingLists - deletedItems) }
-                _effect.emit(Effect.ShowSnackbarDelete(deletedItems.size))
-                _screenState.update { it.copy(multiSelectLists = emptyList()) }
-                undoState = undoState?.copy(multiSelectLists = emptyList())
+            if (_recentlyDeletedIds.value.isNotEmpty()) {
+                archiveShoppingListsUseCase(_recentlyDeletedIds.value.toList())
             }
+            _recentlyDeletedIds.value = _screenState.value.multiSelectLists.map { it.id }.toSet()
+            _effect.emit(Effect.ShowSnackbarDelete(_screenState.value.multiSelectLists.size))
+            _screenState.update { it.copy(multiSelectLists = emptyList()) }
         }
     }
 
+
     private fun multiCopy() {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
             val selectedLists = _screenState.value.multiSelectLists
             if (selectedLists.isEmpty()) return@launch
 
-            val newLists = mutableListOf<ShoppingList>()
-            val oldProgress = _screenState.value.progress.toMutableMap()
-
             for (list in selectedLists) {
                 val copyName = generateCopyName(list.name)
+                val newId = withContext(Dispatchers.IO) { createListUseCase(copyName) }
 
-                val id = withContext(Dispatchers.IO) { createListUseCase(copyName) }
-                val newList = ShoppingList(id = id, name = copyName)
-                newLists.add(newList)
-
-                withContext(Dispatchers.IO) {
-                    val products = getProductListByListIdUseCase(list.id)
-                    products.forEach { product ->
-                        createProductUseCase(product.copy(id = 0, listId = id))
-                    }
-                }
-
-                val progress = _screenState.value.progress[list.id] ?: (0 to 0)
-                oldProgress[id] = progress
+                val products = getProductListByListIdUseCase(list.id)
+                insertProductsUseCase(products.map { it.copy(roomId = 0, listId = newId) })
             }
 
-            _screenState.update {
-                it.copy(
-                    shoppingLists = newLists + it.shoppingLists,
-                    progress = oldProgress,
-                    multiSelectLists = emptyList()
-                )
-            }
+            withContext(Dispatchers.Main) {
+                _screenState.update { it.copy(multiSelectLists = emptyList()) }
 
-            _effect.emit(
-                Effect.ShowSnackbarInfo(
-                    res.getQuantityString(
-                        R.plurals.lists_copied,
-                        selectedLists.size,
-                        selectedLists.size
+                _effect.emit(
+                    Effect.ShowSnackbarInfo(
+                        res.getQuantityString(
+                            R.plurals.lists_copied,
+                            selectedLists.size,
+                            selectedLists.size
+                        )
                     )
                 )
-            )
+            }
         }
     }
 
     private fun generateCopyName(originalName: String): String {
-        val suffix = res.getString(R.string.copy_suffix) // например "копия"
+        val suffix = res.getString(R.string.copy_suffix)
         val regex = Regex("""(.*)\s+$suffix(?:\s+(\d+))?$""", RegexOption.IGNORE_CASE)
 
         return if (regex.matches(originalName)) {
@@ -388,5 +408,121 @@ internal class ShoppingListViewModel(
         } else {
             "$originalName $suffix"
         }
+    }
+
+    private fun handleDeepLink(deepLink: DeepLink) {
+        when (deepLink) {
+            is DeepLink.LiveEdit -> {
+                loadLiveEditInvite(deepLink.suffix)
+            }
+
+            is DeepLink.Share -> {
+                unzipLink(deepLink.suffix)
+            }
+        }
+    }
+
+
+    private fun loadLiveEditInvite(remoteListId: String) {
+        _screenState.update { it.copy(fetchListSheetState = FetchListSheetState.Loading) }
+
+        viewModelScope.launch {
+            val newState = when (val result = getRemoteShoppingListNameUseCase(remoteListId)) {
+                is GetRemoteListNameResult.Success -> {
+                    FetchListSheetState.Invite(result.listName, remoteListId)
+                }
+
+                is GetRemoteListNameResult.AlreadyJoined -> {
+                    withContext(Dispatchers.Main) {
+                        navProducts(result.localListId)
+                    }
+                    FetchListSheetState.Hidden
+                }
+
+                is GetRemoteListNameResult.Timeout -> {
+                    FetchListSheetState.Timeout(remoteListId)
+                }
+
+                GetRemoteListNameResult.NotFound -> {
+                    FetchListSheetState.NotFound
+                }
+
+                is GetRemoteListNameResult.Error -> {
+                    FetchListSheetState.Error(remoteListId)
+                }
+            }
+
+            _screenState.update { it.copy(fetchListSheetState = newState) }
+        }
+    }
+
+    private fun onClickJoinOrRetry() {
+        val currentState = _screenState.value.fetchListSheetState
+
+        if (currentState is FetchListSheetState.Invite) {
+            val invite = currentState.copy(isJoining = true)
+            _screenState.update { it.copy(fetchListSheetState = invite) }
+
+            viewModelScope.launch {
+                val result = fetchListUseCase(invite.remoteListId)
+
+                if (result is FetchRemoteListResult.Success) {
+                    navProducts(result.localListId)
+                    _screenState.update { it.copy(fetchListSheetState = FetchListSheetState.Hidden) }
+                } else {
+                    _screenState.update {
+                        it.copy(
+                            fetchListSheetState = FetchListSheetState.Error(
+                                invite.remoteListId
+                            )
+                        )
+                    }
+                }
+            }
+            return
+        }
+
+        val remoteListId = when (currentState) {
+            is FetchListSheetState.Timeout -> currentState.remoteListId
+            is FetchListSheetState.Error -> currentState.remoteListId
+            else -> return
+        }
+
+        loadLiveEditInvite(remoteListId)
+    }
+
+    private fun unzipLink(encodedData: String) {
+        val result = try {
+            val (shoppingListName, products) = ShoppingListCompressor.unzip(encodedData)
+            FetchListSheetState.CopyInvite(
+                listName = shoppingListName,
+                products = products
+            )
+        } catch (_: Exception) {
+            FetchListSheetState.NotFound
+        }
+
+
+        _screenState.update { it.copy(fetchListSheetState = result) }
+    }
+
+    private fun onClickAddUnzipList() {
+        val currentState = _screenState.value.fetchListSheetState
+        if (currentState is FetchListSheetState.CopyInvite) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val shoppingListId = createListUseCase(currentState.listName)
+
+                insertProductsUseCase(currentState.products.map { it.copy(listId = shoppingListId) })
+                withContext(Dispatchers.Main) {
+                    _screenState.update { it.copy(fetchListSheetState = FetchListSheetState.Hidden) }
+                    navProducts(shoppingListId)
+                }
+            }
+
+        }
+    }
+
+    fun hideFetchSheet() {
+        _screenState.update { it.copy(fetchListSheetState = FetchListSheetState.Hidden) }
     }
 }

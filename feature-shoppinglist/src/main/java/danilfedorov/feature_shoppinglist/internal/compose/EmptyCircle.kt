@@ -17,6 +17,6 @@ fun EmptyCircle() {
         Modifier
             .size(24.dp)
             .background(color = Color.Transparent, shape = CircleShape)
-            .border(width = 1.dp, color = colorScheme.outline, shape = CircleShape),
+            .border(width = 2.dp, color = colorScheme.outline, shape = CircleShape),
     )
 }

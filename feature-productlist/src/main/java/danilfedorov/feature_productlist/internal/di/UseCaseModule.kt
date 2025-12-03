@@ -3,20 +3,26 @@ package danilfedorov.feature_productlist.internal.di
 import dagger.Module
 import dagger.Provides
 import danilfedorov.common.di.FeatureScope
+import danilfedorov.domain_core.repository.FruitAlbumRepository
 import danilfedorov.domain_core.repository.ProductRepository
 import danilfedorov.domain_core.repository.ShoppingListRepository
-import danilfedorov.domain_core.usecase.product.CreateProductUseCase
+import danilfedorov.domain_core.usecase.fruitalbum.GetRandomActiveUnlockedFruitUseCase
 import danilfedorov.domain_core.usecase.product.DeleteProductsUseCase
-import danilfedorov.domain_core.usecase.product.GetProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.product.GetShoppingListProgressUseCase
+import danilfedorov.domain_core.usecase.product.InsertProductUseCase
+import danilfedorov.domain_core.usecase.product.ObserveConnectionStatusUseCase
+import danilfedorov.domain_core.usecase.product.ObserveProductListByListIdUseCase
+import danilfedorov.domain_core.usecase.product.ObserveRemoteProductChangesUseCase
 import danilfedorov.domain_core.usecase.product.SelectAllProductsUseCase
 import danilfedorov.domain_core.usecase.product.UnselectAllProductsUseCase
 import danilfedorov.domain_core.usecase.product.UpdateProductCardUseCase
 import danilfedorov.domain_core.usecase.product.UpdateProductSelectionUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.ChangeSortByAlphabetUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.CreateListUseCase
-import danilfedorov.domain_core.usecase.shoppinglist.GetListsUseCase
-import danilfedorov.domain_core.usecase.shoppinglist.GetShoppingListByIdUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.GetShoppingListsUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveRemoteListNameUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveShoppingListByIdUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.PushListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RenameShoppingListUseCase
 
 @Module
@@ -24,13 +30,13 @@ internal object UseCaseModule {
 
     @Provides
     @FeatureScope
-    fun provideCreateProductUseCase(repository: ProductRepository): CreateProductUseCase =
-        CreateProductUseCase(repository)
+    fun provideInsertProductUseCase(repository: ProductRepository): InsertProductUseCase =
+        InsertProductUseCase(repository)
 
     @Provides
     @FeatureScope
-    fun provideGetProductsByListIdUseCase(repository: ProductRepository): GetProductListByListIdUseCase =
-        GetProductListByListIdUseCase(repository)
+    fun provideObserveProductListByListIdUseCase(repository: ProductRepository): ObserveProductListByListIdUseCase =
+        ObserveProductListByListIdUseCase(repository)
 
     @Provides
     @FeatureScope
@@ -63,10 +69,6 @@ internal object UseCaseModule {
     fun provideRenameShoppingListUseCase(repository: ShoppingListRepository): RenameShoppingListUseCase =
         RenameShoppingListUseCase(repository)
 
-    @Provides
-    @FeatureScope
-    fun provideGetShoppingListByIdUseCase(repository: ShoppingListRepository): GetShoppingListByIdUseCase =
-        GetShoppingListByIdUseCase(repository)
 
     @Provides
     @FeatureScope
@@ -75,8 +77,8 @@ internal object UseCaseModule {
 
     @Provides
     @FeatureScope
-    fun provideGetListsUseCase(repository: ShoppingListRepository): GetListsUseCase =
-        GetListsUseCase(repository)
+    fun provideGetShoppingListsUseCase(repository: ShoppingListRepository): GetShoppingListsUseCase =
+        GetShoppingListsUseCase(repository)
 
     @Provides
     @FeatureScope
@@ -87,4 +89,50 @@ internal object UseCaseModule {
     @FeatureScope
     fun provideCreateListUseCase(repository: ShoppingListRepository): CreateListUseCase =
         CreateListUseCase(repository)
+
+    @Provides
+    @FeatureScope
+    fun providePushListUseCase(
+        shoppingListRepository: ShoppingListRepository,
+    ): PushListUseCase =
+        PushListUseCase(
+            shoppingListRepository
+        )
+
+    @Provides
+    @FeatureScope
+    fun provideObserveShoppingListByIdUseCase(
+        repository: ShoppingListRepository
+    ): ObserveShoppingListByIdUseCase =
+        ObserveShoppingListByIdUseCase(repository)
+
+    @Provides
+    @FeatureScope
+    fun provideObserveRemoteProductChangesUseCase(
+        repository: ProductRepository
+    ): ObserveRemoteProductChangesUseCase =
+        ObserveRemoteProductChangesUseCase(repository)
+
+    @Provides
+    @FeatureScope
+    fun provideObserveConnectionStatusUseCase(
+        repository: ProductRepository
+    ): ObserveConnectionStatusUseCase =
+        ObserveConnectionStatusUseCase(repository)
+
+    @Provides
+    @FeatureScope
+    fun provideObserveRemoteListNameUseCase(
+        repository: ShoppingListRepository
+    ): ObserveRemoteListNameUseCase =
+        ObserveRemoteListNameUseCase(repository)
+
+    @Provides
+    @FeatureScope
+    fun provideGetRandomActiveUnlockedFruitUseCase(
+        repository: FruitAlbumRepository
+    ): GetRandomActiveUnlockedFruitUseCase =
+        GetRandomActiveUnlockedFruitUseCase(repository)
 }
+
+

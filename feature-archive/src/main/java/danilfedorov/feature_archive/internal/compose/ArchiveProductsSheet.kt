@@ -12,6 +12,8 @@ import danilfedorov.domain_core.model.Product
 fun ArchiveProductsSheet(
     archiveName: String,
     productList: List<Product>,
+    onDelete: () -> Unit,
+    onRestore: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -25,7 +27,10 @@ fun ArchiveProductsSheet(
     ) {
         ArchiveProductsSheetContent(
             archiveName = archiveName,
-            productList = productList
+            productList = productList,
+            onDelete = onDelete,
+            onRestore = onRestore,
+            onDismiss = onDismiss
         )
     }
 }

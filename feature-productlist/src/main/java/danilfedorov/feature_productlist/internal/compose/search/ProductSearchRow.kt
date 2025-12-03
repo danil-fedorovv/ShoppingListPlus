@@ -24,8 +24,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.compose.AppTextField
 import danilfedorov.common.extension.modifier.noRippleClickable
-import io.avdev.productlist.R
 import danilfedorov.feature_productlist.internal.compose.topbar.NavigationBackIcon
+import danilfedorov.productlist.R
 
 @Composable
 fun ProductSearchRow(

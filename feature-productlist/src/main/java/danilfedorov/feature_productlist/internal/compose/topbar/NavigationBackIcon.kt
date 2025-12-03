@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import danilfedorov.common.R
 import danilfedorov.common.extension.modifier.noRippleClickable
+import danilfedorov.productlist.R
 
 @Composable
 fun NavigationBackIcon(
@@ -27,9 +27,9 @@ fun NavigationBackIcon(
     )
 
     Icon(
-        painter = if (isMultiSelect) painterResource(io.avdev.productlist.R.drawable.ic_cross)
-        else painterResource(R.drawable.ic_arrow_back),
-        contentDescription = stringResource(R.string.navback),
+        painter = if (isMultiSelect) painterResource(R.drawable.ic_cross)
+        else painterResource(danilfedorov.common.R.drawable.ic_arrow_back),
+        contentDescription = stringResource(danilfedorov.common.R.string.navback),
         tint = colorScheme.secondary,
         modifier = Modifier
             .size(32.dp)

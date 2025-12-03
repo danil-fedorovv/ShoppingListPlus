@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
@@ -18,7 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ProgressIndicator(targetProgress: Float) {
-    var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
+    var isFirstLaunch by remember { mutableStateOf(true) }
     val animaDuration = if (isFirstLaunch) 0 else 300
 
     val animatedProgress by animateFloatAsState(

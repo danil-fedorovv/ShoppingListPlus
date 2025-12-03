@@ -1,7 +1,7 @@
 package danilfedorov.feature_archive.internal.util
 
 import android.content.Context
-import io.avdev.archive.R
+import danilfedorov.archive.R
 
 fun getDeletedTimeText(context: Context, deletedAt: Long?): String {
     if (deletedAt == null) return ""

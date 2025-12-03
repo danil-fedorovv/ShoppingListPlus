@@ -29,7 +29,7 @@ fun DragHandle(
             Modifier
                 .height(4.dp)
                 .width(40.dp)
-                .background(colorScheme.outline, shapes.extraLarge)
+                .background(colorScheme.outline, shapes.medium)
         )
     }
 }

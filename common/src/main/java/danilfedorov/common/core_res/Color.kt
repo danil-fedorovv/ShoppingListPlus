@@ -4,24 +4,32 @@ import androidx.compose.ui.graphics.Color
 
 val red = Color(0xFFD21E19)
 
-val lime = Color(0xFFCDDC39)     // Лаймовый
-val green = Color(0xFF4CAF50)    // Зелёный
-val blue = Color(0xFF2196F3)     // Синий
-
-val electricOrange = Color(0xFFFF6D00)    // Электрический оранжевый
-val hotPink = Color(0xFFFF4081)          // Яркая фуксия
-val deepMagenta = Color(0xFFC2185B)      // Глубокая маджента
-val vibrantPurple = Color(0xFF9C27B0)    // Яркий фиолетовый
-val goldenYellow = Color(0xFFFFD600)     // Золотисто-жёлтый
-val coral = Color(0xFFFF7043)            // Коралловый
-val azureBlue = Color(0xFF2979FF)        // Лазурно-синий
-val limeGreen = Color(0xFF64DD17)        // Яркий лаймово-зелёный
-val cyan = Color(0xFF00E5FF)             // Яркий циан
+val lime = Color(0xFFCDDC39)
+val green = Color(0xFF4CAF50)
+val blue = Color(0xFF2196F3)
+val hotPink = Color(0xFFFF4081)
+val coral = Color(0xFFFF7043)
+val gray = Color(0xFF9E9E9E)
+val WarmOrange = Color(0xFFFFA726)
+val Aquamarine = Color(0xFF1DE9B6)
+val Lavender = Color(0xFFB39DDB)
+val DeepPurple = Color(0xFF7E57C2)
+val sand = Color(0xFFF0E68C)
+val rosyBrown = Color(0xFFBC8F8F)
 
 val colors = listOf(
-    lime, green, blue, electricOrange,
-    hotPink, deepMagenta, vibrantPurple, goldenYellow,
-    coral, azureBlue, limeGreen, cyan
+    lime,
+    green,
+    Aquamarine,
+    blue,
+    Lavender,
+    DeepPurple,
+    hotPink,
+    coral,
+    WarmOrange,
+    sand,
+    rosyBrown,
+    gray
 )
 val background = Color(0xff171717)
 val onBackground = Color(0xff262626)

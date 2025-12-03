@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import danilfedorov.common.extension.modifier.noRippleClickable
-import io.avdev.productlist.R
+import danilfedorov.productlist.R
 
 @Composable
 fun FloatingHideSelected(
@@ -53,7 +53,7 @@ fun FloatingHideSelected(
                 .wrapContentWidth()
                 .noRippleClickable { onClick() }
                 .padding(top = 16.dp)
-                .background(colorScheme.secondary, shape = shapes.extraLarge)
+                .background(colorScheme.secondary, shape = shapes.medium)
                 .padding(horizontal = 16.dp)
                 .padding(vertical = 8.dp)
             ,

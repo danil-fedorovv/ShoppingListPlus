@@ -47,11 +47,12 @@ internal fun ShoppingListItemContainer(
     removeMultiSelect: (ShoppingList) -> Unit,
     isMultiSelectMode: Boolean,
     isMultiSelect: Boolean,
+    isLiveEditMode: Boolean
 ) {
     var contentHeight by remember { mutableIntStateOf(0) }
 
     var offsetX by remember { mutableFloatStateOf(0f) }
-    val isExtended by remember(extendedId, shoppingList.id) {
+    val isExtended by remember (extendedId, shoppingList.id) {
         derivedStateOf { extendedId == shoppingList.id }
     }
     val animatedOffsetX by animateFloatAsState(
@@ -104,12 +105,12 @@ internal fun ShoppingListItemContainer(
                     }
                 )
                 .background(
-                    color = colorScheme.onBackground, shape = shapes.large
+                    color = colorScheme.onBackground, shape = shapes.medium
                 )
                 .border(
                     width = 2.dp,
                     color = if (isMultiSelect) colorScheme.primary else Color.Transparent,
-                    shape = shapes.large
+                    shape = shapes.medium
                 )
                 .onGloballyPositioned { coordinates ->
                     contentHeight = coordinates.size.height
@@ -126,7 +127,8 @@ internal fun ShoppingListItemContainer(
                 addMultiSelect = { addMultiSelect(it) },
                 removeMultiSelect = { removeMultiSelect(it) },
                 isMultiSelectMode = isMultiSelectMode,
-                isMultiSelect = isMultiSelect
+                isMultiSelect = isMultiSelect,
+                isLiveEditMode = isLiveEditMode
             )
         }
     }

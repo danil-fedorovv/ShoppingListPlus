@@ -1,0 +1,1 @@
+-keep class danilfedorov.core_data.remote.realtime.model.** { *; }

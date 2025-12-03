@@ -4,4 +4,32 @@
     <string name="select_primary_color">Выберите основой цвет</string>
     <string name="app_theme">Тема приложения</string>
     <string name="app_version">Версия %1$s</string>
+
+    <string name="change_color_title">Сменить цвет приложения</string>
+    <string name="change_color_subtitle">Посмотри короткое видео, чтобы изменить цвет</string>
+    <string name="change_color_primary_button">Смотреть видео</string>
+    <string name="change_color_secondary_button">Отмена</string>
+
+    <string name="settings_section_appearance">Внешний вид</string>
+    <string name="settings_section_application">Приложение</string>
+    <string name="settings_primary_color">Основной цвет</string>
+    <string name="settings_dark_theme">Тёмная тема</string>
+    <string name="settings_fruit_collection">Коллекция фруктов</string>
+    <string name="settings_disable_ads">Отключить рекламу</string>
+    <string name="settings_rate_app">Оценить приложение</string>
+    <string name="settings_contact_us">Связаться с нами</string>
+    <string name="switch_on">Вкл</string>
+    <string name="switch_off">Выкл</string>
+    <string name="switch_system">Как на устройстве</string>
+    <string name="feedback_subject">Обратная связь по приложению</string>
+    <string name="feedback_prefilled_message">
+    <![CDATA[
+    Добрый день, команда Список покупок +!
+
+    Хочу оставить обратную связь по приложению:
+
+
+    Спасибо, что делаете приложение лучше ❤️
+    ]]>
+</string>
 </resources>

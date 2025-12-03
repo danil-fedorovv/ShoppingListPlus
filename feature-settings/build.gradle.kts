@@ -6,14 +6,8 @@ plugins {
 }
 
 android {
-    namespace = "io.avdev.feature_settings"
+    namespace = "danilfedorov.feature_settings"
     compileSdk = 36
-
-    defaultConfig {
-        minSdk = 24
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

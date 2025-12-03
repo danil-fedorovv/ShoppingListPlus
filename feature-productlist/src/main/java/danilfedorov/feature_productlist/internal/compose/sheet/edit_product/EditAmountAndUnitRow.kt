@@ -13,7 +13,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.compose.AppTextField
-import io.avdev.productlist.R
+import danilfedorov.productlist.R
+
 
 @Composable
 fun EditAmountAndUnitRow(

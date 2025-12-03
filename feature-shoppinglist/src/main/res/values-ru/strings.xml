@@ -3,7 +3,7 @@
     <string name="my_lists">Мои списки</string>
     <string name="settings">Настройки</string>
     <string name="archive">Архив</string>
-    <string name="trash">Корзина</string>
+    <string name="subscription">Подписка</string>
     <string name="add">Добавить</string>
 
     <string name="undo">отмена</string>
@@ -20,10 +20,29 @@
     <string name="list_copied">Список скопирован</string>
 
     <string name="edit">редактировать</string>
-    <string name="close_list_actions">Закрыть действия листа</string>
 
     <string name="empty_lists_title">Давайте спланируем покупки!</string>
     <string name="empty_lists_subtitle">Нажмите «+ Новый список» внизу, чтобы добавить первый список</string>
+
+    <string name="shared_editing">∙ Общий список</string>
+
+    <string name="invite_title">Вас пригласили в совместный список покупок</string>
+    <string name="invite_description">Все изменения от участников синхронизируются мгновенно</string>
+    <string name="accept_button">Присоединиться</string>
+    <string name="decline_button">Отклонить приглашение</string>
+
+    <string name="list_not_found_title">Мы не смогли найти этот список</string>
+    <string name="list_not_found_subtitle">Возможно, он был удалён или ссылка на него недействительна</string>
+    <string name="list_not_found_button">Понятно</string>
+
+    <string name="error_title">Произошла ошибка</string>
+    <string name="error_subtitle">Что-то пошло не так</string>
+    <string name="timeout_title">Время ожидания истекло</string>
+    <string name="timeout_subtitle">Проверьте соединение с интернетом</string>
+    <string name="retry_button">Повторить</string>
+
+    <string name="add_list_title">Вам прислали список покупок</string>
+    <string name="add_list_button">Добавить</string>
 
     <plurals name="lists_copied">
         <item quantity="one">%d Список скопирован</item>

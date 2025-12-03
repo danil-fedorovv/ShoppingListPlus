@@ -11,6 +11,10 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url = uri("https://artifactory-external.vkpartner.ru/artifactory/maven")
+        }
+        maven("https://jitpack.io")
     }
 }
 
@@ -23,3 +27,7 @@ include(":feature-shoppinglist")
 include(":feature-productlist")
 include(":feature-settings")
 include(":feature-archive")
+include(":feature-premium")
+include(":shared_shoppinglist")
+include(":feature-fruit-album")
+include(":feature-add-product")

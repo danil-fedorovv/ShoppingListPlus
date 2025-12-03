@@ -1,9 +1,10 @@
 package danilfedorov.domain_core.usecase.product
 
+import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.repository.ProductRepository
 
 
 class UpdateProductSelectionUseCase(private val repository: ProductRepository) {
-    suspend operator fun invoke(id: Long, isSelected: Boolean) =
-        repository.updateProductSelection(id, isSelected)
+    suspend operator fun invoke(remoteListId: String?, product: Product, isSelected: Boolean) =
+        repository.updateProductSelection(remoteListId, product, isSelected)
 }

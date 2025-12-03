@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="share_shopping_list">Поделиться списком покупок</string>
+    <string name="default_list_name">Список покупок</string>
+    <string name="empty_list_text">Список пуст</string>
+    <string name="share_link">Поделиться ссылкой</string>
+
+    <string name="share_live_edit_template">Привет! Вот наш список покупок: %s</string>
+    <string name="share_link_template">Привет! Вот список покупок:\n%s</string>
+
+    <string name="packing_list">Запаковываем список</string>
+    <string name="unpacking_list">Распаковываем список</string>
+
+    <string name="share_sheet_title">Поделиться списком</string>
+
+    <string name="share_text_title">Текстом</string>
+    <string name="share_link_title">Ссылкой</string>
+    <string name="share_liveedit_title">Совместное редактирование</string>
+
+    <string name="invite_title">Вас пригласили в совместный список покупок</string>
+    <string name="invite_description">Все изменения от участников синхронизируются мгновенно</string>
+    <string name="accept_button">Присоединиться</string>
+
+    <string name="list_not_found_title">Мы не смогли найти этот список</string>
+    <string name="list_not_found_subtitle">Возможно, он был удалён или ссылка на него недействительна</string>
+    <string name="list_not_found_button">Понятно</string>
+
+    <string name="error_title">Произошла ошибка</string>
+    <string name="error_subtitle">Что-то пошло не так</string>
+    <string name="timeout_title">Время ожидания истекло</string>
+    <string name="timeout_subtitle">Проверьте соединение с интернетом</string>
+    <string name="retry_button">Повторить</string>
+
+    <string name="add_list_title">Вам прислали список покупок</string>
+    <string name="add_list_button">Добавить</string>
+</resources>

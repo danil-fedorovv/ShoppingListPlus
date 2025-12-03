@@ -18,9 +18,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import danilfedorov.archive.R
 import danilfedorov.common.core_res.green
 import danilfedorov.common.extension.modifier.noRippleClickable
-import io.avdev.archive.R
 import danilfedorov.feature_archive.internal.util.getDeletedTimeText
 
 @Composable
@@ -40,7 +40,7 @@ fun ArchiveItem(
         modifier = modifier
             .padding(top = 8.dp)
             .fillMaxWidth()
-            .background(color = colorScheme.onBackground, shape = shapes.large)
+            .background(color = colorScheme.onBackground, shape = shapes.medium)
             .noRippleClickable {
                 onClick()
             }

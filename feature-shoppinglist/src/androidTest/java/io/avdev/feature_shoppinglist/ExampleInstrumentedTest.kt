@@ -1,4 +1,4 @@
-package io.avdev.feature_shoppinglist
+package danilfedorov.feature_shoppinglist
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

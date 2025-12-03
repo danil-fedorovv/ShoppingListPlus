@@ -20,13 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import danilfedorov.archive.R
 import danilfedorov.common.extension.modifier.noRippleClickable
-import io.avdev.archive.R
 
 @Composable
 fun ArchiveTopBar(
     navHome: () -> Unit,
-    deleteAll: () -> Unit
+    deleteAll: () -> Unit,
+    showDeleteIcon: Boolean,
 ) {
     Row(
         modifier = Modifier
@@ -62,14 +63,16 @@ fun ArchiveTopBar(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(danilfedorov.common.R.drawable.ic_trash),
-                contentDescription = stringResource(R.string.deleteAll),
-                tint = colorScheme.error,
-                modifier = Modifier
-                    .size(24.dp)
-                    .noRippleClickable { deleteAll() }
-            )
+            if (showDeleteIcon) {
+                Icon(
+                    painter = painterResource(danilfedorov.common.R.drawable.ic_trash),
+                    contentDescription = stringResource(R.string.deleteAll),
+                    tint = colorScheme.error,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .noRippleClickable { deleteAll() }
+                )
+            }
 
         }
     }

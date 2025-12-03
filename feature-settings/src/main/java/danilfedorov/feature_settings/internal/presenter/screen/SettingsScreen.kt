@@ -2,180 +2,371 @@
 
 package danilfedorov.feature_settings.internal.presenter.screen
 
-import androidx.compose.foundation.Image
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import danilfedorov.common.compose.NoRippleInteractionSource
-import danilfedorov.common.core_res.colors
-import danilfedorov.common.extension.modifier.noRippleClickable
-import io.avdev.feature_settings.R
-import danilfedorov.feature_settings.internal.compose.IconBox
-
+import androidx.core.net.toUri
+import danilfedorov.common.compose.AppTopBar
+import danilfedorov.common.extension.modifier.elevatedCard
+import danilfedorov.feature_settings.R
+import danilfedorov.feature_settings.internal.compose.SettingsOption
+import danilfedorov.feature_settings.internal.compose.SettingsOptionTitle
+import danilfedorov.feature_settings.internal.compose.sheet.ChangeColorSheet
+import danilfedorov.feature_settings.internal.presenter.mvi.Action
+import danilfedorov.feature_settings.internal.presenter.mvi.Effect
+import danilfedorov.feature_settings.internal.presenter.mvi.ScreenState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun SettingsScreen(
-    darkTheme: Boolean?,
-    colorIndex: Int?,
-    changeTheme: (Boolean) -> Unit,
-    changeColor: (Int) -> Unit,
-    navBack: () -> Unit
+    screenState: ScreenState,
+    action: (Action) -> Unit,
+    effect: Flow<Effect>,
 ) {
-    Scaffold(
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .background(colorScheme.onBackground)
-                    .statusBarsPadding()
-                    .fillMaxWidth()
-                    .height(64.dp)
-                    .padding(start = 16.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(danilfedorov.common.R.drawable.ic_arrow_back),
-                    contentDescription = stringResource(danilfedorov.common.R.string.navback),
-                    tint = colorScheme.secondary,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .noRippleClickable(navBack)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.settings),
-                    color = colorScheme.secondary,
-                    style = typography.titleLarge
-                )
+    var snackbarJob by remember { mutableStateOf<Job?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val errorString = stringResource(danilfedorov.common.R.string.ad_load_failed)
+    val okString = stringResource(danilfedorov.common.R.string.ok).uppercase()
+    val context = LocalContext.current
+
+    LaunchedEffect(effect) {
+        effect.collect { effect ->
+            when (effect) {
+                is Effect.FailedToLoadAd -> {
+
+                    snackbarJob?.cancelAndJoin()
+
+                    snackbarJob = launch {
+                        val result = snackbarHostState.showSnackbar(
+                            message = errorString,
+                            actionLabel = okString,
+                            duration = SnackbarDuration.Short
+                        )
+
+                        if (result == SnackbarResult.ActionPerformed) {
+                            snackbarJob?.cancelAndJoin()
+                        }
+                    }
+                }
+
+                Effect.NavContactUs -> openContactUsEmail(context)
+                Effect.NavRateUs -> openInRuStore(context)
             }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 32.dp),
+            ) { data ->
+                Snackbar(
+
+                    containerColor = colorScheme.onBackground,
+                    shape = shapes.medium,
+                    action = {
+                        data.visuals.actionLabel?.let { actionLabel ->
+                            TextButton(
+                                onClick = { data.performAction() }
+                            ) {
+                                Text(
+                                    text = actionLabel,
+                                    color = colorScheme.primary,
+                                    style = typography.titleLarge
+                                )
+                            }
+                        }
+                    }
+                ) {
+                    Text(
+                        data.visuals.message,
+                        color = colorScheme.secondary,
+                        style = typography.titleMedium
+                    )
+                }
+            }
+        },
+        topBar = {
+            AppTopBar(
+                title = stringResource(R.string.settings),
+                navBack = { action(Action.NavBack) }
+            )
         },
         bottomBar = {
             Spacer(Modifier.size(0.dp))
         }
     ) { innerPadding ->
+
         Column(
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
         ) {
-            Text(
-                text = stringResource(R.string.select_primary_color),
-                style = typography.titleLarge,
-                color = colorScheme.secondary,
-                modifier = Modifier
-                    .padding(start = 32.dp, top = 16.dp, bottom = 4.dp)
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.SpaceEvenly
-            ) {
-                colors.chunked(4).forEach { rowColors ->
-                    Row(
+
+            SettingsOptionTitle(title = stringResource(R.string.settings_section_appearance))
+
+            SettingsOption(
+                title = stringResource(R.string.settings_primary_color),
+                rightContent = {
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 32.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        rowColors.forEach { color ->
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .padding(top = 16.dp)
-                                    .size(56.dp)
-                                    .clip(CircleShape)
-                                    .border(4.dp, color, CircleShape)
-                                    .clickable(
-                                        indication = null,
-                                        interactionSource = NoRippleInteractionSource
-                                    ) {
-                                        changeColor(colors.indexOf(color))
-                                    }
-                            ) {
-                                colorIndex?.let {
-                                    if (colors[it] == color) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(36.dp)
-                                                .clip(CircleShape)
-                                                .background(color)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                            .size(24.dp)
+                            .background(color = colorScheme.primary, shape = CircleShape)
+                    )
                 }
+            ) {
+                action(Action.ShowChangeColorSheet)
             }
-            Column(
+
+            HorizontalDivider(
+                color = colorScheme.surface,
+                thickness = 1.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(R.string.app_theme),
-                    style = typography.titleLarge,
-                    color = colorScheme.secondary,
-                    modifier = Modifier
-                        .padding(start = 32.dp)
-                        .padding(vertical = 16.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 32.dp)
-                ) {
-
-                    IconBox(onClick = {
-                        changeTheme(false)
-                    }, isSelected = darkTheme == false) {
-                        Image(
-                            painter = painterResource(R.drawable.img_sun),
-                            contentDescription = "lightTheme",
-                            modifier = Modifier.size(80.dp)
-                        )
-                    }
-                    IconBox(onClick = {
-                        changeTheme(true)
-                    }, isSelected = darkTheme == true) {
-                        Image(
-                            painter = painterResource(R.drawable.ic_moon),
-                            contentDescription = "darkTheme"
-                        )
-                    }
+                    .padding(horizontal = 16.dp)
+                    .elevatedCard(colorScheme.surface)
+            )
+            SettingsOption(
+                title = stringResource(R.string.settings_dark_theme),
+                rightContent = {
+                    Switch(
+                        checked = screenState.darkTheme,
+                        onCheckedChange = { action(Action.SetDarkTheme(!screenState.darkTheme)) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = colorScheme.primary,
+                            uncheckedThumbColor = colorScheme.outline,
+                            uncheckedTrackColor = Color.Transparent,
+                            uncheckedBorderColor = colorScheme.outline
+                        ),
+                        modifier = Modifier.scale(0.8f)
+                    )
                 }
+            ) {
+
+            }
+            HorizontalDivider(
+                color = colorScheme.surface,
+                thickness = 1.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .elevatedCard(colorScheme.surface)
+            )
+            SettingsOption(
+                title = stringResource(R.string.settings_fruit_collection),
+                rightContent = {
+                    Icon(
+                        painterResource(danilfedorov.common.R.drawable.ic_chevron_right),
+                        contentDescription = null,
+                        tint = colorScheme.secondary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            ) {
+                action(Action.NavFruitCollection)
+            }
+
+            SettingsOptionTitle(title = stringResource(R.string.settings_section_application))
+
+            SettingsOption(
+                title = stringResource(R.string.settings_disable_ads),
+                rightContent = {
+                    Icon(
+                        painterResource(danilfedorov.common.R.drawable.ic_chevron_right),
+                        contentDescription = null,
+                        tint = colorScheme.secondary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            ) {
+                action(Action.NavPremium)
+            }
+            HorizontalDivider(
+                color = colorScheme.surface,
+                thickness = 1.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .elevatedCard(colorScheme.surface)
+            )
+
+            SettingsOption(
+                title = stringResource(R.string.settings_rate_app),
+                rightContent = {
+                    Icon(
+                        painterResource(danilfedorov.common.R.drawable.ic_external),
+                        contentDescription = null,
+                        tint = colorScheme.secondary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            ) {
+                action(Action.RateUs)
+            }
+            HorizontalDivider(
+                color = colorScheme.surface,
+                thickness = 1.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .elevatedCard(colorScheme.surface)
+            )
+
+            SettingsOption(
+                title = stringResource(R.string.settings_contact_us),
+                rightContent = {
+                    Icon(
+                        painterResource(danilfedorov.common.R.drawable.ic_external),
+                        contentDescription = null,
+                        tint = colorScheme.secondary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            ) {
+                action(Action.ContactUs)
             }
         }
     }
+
+
+//        Column(
+//            Modifier
+//                .fillMaxSize()
+//                .padding(innerPadding)
+//                .verticalScroll(rememberScrollState())
+//        ) {
+//            Text(
+//                text = stringResource(R.string.select_primary_color),
+//                style = typography.titleLarge,
+//                color = colorScheme.secondary,
+//                modifier = Modifier
+//                    .padding(start = 32.dp, top = 16.dp, bottom = 4.dp)
+//            )
+//            Column(
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+//                verticalArrangement = Arrangement.SpaceEvenly
+//            ) {
+//                colors.chunked(4).forEach { rowColors ->
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(horizontal = 32.dp),
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//                        rowColors.forEach { color ->
+//                            Box(
+//                                contentAlignment = Alignment.Center,
+//                                modifier = Modifier
+//                                    .padding(top = 16.dp)
+//                                    .size(56.dp)
+//                                    .clip(CircleShape)
+//                                    .border(4.dp, color, CircleShape)
+//                                    .clickable(
+//                                        indication = null,
+//                                        interactionSource = NoRippleInteractionSource
+//                                    ) {
+//                                        if (colors[screenState.colorIndex] != color) {
+//                                            action(Action.ShowAdSheet(colors.indexOf(color)))
+//                                        }
+//                                    }
+//                            ) {
+//                                screenState.colorIndex.let {
+//                                    if (colors[it] == color) {
+//                                        Box(
+//                                            modifier = Modifier
+//                                                .size(36.dp)
+//                                                .clip(CircleShape)
+//                                                .background(color)
+//                                        )
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+    if (screenState.isChangeColorSheetVisible) {
+        ChangeColorSheet(
+            colorIndex = screenState.colorIndex,
+            saveColor = { action(Action.SaveColor(it)) },
+            isPremium = screenState.isPremium,
+            onDismissRequest = { action(Action.HideChangeColorSheet) }
+        )
+    }
 }
 
+fun openInRuStore(context: Context) {
+    val uri = "https://apps.rustore.ru/app/${context.packageName}".toUri()
+    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    context.startActivity(intent)
+}
 
+fun openContactUsEmail(context: Context) {
+    val email = "danildotkt@yandex.ru"
+    val subject = context.getString(R.string.feedback_subject)
+    val message = context.getString(R.string.feedback_prefilled_message)
+
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:")
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        putExtra(Intent.EXTRA_TEXT, message)
+    }
+
+    try {
+        context.startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        // Нет почтовых клиентов — можно показать snackbar или диалог
+        e.printStackTrace()
+    }
+}

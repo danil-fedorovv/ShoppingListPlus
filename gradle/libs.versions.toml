@@ -24,6 +24,8 @@ lifecycleViewmodelCompose = "2.9.3"
 foundationLayout = "1.9.1"
 runtime = "1.9.2"
 appcompat = "1.6.1"
+runtimeVersion = "1.9.4"
+firebaseCommonKtx = "22.0.1"
 
 
 [libraries]
@@ -62,6 +64,8 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtimeVersion" }
+firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "agp" }

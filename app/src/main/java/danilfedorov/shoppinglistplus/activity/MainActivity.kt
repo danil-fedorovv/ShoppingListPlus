@@ -1,5 +1,6 @@
 package danilfedorov.shoppinglistplus.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,55 +8,133 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import danilfedorov.common.core_res.colors
+import danilfedorov.common.deeplink.DeepLink
 import danilfedorov.shoppinglistplus.ShoppingListPlusApplication
 import danilfedorov.shoppinglistplus.ad.YandexStickyBanner
+import danilfedorov.shoppinglistplus.nav.Screen
 import danilfedorov.shoppinglistplus.nav.ShoppingListAppNavigation
 import danilfedorov.shoppinglistplus.theme.ShoppingListTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import ru.rustore.sdk.pay.IntentInteractor
+import ru.rustore.sdk.pay.RuStorePayClient
 
 class MainActivity : ComponentActivity() {
 
-    private val appComponent by lazy {
-        (applicationContext as ShoppingListPlusApplication).appComponent
-    }
+    private val appComponent by lazy { (application as ShoppingListPlusApplication).appComponent }
+    private val intentInteractor: IntentInteractor by lazy { RuStorePayClient.instance.getIntentInteractor() }
+
+    private var initialDeepLink by mutableStateOf<DeepLink?>(null)
+
+    private var navController: NavHostController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val appearanceRepository = appComponent.appearanceRepository
-
         enableEdgeToEdge()
+
+        processIncomingIntent(intent)
+
         lifecycleScope.launch {
-            val initialDarkTheme = appearanceRepository.themeFlow.first()
-            val initialColorIndex = appearanceRepository.colorIndexFlow.first()
+            val initialIsPremium = appComponent.premiumRepository.isPremiumFlow.first()
+            val initialDarkTheme = appComponent.appearanceRepository.themeFlow.first()
+            val initialColorIndex = appComponent.appearanceRepository.colorIndexFlow.first()
+
             setContent {
+                val controller = rememberNavController()
+                LaunchedEffect(Unit) { navController = controller }
+
                 val isSystemInDarkTheme = isSystemInDarkTheme()
-                val darkTheme by appearanceRepository.themeFlow.collectAsState(initial = initialDarkTheme)
+                val darkTheme by appComponent.appearanceRepository.themeFlow.collectAsState(initial = initialDarkTheme)
+                val colorIndex by appComponent.appearanceRepository.colorIndexFlow.collectAsState(
+                    initial = initialColorIndex
+                )
+                val isPremium by appComponent.premiumRepository.isPremiumFlow.collectAsState(initial = initialIsPremium)
+
                 LaunchedEffect(darkTheme) {
                     if (darkTheme == null) {
-                        appearanceRepository.setTheme(isSystemInDarkTheme)
+                        appComponent.appearanceRepository.setTheme(isSystemInDarkTheme)
                     }
                 }
-                val colorIndex by appearanceRepository.colorIndexFlow.collectAsState(initial = initialColorIndex)
 
                 ShoppingListTheme(
                     isDarkTheme = darkTheme ?: isSystemInDarkTheme,
                     primaryColor = colors[colorIndex]
                 ) {
-                    Column(Modifier.background(colorScheme.background)) {
-                        ShoppingListAppNavigation(modifier = Modifier.weight(1f))
-                        YandexStickyBanner(
-                            isDarkTheme = darkTheme ?: isSystemInDarkTheme
+                    Column(
+                        modifier = Modifier
+                            .background(colorScheme.background)
+                            .navigationBarsPadding()
+                    ) {
+                        ShoppingListAppNavigation(
+                            navController = controller,
+                            initialDeepLink = initialDeepLink,
+                            nullDeepLink = { initialDeepLink = null },
+                            modifier = Modifier.weight(1f)
                         )
+                        if (!isPremium) {
+                            YandexStickyBanner(
+                                isDarkTheme = darkTheme ?: isSystemInDarkTheme
+                            )
+                        }
+//                    SnowfallBackground()
+
+
                     }
+                }
+            }
+        }
+    }
+
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intent.let {
+            setIntent(it)
+            intentInteractor.proceedIntent(it)
+            processIncomingIntent(it)
+        }
+    }
+
+    private fun processIncomingIntent(intent: Intent) {
+        val uri = intent.data ?: return
+
+        initialDeepLink = null
+
+        val newDeepLink = when (uri.host) {
+            "shoppinglistplus.ru" -> {
+                when (uri.pathSegments.firstOrNull()) {
+                    "live_edit" -> uri.lastPathSegment?.takeIf { it.isNotBlank() }
+                        ?.let { DeepLink.LiveEdit(it) }
+
+                    "share" -> uri.lastPathSegment?.takeIf { it.isNotBlank() }
+                        ?.let { DeepLink.Share(it) }
+
+                    else -> null
+                }
+            }
+
+            else -> null
+        } ?: return
+
+        initialDeepLink = newDeepLink
+
+        navController?.let { nc ->
+            if (nc.currentDestination != Screen.Shoppinglist) {
+                nc.navigate(Screen.Shoppinglist) {
+                    popUpTo(nc.graph.startDestinationId)
+                    launchSingleTop = true
                 }
             }
         }

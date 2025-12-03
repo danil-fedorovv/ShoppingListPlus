@@ -10,5 +10,34 @@
     <string name="edit">edit</string>
     <string name="close_product_actions">Close product actions</string>
     <string name="copy">Copy</string>
+    <string name="dismiss">dismiss</string>
+    <string name="title_collection">Your collection</string>
 
+
+    <string name="fruit_grape">Grape</string>
+    <string name="fruit_strawberry">Strawberry</string>
+    <string name="fruit_cherry">Cherry</string>
+    <string name="fruit_raspberry">Raspberry</string>
+    <string name="fruit_mango">Mango</string>
+    <string name="fruit_orange">Orange</string>
+    <string name="fruit_pineapple">Pineapple</string>
+    <string name="fruit_dragon_fruit">Dragon Fruit</string>
+    <string name="fruit_kiwi">Kiwi</string>
+    <string name="fruit_banana">Banana</string>
+    <string name="fruit_watermelon">Watermelon</string>
+    <string name="fruit_papaya">Papaya</string>
+    <string name="fruit_peach">Peach</string>
+    <string name="fruit_pomegranate">Pomegranate</string>
+    <string name="fruit_apple">Apple</string>
+    <string name="fruit_pear">Pear</string>
+    <string name="fruit_avocado">Avocado</string>
+    <string name="fruit_mangosteen">Mangosteen</string>
+    <string name="fruit_blueberry">Blueberry</string>
+    <string name="fruit_plum">Plum</string>
+    <string name="fruit_longan">Longan</string>
+    <string name="fruit_persimmon">Persimmon</string>
+
+    <string name="ad_load_failed">Failed to load ad</string>
+    <string name="watch_short_ad">Watch a short ad</string>
+    <string name="ok" translatable="false">ОК</string>
 </resources>

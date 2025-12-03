@@ -3,18 +3,23 @@ package danilfedorov.feature_productlist.internal.di
 import android.content.res.Resources
 import dagger.Component
 import danilfedorov.common.di.FeatureScope
-import danilfedorov.domain_core.usecase.product.CreateProductUseCase
+import danilfedorov.domain_core.usecase.fruitalbum.GetRandomActiveUnlockedFruitUseCase
 import danilfedorov.domain_core.usecase.product.DeleteProductsUseCase
-import danilfedorov.domain_core.usecase.product.GetProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.product.GetShoppingListProgressUseCase
+import danilfedorov.domain_core.usecase.product.InsertProductUseCase
+import danilfedorov.domain_core.usecase.product.ObserveConnectionStatusUseCase
+import danilfedorov.domain_core.usecase.product.ObserveProductListByListIdUseCase
+import danilfedorov.domain_core.usecase.product.ObserveRemoteProductChangesUseCase
 import danilfedorov.domain_core.usecase.product.SelectAllProductsUseCase
 import danilfedorov.domain_core.usecase.product.UnselectAllProductsUseCase
 import danilfedorov.domain_core.usecase.product.UpdateProductCardUseCase
 import danilfedorov.domain_core.usecase.product.UpdateProductSelectionUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.ChangeSortByAlphabetUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.CreateListUseCase
-import danilfedorov.domain_core.usecase.shoppinglist.GetListsUseCase
-import danilfedorov.domain_core.usecase.shoppinglist.GetShoppingListByIdUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.GetShoppingListsUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveRemoteListNameUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveShoppingListByIdUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.PushListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RenameShoppingListUseCase
 import danilfedorov.feature_productlist.api.ProductListDeps
 
@@ -27,18 +32,23 @@ import danilfedorov.feature_productlist.api.ProductListDeps
 internal interface ProductListComponent {
 
     val renameShoppingListUseCase: RenameShoppingListUseCase
-    val getProductListByListIdUseCase: GetProductListByListIdUseCase
-    val createProductUseCase: CreateProductUseCase
+    val insertProductUseCase: InsertProductUseCase
+    val observeProductListByListIdUseCase: ObserveProductListByListIdUseCase
     val updateProductUseCase: UpdateProductSelectionUseCase
     val selectAllProductsUseCase: SelectAllProductsUseCase
     val unselectAllProductsUseCase: UnselectAllProductsUseCase
     val updateProductCardUseCase: UpdateProductCardUseCase
     val deleteProductsUseCase: DeleteProductsUseCase
-    val getShoppingListByIdUseCase: GetShoppingListByIdUseCase
+    val observeShoppingListByIdUseCase: ObserveShoppingListByIdUseCase
     val changeSortByAlphabetUseCase: ChangeSortByAlphabetUseCase
-    val getListsUseCase: GetListsUseCase
     val getShoppingListProgressUseCase: GetShoppingListProgressUseCase
     val createListUseCase: CreateListUseCase
+    val pushListUseCase: PushListUseCase
+    val getShoppingListsUseCase: GetShoppingListsUseCase
+    val observeRemoteProductChangesUseCase: ObserveRemoteProductChangesUseCase
+    val observeConnectionStatusUseCase: ObserveConnectionStatusUseCase
+    val observeRemoteListNameUseCase: ObserveRemoteListNameUseCase
+    val getRandomActiveUnlockedFruitUseCase: GetRandomActiveUnlockedFruitUseCase
     val resources: Resources
 
     @Component.Factory

@@ -14,7 +14,7 @@ class ArchiveViewModelFactory(
 
         return ArchiveViewModel(
             navHome,
-            component.getArchivedShoppingListsUseCase,
+            component.observeArchivedShoppingListsUseCase,
             component.getSelectedProductCountUseCase,
             component.getTotalProductCountUseCase,
             component.deleteListsUseCase,

@@ -1,4 +1,4 @@
-import com.android.build.gradle.ProguardFiles.getDefaultProguardFile
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.compose)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -17,14 +19,55 @@ android {
         applicationId = "danilfedorov.shoppinglistplus"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.1-grape"
+        versionCode = 4
+        versionName = "2.0-grape"
 
-        setProperty("archivesBaseName", "shoppingList $versionName")
+        setProperty("archivesBaseName", "slp-$versionName")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+    val keystorePropsFile = rootProject.file("keystore.properties")
+    val keystoreProps = Properties()
+
+    if (keystorePropsFile.exists()) {
+        keystoreProps.load(keystorePropsFile.inputStream())
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = keystoreProps["storeFile"]?.let { file(it as String) }
+            storePassword = keystoreProps["storePassword"] as String?
+            keyAlias = keystoreProps["keyAlias"] as String?
+            keyPassword = keystoreProps["keyPassword"] as String?
+        }
+    }
+
+    flavorDimensions += "store"
+
+    val secretsProps = Properties()
+    val secretsFile = rootProject.file("secrets.properties")
+    if (secretsFile.exists()) {
+        secretsProps.load(secretsFile.inputStream())
+    }
+
+    productFlavors {
+        create("RuStore") {
+            dimension = "store"
+            buildConfigField("String", "YANDEX_BANNER_KEY", "\"${secretsProps.getProperty("YANDEX_BANNER_KEY_RUSTORE") ?: ""}\"")
+            buildConfigField("String", "YANDEX_REWARDED_KEY", "\"${secretsProps.getProperty("YANDEX_REWARDED_KEY_RUSTORE") ?: ""}\"")
+        }
+        create("AppGallery") {
+            dimension = "store"
+            buildConfigField("String", "YANDEX_BANNER_KEY", "\"${secretsProps.getProperty("YANDEX_BANNER_KEY_APPGALLERY") ?: ""}\"")
+            buildConfigField("String", "YANDEX_REWARDED_KEY", "\"${secretsProps.getProperty("YANDEX_REWARDED_KEY_APPGALLERY") ?: ""}\"")
+        }
+        create("NashStore") {
+            dimension = "store"
+            buildConfigField("String", "YANDEX_BANNER_KEY", "\"${secretsProps.getProperty("YANDEX_BANNER_KEY_NASHSTORE") ?: ""}\"")
+            buildConfigField("String", "YANDEX_REWARDED_KEY", "\"${secretsProps.getProperty("YANDEX_REWARDED_KEY_NASHSTORE") ?: ""}\"")
         }
     }
 
@@ -36,7 +79,15 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -60,6 +111,11 @@ android {
     }
 }
 
+secrets {
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "secrets.defaults.properties"
+}
+
 dependencies {
     implementation(project(":core-data"))
     implementation(project(":core-domain"))
@@ -68,6 +124,15 @@ dependencies {
     implementation(project(":feature-productlist"))
     implementation(project(":feature-settings"))
     implementation(project(":feature-archive"))
+    implementation(project(":feature-premium"))
+    implementation(project(":feature-fruit-album"))
+    implementation(project(":feature-add-product"))
+
+    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
+    implementation("com.google.firebase:firebase-common")
+
+    implementation(platform("ru.rustore.sdk:bom:2025.08.01"))
+    implementation("ru.rustore.sdk:pay")
 
     implementation(libs.material)
 

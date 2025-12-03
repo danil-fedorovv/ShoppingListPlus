@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import io.avdev.productlist.R
+import danilfedorov.productlist.R
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

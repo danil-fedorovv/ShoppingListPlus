@@ -29,7 +29,7 @@ import danilfedorov.common.core_res.ShoppingListThemePreview
 import danilfedorov.common.extension.modifier.elevatedCard
 import danilfedorov.common.extension.modifier.noRippleClickable
 import danilfedorov.domain_core.model.ShoppingList
-import io.avdev.productlist.R
+import danilfedorov.productlist.R
 
 @Composable
 @Preview
@@ -55,12 +55,6 @@ fun CopyProductsSheetContent(
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = stringResource(R.string.copy_products_from_list),
-            style = typography.titleLarge,
-            color = colorScheme.secondary
-        )
-        Spacer(Modifier.height(32.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()

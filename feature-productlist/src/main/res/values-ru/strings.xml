@@ -52,6 +52,9 @@
     <string name="products_copied">Товары скопированы</string>
     <string name="product_name">Название товара</string>
 
+    <string name="connection_status_online">В сети · изменения синхронизируются</string>
+    <string name="connection_status_offline">Нет сети · изменения синхронизируются, как только появится подключение</string>
+
     <plurals name="items_deleted">
         <item quantity="one">%d товар удалён</item>
         <item quantity="few">%d товара удалено</item>

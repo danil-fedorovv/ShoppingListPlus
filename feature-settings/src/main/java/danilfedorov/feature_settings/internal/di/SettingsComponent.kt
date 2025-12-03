@@ -1,11 +1,15 @@
 package danilfedorov.feature_settings.internal.di
 
+import android.content.Context
+import dagger.BindsInstance
 import dagger.Component
+import danilfedorov.common.ad.AdManager
 import danilfedorov.common.di.FeatureScope
 import danilfedorov.domain_core.usecase.appearance.ChangeColorIndexUseCase
 import danilfedorov.domain_core.usecase.appearance.ChangeThemeUseCase
 import danilfedorov.domain_core.usecase.appearance.ColorIndexFlowUseCase
 import danilfedorov.domain_core.usecase.appearance.ThemeFlowUseCase
+import danilfedorov.domain_core.usecase.premium.PremiumStatusFlowUseCase
 import danilfedorov.feature_settings.api.SettingsDeps
 
 @Component(
@@ -19,9 +23,11 @@ interface SettingsComponent {
     val colorIndexFlowUseCase: ColorIndexFlowUseCase
     val changeColorIndexUseCase: ChangeColorIndexUseCase
     val changeThemeUseCase: ChangeThemeUseCase
+    val adManager: AdManager
+    val premiumStatusFlowUseCase: PremiumStatusFlowUseCase
 
     @Component.Factory
     interface Factory {
-        fun create(deps: SettingsDeps): SettingsComponent
+        fun create(@BindsInstance context: Context, deps: SettingsDeps): SettingsComponent
     }
 }
