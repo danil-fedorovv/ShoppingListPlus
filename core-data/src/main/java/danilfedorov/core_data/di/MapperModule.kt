@@ -3,6 +3,7 @@ package danilfedorov.core_data.di
 import dagger.Module
 import dagger.Provides
 import danilfedorov.core_data.local.datasource.room.mapper.ProductMapper
+import danilfedorov.core_data.local.datasource.room.mapper.ProductSuggestionMapper
 import danilfedorov.core_data.local.datasource.room.mapper.ShoppingListMapper
 import javax.inject.Singleton
 
@@ -11,11 +12,13 @@ object MapperModule {
 
     @Provides
     @Singleton
-    fun provideProductMapper(): ProductMapper =
-        ProductMapper()
+    fun provideProductMapper() = ProductMapper()
 
     @Provides
     @Singleton
-    fun provideShoppingListMapper(): ShoppingListMapper =
-        ShoppingListMapper()
+    fun provideShoppingListMapper() = ShoppingListMapper()
+
+    @Provides
+    @Singleton
+    fun provideProductSuggestionMapper() = ProductSuggestionMapper()
 }

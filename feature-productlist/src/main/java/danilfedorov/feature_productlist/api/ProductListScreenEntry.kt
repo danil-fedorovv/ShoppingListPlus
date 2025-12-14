@@ -11,11 +11,13 @@ import danilfedorov.feature_productlist.internal.presenter.viewmodel.ProductsVie
 @Composable
 fun ProductListScreenEntry(
     id: Long,
-    onNavigateHome : () -> Unit 
+    addedCount: Int?,
+    onNavigateHome : () -> Unit,
+    navAddProduct: (Long, String?) -> Unit,
 ) {
     val deps = (LocalContext.current.applicationContext as ProductListDepsProvider).productListDeps
     val viewModel: ProductsViewModel = daggerViewModel {
-        ProductsViewModelFactory(id, onNavigateHome, deps)
+        ProductsViewModelFactory(id, addedCount, onNavigateHome,navAddProduct, deps)
     }
 
     val screenState = viewModel.screenState.collectAsState()

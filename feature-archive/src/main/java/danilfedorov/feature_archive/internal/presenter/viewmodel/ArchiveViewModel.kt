@@ -45,8 +45,8 @@ class ArchiveViewModel(
     private var recentlyDeletedIds = MutableStateFlow<Set<Long>>(emptySet())
 
     init {
-        viewModelScope.launch {
-            val a = observeArchivedShoppingListsUseCase()
+        viewModelScope.launch(Dispatchers.Default) {
+            observeArchivedShoppingListsUseCase()
                 .combine(recentlyDeletedIds) { archives, deletedIds ->
                     archives.filter {
                         it.id !in deletedIds
@@ -54,7 +54,7 @@ class ArchiveViewModel(
                 }.onEach { filteredArchives ->
                     _screenState.update {
                         it.copy(
-                            archiveLists = filteredArchives,
+                            archiveLists = filteredArchives.reversed(),
                             isLoading = false
                         )
                     }

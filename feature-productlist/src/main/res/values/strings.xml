@@ -2,7 +2,6 @@
 <resources>
     <string name="hide_selected_items">Hide selected items</string>
     <string name="show_selected_items">Show selected items</string>
-    <string name="add_product">Add product</string>
     <string name="kg">kg</string>
     <string name="g">g</string>
     <string name="l">l</string>
@@ -37,7 +36,6 @@
     <string name="no_products_to_delete">No products to delete</string>
     <string name="copy">Copy</string>
 
-    <string name="search">Search</string>
     <string name="clear_search">Clear search</string>
 
     <string name="found_of_total">%1$d of %2$d items</string>
@@ -58,4 +56,6 @@
         <item quantity="one">%d item deleted</item>
         <item quantity="other">%d items deleted</item>
     </plurals>
+    <string name="products_added">Added products: %d</string>
+
 </resources>

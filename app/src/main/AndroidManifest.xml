@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="danilfedorov.shoppinglistplus">
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
 
         android:name=".ShoppingListPlusApplication"
@@ -49,15 +51,6 @@
                     android:pathPrefix="/share" />
             </intent-filter>
         </activity>
-
-        <meta-data
-            android:name="sdk_pay_scheme_value"
-            android:value="danilfedorov.shoppinglistplus.scheme" />
-
-        <meta-data
-            android:name="console_app_id_value"
-            android:value="2063667714" />
-
     </application>
 
 </manifest>

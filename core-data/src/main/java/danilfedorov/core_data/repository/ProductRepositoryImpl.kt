@@ -186,15 +186,30 @@ class ProductRepositoryImpl(
                         withContext(Dispatchers.IO) {
                             if (dao.existsByFirebaseId(firebaseId)) return@withContext
 
-                            val entity = mapper.mapToEntity(
-                                incoming.copy(
-                                    listId = shoppingListId,
+                            val existingProduct = dao.getProductByDetails(
+                                listId = shoppingListId,
+                                name = incoming.name,
+                                amount = incoming.amount,
+                                unit = incoming.unit
+                            )
+
+                            if (existingProduct != null) {
+                                dao.updateFirebaseId(
+                                    roomId = existingProduct.id,
                                     firebaseId = firebaseId
                                 )
-                            )
-                            dao.upsertProduct(entity)
+                            } else {
+                                val entity = mapper.mapToEntity(
+                                    incoming.copy(
+                                        listId = shoppingListId,
+                                        firebaseId = firebaseId
+                                    )
+                                )
+                                dao.upsertProduct(entity)
+                            }
                         }
                     }
+
                     is ProductEvent.Changed -> {
                         val incoming = event.product
 

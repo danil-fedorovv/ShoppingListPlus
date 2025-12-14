@@ -38,8 +38,6 @@ fun EditShoppingListNameSheet(
     onValueChange: (String) -> Unit,
     onClick: () -> Unit,
     onDismissRequest: () -> Unit,
-    selectAllOnFocus: Boolean = true,
-    autoFocus: Boolean = true,
     placeholderText: String = ""
 ) {
 
@@ -76,8 +74,6 @@ fun EditShoppingListNameSheet(
                 textStyle = typography.titleLarge,
                 containerColor = colorScheme.onBackground,
                 contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(),
-                selectAllOnFocus = selectAllOnFocus,
-                autoFocus = autoFocus,
                 placeholder = if (placeholderText.isNotEmpty()) {
                     {
                         Text(

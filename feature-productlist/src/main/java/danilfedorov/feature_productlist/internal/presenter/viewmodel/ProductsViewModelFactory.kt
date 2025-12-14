@@ -7,7 +7,9 @@ import danilfedorov.feature_productlist.internal.di.DaggerProductListComponent
 
 internal class ProductsViewModelFactory(
     private val shoppingListId: Long,
+    private val addedCount: Int?,
     private val onNavigateHome: () -> Unit,
+    private val navAddProduct: (Long, String?) -> Unit,
     private val deps: ProductListDeps
 ) : ViewModelProvider.Factory {
 
@@ -18,6 +20,8 @@ internal class ProductsViewModelFactory(
         return ProductsViewModel(
             shoppingListId = shoppingListId,
             onNavigateHome = onNavigateHome,
+            addedCount = addedCount,
+            navAddProduct = navAddProduct,
             res = component.resources,
             renameShoppingListUseCase = component.renameShoppingListUseCase,
             observeProductListByListIdUseCase = component.observeProductListByListIdUseCase,

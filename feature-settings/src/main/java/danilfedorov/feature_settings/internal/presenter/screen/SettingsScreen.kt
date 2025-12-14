@@ -275,64 +275,6 @@ internal fun SettingsScreen(
         }
     }
 
-
-//        Column(
-//            Modifier
-//                .fillMaxSize()
-//                .padding(innerPadding)
-//                .verticalScroll(rememberScrollState())
-//        ) {
-//            Text(
-//                text = stringResource(R.string.select_primary_color),
-//                style = typography.titleLarge,
-//                color = colorScheme.secondary,
-//                modifier = Modifier
-//                    .padding(start = 32.dp, top = 16.dp, bottom = 4.dp)
-//            )
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxWidth(),
-//                verticalArrangement = Arrangement.SpaceEvenly
-//            ) {
-//                colors.chunked(4).forEach { rowColors ->
-//                    Row(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(horizontal = 32.dp),
-//                        horizontalArrangement = Arrangement.SpaceBetween
-//                    ) {
-//                        rowColors.forEach { color ->
-//                            Box(
-//                                contentAlignment = Alignment.Center,
-//                                modifier = Modifier
-//                                    .padding(top = 16.dp)
-//                                    .size(56.dp)
-//                                    .clip(CircleShape)
-//                                    .border(4.dp, color, CircleShape)
-//                                    .clickable(
-//                                        indication = null,
-//                                        interactionSource = NoRippleInteractionSource
-//                                    ) {
-//                                        if (colors[screenState.colorIndex] != color) {
-//                                            action(Action.ShowAdSheet(colors.indexOf(color)))
-//                                        }
-//                                    }
-//                            ) {
-//                                screenState.colorIndex.let {
-//                                    if (colors[it] == color) {
-//                                        Box(
-//                                            modifier = Modifier
-//                                                .size(36.dp)
-//                                                .clip(CircleShape)
-//                                                .background(color)
-//                                        )
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
     if (screenState.isChangeColorSheetVisible) {
         ChangeColorSheet(
             colorIndex = screenState.colorIndex,
@@ -357,7 +299,7 @@ fun openContactUsEmail(context: Context) {
     val message = context.getString(R.string.feedback_prefilled_message)
 
     val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = Uri.parse("mailto:")
+        data = "mailto:".toUri()
         putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
         putExtra(Intent.EXTRA_SUBJECT, subject)
         putExtra(Intent.EXTRA_TEXT, message)
@@ -366,7 +308,6 @@ fun openContactUsEmail(context: Context) {
     try {
         context.startActivity(intent)
     } catch (e: ActivityNotFoundException) {
-        // Нет почтовых клиентов — можно показать snackbar или диалог
         e.printStackTrace()
     }
 }

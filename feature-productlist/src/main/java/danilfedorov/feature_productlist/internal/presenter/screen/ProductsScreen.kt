@@ -176,8 +176,12 @@ internal fun ProductListScreen(
                         )
 
                         when (result) {
-                            SnackbarResult.ActionPerformed -> action(RestoreState())
-                            SnackbarResult.Dismissed -> action(ConfirmDeleteProduct())
+                            SnackbarResult.ActionPerformed ->
+                                action(RestoreState())
+
+                            SnackbarResult.Dismissed -> {
+                                action(ConfirmDeleteProduct())
+                            }
                         }
                     }
                 }
@@ -229,11 +233,13 @@ internal fun ProductListScreen(
                         navHome = { action(Action.NavigateHome()) },
                         onClickOptions = { action(Action.ShowOptionsSheet()) },
                         scrollBehavior = scrollBehavior,
-                        draftAddProduct = screenState.draftAddProduct,
-                        onChangeAddProduct = { action(Action.OnChangeAddProduct(it)) },
-                        addProduct = { action(Action.AddProduct()) },
                         disableMultiSelect = { action(Action.ClearMultiSelect()) },
-                        connectionStatus = screenState.connectionStatus
+                        connectionStatus = screenState.connectionStatus,
+                        navAddProduct = {
+                            action(ConfirmDeleteProduct())
+                            action(Action.NavAddProduct)
+
+                        }
                     )
                     ProgressIndicator(progress)
                 }
@@ -286,7 +292,7 @@ internal fun ProductListScreen(
                 .background(colorScheme.background)
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
         ) {
-            if (screenState.products.isEmpty() && !screenState.isLoading) {
+            if (screenState.products.isEmpty() && !screenState.isLoading && !screenState.searchMode) {
                 item {
                     TitledContent(
                         modifier = Modifier.animateItem(),

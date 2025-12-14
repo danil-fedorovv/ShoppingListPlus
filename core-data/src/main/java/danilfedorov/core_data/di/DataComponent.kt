@@ -7,6 +7,7 @@ import danilfedorov.domain_core.repository.AppearanceRepository
 import danilfedorov.domain_core.repository.FruitAlbumRepository
 import danilfedorov.domain_core.repository.PremiumRepository
 import danilfedorov.domain_core.repository.ProductRepository
+import danilfedorov.domain_core.repository.ProductSuggestionRepository
 import danilfedorov.domain_core.repository.ShoppingListRepository
 import javax.inject.Singleton
 
@@ -20,6 +21,7 @@ interface DataComponent {
     val appearanceRepository: AppearanceRepository
     val premiumRepository: PremiumRepository
     val fruitAlbumRepository: FruitAlbumRepository
+    val suggestionRepository: ProductSuggestionRepository
 
     @Component.Factory
     interface Factory {

@@ -4,10 +4,10 @@ import kotlinx.serialization.Serializable
 
 sealed interface Screen {
     @Serializable
-    data object Shoppinglist : Screen
+    data object ShoppingList : Screen
 
     @Serializable
-    data class ProductList(val shoppingListId: Long) : Screen
+    data class ProductList(val shoppingListId: Long, val addedCount: Int? = null) : Screen
 
     @Serializable
     data object Settings : Screen
@@ -22,5 +22,5 @@ sealed interface Screen {
     data object FruitAlbum: Screen
 
     @Serializable
-    data object AddProduct: Screen
+    data class AddProduct(val shoppingListId: Long, val remoteListId: String?): Screen
 }

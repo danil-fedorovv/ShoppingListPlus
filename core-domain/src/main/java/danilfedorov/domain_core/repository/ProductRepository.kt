@@ -16,13 +16,22 @@ interface ProductRepository {
     fun getTotalProductCountFlow(shoppingListId: Long): Flow<Int>
 
     suspend fun updateProductSelection(remoteListId: String?, product: Product, isSelected: Boolean)
-    suspend fun setAllProductsSelection(remoteListId: String?, shoppingListId: Long, isSelected: Boolean)
-    suspend fun updateAmountAndUnit(remoteListId: String?, product: Product, amount: String?, unit: String?)
+    suspend fun setAllProductsSelection(
+        remoteListId: String?,
+        shoppingListId: Long,
+        isSelected: Boolean
+    )
+
+    suspend fun updateAmountAndUnit(
+        remoteListId: String?,
+        product: Product,
+        amount: String?,
+        unit: String?
+    )
 
     suspend fun updateProductName(remoteListId: String?, product: Product, newName: String)
-
     suspend fun deleteProducts(remoteListId: String?, products: List<Product>)
 
-    fun observeRemoteChanges(remoteListId: String, shoppingListId: Long):  Flow<Unit>
+    fun observeRemoteChanges(remoteListId: String, shoppingListId: Long): Flow<Unit>
     fun observeConnectionStatus(): Flow<Boolean>
 }

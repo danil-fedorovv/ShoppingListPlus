@@ -59,16 +59,6 @@ android {
             buildConfigField("String", "YANDEX_BANNER_KEY", "\"${secretsProps.getProperty("YANDEX_BANNER_KEY_RUSTORE") ?: ""}\"")
             buildConfigField("String", "YANDEX_REWARDED_KEY", "\"${secretsProps.getProperty("YANDEX_REWARDED_KEY_RUSTORE") ?: ""}\"")
         }
-        create("AppGallery") {
-            dimension = "store"
-            buildConfigField("String", "YANDEX_BANNER_KEY", "\"${secretsProps.getProperty("YANDEX_BANNER_KEY_APPGALLERY") ?: ""}\"")
-            buildConfigField("String", "YANDEX_REWARDED_KEY", "\"${secretsProps.getProperty("YANDEX_REWARDED_KEY_APPGALLERY") ?: ""}\"")
-        }
-        create("NashStore") {
-            dimension = "store"
-            buildConfigField("String", "YANDEX_BANNER_KEY", "\"${secretsProps.getProperty("YANDEX_BANNER_KEY_NASHSTORE") ?: ""}\"")
-            buildConfigField("String", "YANDEX_REWARDED_KEY", "\"${secretsProps.getProperty("YANDEX_REWARDED_KEY_NASHSTORE") ?: ""}\"")
-        }
     }
 
     buildTypes {

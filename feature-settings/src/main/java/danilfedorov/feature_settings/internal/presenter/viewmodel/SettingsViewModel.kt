@@ -38,18 +38,18 @@ internal class SettingsViewModel(
     val effect = _effect.asSharedFlow()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             themeFlowUseCase().collect { isDark ->
                 _screenState.update { it.copy(darkTheme = isDark ?: false) }
             }
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             colorIndexFlowUseCase().collect { index ->
                 _screenState.update { it.copy(colorIndex = index ?: 0) }
             }
         }
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             premiumStatusFlowUseCase().collect { isPremium ->
                 _screenState.update {
                     it.copy(isPremium = isPremium)
@@ -84,13 +84,13 @@ internal class SettingsViewModel(
     }
 
     private fun setDarkTheme(darkTheme: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             changeThemeUseCase(darkTheme)
         }
     }
 
     private fun changeColor(colorIndex: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             if (_screenState.value.isPremium) {
                 changeColorIndexUseCase(colorIndex)
             } else {
@@ -102,12 +102,12 @@ internal class SettingsViewModel(
     private fun showAd(colorIndex: Int) {
         adManager.showAd(
             onReward = {
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
                     changeColorIndexUseCase(colorIndex)
                 }
             },
             onAdFailedToShow = {
-                viewModelScope.launch(Dispatchers.Main) {
+                viewModelScope.launch(Dispatchers.Default) {
                     _effect.emit(Effect.FailedToLoadAd)
                 }
             }
@@ -115,13 +115,13 @@ internal class SettingsViewModel(
     }
 
     private fun onRateUsClick() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             _effect.emit(Effect.NavRateUs)
         }
     }
 
     private fun onContactUsClick() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             _effect.emit(Effect.NavContactUs)
         }
     }

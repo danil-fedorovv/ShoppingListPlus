@@ -13,6 +13,7 @@
     <string name="dismiss">dismiss</string>
     <string name="title_collection">Your collection</string>
 
+    <string name="clear_search">Clear search</string>
 
     <string name="fruit_grape">Grape</string>
     <string name="fruit_strawberry">Strawberry</string>
@@ -40,4 +41,10 @@
     <string name="ad_load_failed">Failed to load ad</string>
     <string name="watch_short_ad">Watch a short ad</string>
     <string name="ok" translatable="false">ОК</string>
+
+    <string name="search">Search</string>
+    <string name="add_product">Add product</string>
+
+    <string name="voice_input_prompt">Say product names using «and» or commas</string>
+
 </resources>

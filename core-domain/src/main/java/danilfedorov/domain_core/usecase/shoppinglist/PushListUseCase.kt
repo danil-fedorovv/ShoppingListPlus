@@ -4,10 +4,11 @@ import danilfedorov.domain_core.exceptions.TimeoutException
 import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.model.ShoppingList
 import danilfedorov.domain_core.model.firebase.PushListResult
+import danilfedorov.domain_core.repository.ProductRepository
 import danilfedorov.domain_core.repository.ShoppingListRepository
 
 class PushListUseCase(
-    private val shoppingListRepository: ShoppingListRepository,
+    private val shoppingListRepository: ShoppingListRepository
 ) {
     suspend operator fun invoke(
         list: ShoppingList,

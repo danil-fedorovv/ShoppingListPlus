@@ -2,7 +2,6 @@
 <resources>
     <string name="hide_selected_items">Скрыть отмеченные товары</string>
     <string name="show_selected_items">Показать отмеченные товары</string>
-    <string name="add_product">Добавить товар</string>
     <string name="kg">кг</string>
     <string name="g">г</string>
     <string name="l">л</string>
@@ -36,9 +35,6 @@
     <string name="sort">Сортировка</string>
     <string name="sort_by_alphabet">Сортировать по алфавиту</string>
 
-    <string name="search">Поиск</string>
-    <string name="clear_search">Очистить поиск</string>
-
     <string name="found_of_total">%1$d из %2$d товаров</string>
     <string name="no_result">Нет результатов</string>
 
@@ -61,5 +57,6 @@
         <item quantity="many">%d товаров удалено</item>
         <item quantity="other">%d товаров удалено</item>
     </plurals>
+    <string name="products_added">Добавлено товаров: %d</string>
 
 </resources>

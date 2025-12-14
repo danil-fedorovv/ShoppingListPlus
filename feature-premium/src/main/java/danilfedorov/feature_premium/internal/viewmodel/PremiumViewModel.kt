@@ -32,7 +32,7 @@ class PremiumViewModel(
     val screenState = _screenState.asStateFlow()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             val result = withContext(Dispatchers.IO) {
                 premiumStatusFlowUseCase().first()
             }

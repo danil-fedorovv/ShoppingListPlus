@@ -41,8 +41,7 @@ fun EditAmountAndUnitRow(
             modifier = Modifier.weight(2f),
             maxSymbols = 7,
             keyboardType = KeyboardType.Number,
-            contentPadding = TextFieldDefaults.contentPaddingWithLabel(),
-            selectAllOnFocus = true
+            contentPadding = TextFieldDefaults.contentPaddingWithLabel()
         )
         AppTextField(
             value = draftUnit,
@@ -50,8 +49,7 @@ fun EditAmountAndUnitRow(
             label = stringResource(R.string.units),
             modifier = Modifier.weight(2f),
             maxSymbols = 10,
-            contentPadding = TextFieldDefaults.contentPaddingWithLabel(),
-            selectAllOnFocus = true
+            contentPadding = TextFieldDefaults.contentPaddingWithLabel()
         )
         Row(
             Modifier.height(height),
@@ -65,7 +63,7 @@ fun EditAmountAndUnitRow(
                 enable = (draftAmount.toIntOrNull() ?: 0) > 0
             )
             CircleIconButton(
-                painterResource = painterResource(R.drawable.ic_plus),
+                painterResource = painterResource(danilfedorov.common.R.drawable.ic_plus),
                 contentDescription = stringResource(R.string.dec_amount),
                 onClick = { incAmount() }
             )

@@ -17,4 +17,20 @@
     <string name="feature_ps">
         💡 Purchased items automatically move to the bottom of the list
     </string>
+
+    <string name="feature_share">
+    🔗 You can now share your list via link or a collaborative editing link
+</string>
+
+    <string name="feature_fruit_collection">
+    🍇 Fruit collection is here! Unlocked and selected fruits will appear when creating a list
+</string>
+
+    <string name="feature_add_product_screen">
+    🛒 New add-product screen that saves your input and sorts items by the number of times added
+</string>
+
+    <string name="feature_voice_input">
+    🎤 Voice input: add products using your voice
+</string>
 </resources>

@@ -182,17 +182,7 @@ fun FruitAlbumScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Image(
-                painter = painterResource(danilfedorov.common.R.drawable.img_coop),
-                contentDescription = null,
-                modifier = Modifier.size(125.dp)
-            )
-            Text(
-                text = stringResource(R.string.cta),
-                style = typography.titleMedium,
-                color = colorScheme.secondary,
-                textAlign = TextAlign.Center
-            )
+
             Spacer(Modifier.height(4.dp))
 
             Row(

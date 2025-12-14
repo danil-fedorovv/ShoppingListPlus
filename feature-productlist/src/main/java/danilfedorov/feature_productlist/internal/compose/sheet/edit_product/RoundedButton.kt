@@ -22,9 +22,7 @@ import danilfedorov.productlist.R
 @Preview
 fun CircleIconButtonPreview() {
     ShoppingListThemePreview {
-        CircleIconButton(
-            painterResource = painterResource(R.drawable.ic_plus),
-            onClick = {},
+        CircleIconButton(onClick = {},
             enable = false
         )
     }
@@ -33,7 +31,7 @@ fun CircleIconButtonPreview() {
 @Composable
 fun CircleIconButton(
     modifier: Modifier = Modifier,
-    painterResource: Painter,
+    painterResource: Painter = painterResource(danilfedorov.common.R.drawable.ic_plus),
     contentDescription: String? = null,
     enable: Boolean = true,
     onClick: () -> Unit,
@@ -55,7 +53,7 @@ fun CircleIconButton(
             painter = painterResource,
             contentDescription = contentDescription,
             tint = if (enable) colorScheme.background else colorScheme.onBackground,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(20.dp)
         )
     }
 }

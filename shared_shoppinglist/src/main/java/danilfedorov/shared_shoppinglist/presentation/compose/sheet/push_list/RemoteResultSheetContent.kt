@@ -25,6 +25,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import danilfedorov.common.core_res.TextWhite
 import danilfedorov.common.extension.modifier.noRippleClickable
 import danilfedorov.shared_shoppinglist.R
 
@@ -113,7 +114,7 @@ fun DeepLinkSheetContent(
         ) {
             if (isJoining) {
                 CircularProgressIndicator(
-                    color = colorScheme.secondary,
+                    color = TextWhite,
                     modifier = Modifier.size(24.dp),
                     strokeWidth = 2.dp
                 )
@@ -121,7 +122,7 @@ fun DeepLinkSheetContent(
                 Text(
                     text = buttonText,
                     style = typography.titleLarge,
-                    color = colorScheme.secondary
+                    color = TextWhite
                 )
             }
         }

@@ -2,6 +2,7 @@
 
 package danilfedorov.feature_shoppinglist.internal.presenter.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -99,6 +100,10 @@ internal fun ShoppingListScreen(
         derivedStateOf {
             listState.firstVisibleItemIndex == 0
         }
+    }
+
+    BackHandler(enabled = screenState.multiSelectLists.isNotEmpty()) {
+        action(Action.ClearMultiSelect())
     }
 
     LaunchedEffect(effect) {
@@ -303,8 +308,6 @@ internal fun ShoppingListScreen(
                 titleImageResId = sharedScreenState.renameSheetFruitResId,
                 placeholderText = stringResource(R.string.new_list),
                 buttonText = stringResource(R.string.add),
-                autoFocus = false,
-                selectAllOnFocus = false,
                 value = screenState.draftListName,
                 onValueChange = { action(Action.ChangeDraftListName(it)) },
                 onClick = { action(Action.CreateList()) },

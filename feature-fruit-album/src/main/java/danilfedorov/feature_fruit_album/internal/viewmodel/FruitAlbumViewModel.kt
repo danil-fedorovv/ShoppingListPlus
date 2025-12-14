@@ -32,7 +32,7 @@ class FruitAlbumViewModel(
     val effect = _effect.asSharedFlow()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             getFruitFlowUseCase().collect { fruitAlbum ->
                 _screenState.update { it.copy(fruitAlbum = fruitAlbum) }
             }
@@ -51,7 +51,7 @@ class FruitAlbumViewModel(
     private fun showAd() {
         adManager.showAd(
             onReward = {
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.Default) {
                     val unlockedIndex = unlockRandomFruitUseCase()
                     _screenState.update {
                         it.copy(unlockedIndex = unlockedIndex)
@@ -59,7 +59,7 @@ class FruitAlbumViewModel(
                 }
             },
             onAdFailedToShow = {
-                viewModelScope.launch(Dispatchers.Main) {
+                viewModelScope.launch(Dispatchers.Default) {
                     _effect.emit(Effect.FailedToLoadAd)
                 }
             }
@@ -67,7 +67,7 @@ class FruitAlbumViewModel(
     }
 
     private fun toggleEnabled(index: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             toggleFruitEnabledUseCase(index)
         }
     }

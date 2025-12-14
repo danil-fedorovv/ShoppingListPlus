@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.compose.AppTextField
+import danilfedorov.common.core_res.outline
 import danilfedorov.common.extension.modifier.noRippleClickable
 import danilfedorov.feature_productlist.internal.compose.topbar.NavigationBackIcon
 import danilfedorov.productlist.R
@@ -58,13 +59,13 @@ fun ProductSearchRow(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Rounded.Search,
-                    contentDescription = stringResource(R.string.add_product),
+                    contentDescription = stringResource(danilfedorov.common.R.string.add_product),
                     tint = colorScheme.outline
                 )
             },
             placeholder = {
                 Text(
-                    text = stringResource(R.string.search),
+                    text = stringResource(danilfedorov.common.R.string.search),
                     style = typography.titleMedium,
                     color = colorScheme.outline
                 )
@@ -74,14 +75,14 @@ fun ProductSearchRow(
                     Box(
                         Modifier
                             .size(20.dp)
-                            .background(shape = CircleShape, color = colorScheme.outline)
+                            .background(shape = CircleShape, color = outline)
                             .noRippleClickable {
                                 onChangeSearchValue("")
                             },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_cross),
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_cross),
                             contentDescription = stringResource(R.string.clear_search),
                             tint = colorScheme.surface,
                             modifier = Modifier.size(14.dp)

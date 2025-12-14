@@ -23,13 +23,10 @@
     <string name="switch_system">As on device</string>
     <string name="feedback_subject">App Feedback</string>
     <string name="feedback_prefilled_message">
-    <![CDATA[
-    Hi, Shopping List + team!
-
+    <![CDATA[Hi, Shopping List + team!
+    \n
     I\'d like to leave some feedback about the app:
 
-
-    Thank you for making the app better ❤️
     ]]>
 </string>
 </resources>

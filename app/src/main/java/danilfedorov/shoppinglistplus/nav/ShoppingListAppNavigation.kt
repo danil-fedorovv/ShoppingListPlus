@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import danilfedorov.common.deeplink.DeepLink
+import danilfedorov.feature_add_product.api.AddProductScreenEntry
 import danilfedorov.feature_archive.api.ArchiveScreenEntry
 import danilfedorov.feature_fruit_album.api.FruitAlbumScreenEntry
 import danilfedorov.feature_premium.api.PremiumScreenEntry
@@ -39,10 +40,10 @@ fun ShoppingListAppNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Shoppinglist,
+        startDestination = Screen.ShoppingList,
         modifier = modifier.background(colorScheme.background)
     ) {
-        composable<Screen.Shoppinglist>(
+        composable<Screen.ShoppingList>(
             deepLinks = listOf(
                 navDeepLink { uriPattern = "https://shoppinglistplus.ru/live_edit/{remoteId}" },
                 navDeepLink { uriPattern = "https://shoppinglistplus.ru/share_long/{encodedData}" },
@@ -74,8 +75,12 @@ fun ShoppingListAppNavigation(
         ) {
             ProductListScreenEntry(
                 id = it.arguments?.getLong("shoppingListId") ?: 0,
+                addedCount = it.arguments?.getInt("addedCount"),
                 onNavigateHome = {
                     navController.safePopBackStack()
+                },
+                navAddProduct = { shoppingListId, remoteListId ->
+                    navController.navigate(Screen.AddProduct(shoppingListId, remoteListId))
                 }
             )
         }
@@ -131,6 +136,23 @@ fun ShoppingListAppNavigation(
                 navController.safePopBackStack()
             }
         }
+
+        composable<Screen.AddProduct>(
+            enterTransition = { fadeInTransition },
+            exitTransition = { fadeOutTransition },
+            popEnterTransition = { fadeInTransition },
+            popExitTransition = { fadeOutTransition }
+        ) {
+            AddProductScreenEntry(
+                shoppingListId = it.arguments?.getLong("shoppingListId") ?: 0,
+                remoteListId = it.arguments?.getString("remoteListId"),
+                navBack = { shoppingList, addedCount ->
+                    navController.navigate(Screen.ProductList(shoppingList, addedCount)) {
+                        popUpTo(Screen.ShoppingList) { inclusive = false }
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -144,7 +166,7 @@ fun NavHostController.safePopBackStack() {
     if (flag.getAndSet(true)) return
 
     try {
-        if (currentBackStackEntry?.destination == Screen.Shoppinglist) return
+        if (currentBackStackEntry?.destination == Screen.ShoppingList) return
         if (previousBackStackEntry == null) return
 
         popBackStack()

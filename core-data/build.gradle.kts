@@ -30,6 +30,8 @@ dependencies {
     implementation(project(":core-domain"))
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 
+    implementation("com.google.code.gson:gson:2.10.1")
+
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
     implementation("com.google.firebase:firebase-common")
     implementation("com.google.firebase:firebase-firestore")

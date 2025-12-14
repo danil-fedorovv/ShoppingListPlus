@@ -27,7 +27,7 @@ fun NavigationBackIcon(
     )
 
     Icon(
-        painter = if (isMultiSelect) painterResource(R.drawable.ic_cross)
+        painter = if (isMultiSelect) painterResource(danilfedorov.common.R.drawable.ic_cross)
         else painterResource(danilfedorov.common.R.drawable.ic_arrow_back),
         contentDescription = stringResource(danilfedorov.common.R.string.navback),
         tint = colorScheme.secondary,

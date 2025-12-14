@@ -114,7 +114,7 @@ fun OptionsSheetContent(
         optionRowsContainers.forEachIndexed { index, optionRowsContainer ->
             optionRowsContainer()
             if (index <= optionRowsContainers.lastIndex) {
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(8.dp))
             }
 
         }

@@ -58,9 +58,27 @@ interface ProductDao {
     @Query("update items set firebaseId = :firebaseId where id = :roomId")
     suspend fun updateFirebaseId(roomId: Long, firebaseId: String)
 
+    @Query("update items set firebaseId = :firebaseId where listId = :shoppingListId")
+    suspend fun updateFirebaseIds(shoppingListId: Long, firebaseId: String)
+
     @Query("DELETE FROM items WHERE id IN (:ids)")
     suspend fun deleteProducts(ids: List<Long>)
 
     @Query("DELETE FROM items WHERE firebaseId = :firebaseId")
     suspend fun deleteByFirebaseId(firebaseId: String)
+
+    @Query("""
+    SELECT * FROM items 
+    WHERE listId = :listId 
+    AND name = :name 
+    AND amount = :amount 
+    AND unit = :unit
+    LIMIT 1
+""")
+    suspend fun getProductByDetails(
+        listId: Long,
+        name: String,
+        amount: String,
+        unit: String
+    ): ProductEntity?
 }

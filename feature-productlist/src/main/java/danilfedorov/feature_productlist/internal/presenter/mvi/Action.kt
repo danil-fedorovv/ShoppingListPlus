@@ -10,9 +10,7 @@ sealed class Action {
     class IncAmount(): Action()
     class DecAmount(): Action()
     class OnChangeUnit(val newValue: String) : Action()
-    class OnChangeAddProduct(val newValue: String): Action()
     class ToggleSelect(val product: Product) : Action()
-    class AddProduct() : Action()
     class DeleteProduct(val product: Product) : Action()
     class RestoreState() : Action()
     class ConfirmDeleteProduct() : Action()
@@ -23,7 +21,6 @@ sealed class Action {
     class DeleteFromMultiSelect(val product: Product): Action()
     class ClearMultiSelect(): Action()
     class MultiDelete(): Action()
-    class ConfirmMultiDelete(): Action()
 
     class ShowOptionsSheet(): Action()
     class DismissOptionsSheet(): Action()
@@ -40,4 +37,5 @@ sealed class Action {
     class DismissCopySheet(): Action()
     class CopyProducts(val shoppingListId: Long): Action()
     class CreateNewListAndCopy(): Action()
+    object NavAddProduct: Action()
 }

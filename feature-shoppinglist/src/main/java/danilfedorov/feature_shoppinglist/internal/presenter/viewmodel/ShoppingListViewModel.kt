@@ -28,11 +28,13 @@ import danilfedorov.shared_shoppinglist.presentation.mvi.SharedAction
 import danilfedorov.shared_shoppinglist.presentation.viewmodel.BaseListViewModel
 import danilfedorov.shared_shoppinglist.util.ShoppingListCompressor
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,48 +72,85 @@ class ShoppingListViewModel(
     val effect = _effect.asSharedFlow()
 
     private val _recentlyDeletedIds = MutableStateFlow(setOf<Long>())
+    private var remoteNameJobs = mutableMapOf<String, Job>()
+    private var progressJobs = mutableMapOf<Long, Job>()
 
     init {
-        viewModelScope.launch {
-            combine(
-                observeShoppingListsUseCase(),
-                _recentlyDeletedIds
-            ) { listsFromDb, deletedIds ->
+        observeShoppingLists()
+    }
 
-                val filteredLists = listsFromDb.filter { it.id !in deletedIds }
+    private fun observeShoppingLists() {
+        viewModelScope.launch(Dispatchers.Default) {
 
-                _screenState.update {
-                    it.copy(
-                        shoppingLists = filteredLists,
-                        isLoading = false
-                    )
+            observeShoppingListsUseCase()
+                .combine(_recentlyDeletedIds) { lists, deleted ->
+                    lists.filter { it.id !in deleted }
                 }
+                .collect { visibleLists ->
 
-                if (filteredLists.isEmpty()) return@combine
+                    // обновляем UI
+                    _screenState.update {
+                        it.copy(
+                            shoppingLists = visibleLists,
+                            isLoading = false
+                        )
+                    }
 
-                filteredLists.forEach { list ->
-                    list.remoteListId?.let { remoteId ->
-                        launch {
-                            observeRemoteListNameUseCase(remoteId).collect {}
+                    // обновляем слушателей
+                    updateRemoteNameListeners(visibleLists)
+                    updateProgressListeners(visibleLists)
+                }
+        }
+    }
+
+    private fun updateRemoteNameListeners(lists: List<ShoppingList>) {
+        val currentIds = lists.mapNotNull { it.remoteListId }.toSet()
+
+        // удаляем старые
+        val toRemove = remoteNameJobs.keys - currentIds
+        toRemove.forEach { id ->
+            remoteNameJobs[id]?.cancel()
+            remoteNameJobs.remove(id)
+        }
+
+        // добавляем новые
+        val toAdd = currentIds - remoteNameJobs.keys
+        toAdd.forEach { remoteId ->
+            remoteNameJobs[remoteId] = viewModelScope.launch {
+                observeRemoteListNameUseCase(remoteId).collect {}
+            }
+        }
+    }
+
+    private fun updateProgressListeners(lists: List<ShoppingList>) {
+        val currentIds = lists.map { it.id }.toSet()
+
+        // удаляем устаревшие
+        val toRemove = progressJobs.keys - currentIds
+        toRemove.forEach { id ->
+            progressJobs[id]?.cancel()
+            progressJobs.remove(id)
+        }
+
+        // добавляем новые
+        val toAdd = currentIds - progressJobs.keys
+        toAdd.forEach { id ->
+            progressJobs[id] = viewModelScope.launch {
+
+                combine(
+                    getSelectedProductCountUseCase(id),
+                    getTotalProductCountUseCase(id)
+                ) { selected, total ->
+                    id to (selected to total)
+                }
+                    .distinctUntilChanged()
+                    .collect { (listId, counts) ->
+
+                        _screenState.update { state ->
+                            state.copy(progress = state.progress + (listId to counts))
                         }
                     }
-                }
-
-                filteredLists.forEach { list ->
-                    launch {
-                        combine(
-                            getSelectedProductCountUseCase(list.id),
-                            getTotalProductCountUseCase(list.id)
-                        ) { selected, total ->
-                            list.id to (selected to total)
-                        }.collect { (id, counts) ->
-                            _screenState.update { state ->
-                                state.copy(progress = state.progress + (id to counts))
-                            }
-                        }
-                    }
-                }
-            }.collect {}
+            }
         }
     }
 
@@ -262,13 +301,11 @@ class ShoppingListViewModel(
             if (listName.isEmpty()) listName = res.getString(R.string.shopping_list)
 
             val id = withContext(Dispatchers.IO) { createListUseCase(listName) }
-            navProducts(id)
-            val list = ShoppingList(id = id, name = listName)
 
             withContext(Dispatchers.Main) {
+                navProducts(id)
                 _screenState.update {
                     it.copy(
-                        shoppingLists = listOf(list) + it.shoppingLists,
                         isAddListSheetVisible = false,
                         draftListName = ""
                     )
@@ -310,7 +347,6 @@ class ShoppingListViewModel(
             val copyName = generateCopyName(shoppingList.name)
 
             val id = withContext(Dispatchers.IO) { createListUseCase(copyName) }
-            val newList = ShoppingList(id = id, name = copyName)
 
             withContext(Dispatchers.IO) {
                 val products = getProductListByListIdUseCase(shoppingList.id)
@@ -322,7 +358,6 @@ class ShoppingListViewModel(
 
             _screenState.update {
                 it.copy(
-                    shoppingLists = listOf(newList) + it.shoppingLists,
                     progress = newProgressMap
                 )
             }

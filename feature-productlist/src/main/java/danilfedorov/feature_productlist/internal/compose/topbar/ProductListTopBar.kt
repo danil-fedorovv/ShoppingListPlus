@@ -37,7 +37,6 @@ import danilfedorov.common.compose.AppTextField
 import danilfedorov.common.core_res.green
 import danilfedorov.common.extension.modifier.elevatedCard
 import danilfedorov.common.extension.modifier.noRippleClickable
-import danilfedorov.productlist.R
 
 
 @Composable
@@ -48,10 +47,8 @@ fun ProductListTopBar(
     disableMultiSelect: () -> Unit,
     navHome: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
-    draftAddProduct: String,
-    onChangeAddProduct: (String) -> Unit,
-    addProduct: () -> Unit,
     connectionStatus: Boolean?,
+    navAddProduct: () -> Unit
 ) {
     CenterAlignedTopAppBar(
         expandedHeight = 128.dp,
@@ -122,29 +119,35 @@ fun ProductListTopBar(
 
                 Spacer(modifier = Modifier.height(16.dp))
                 AppTextField(
-                    value = draftAddProduct,
-                    onValueChange = { onChangeAddProduct(it) },
+                    modifier = Modifier.noRippleClickable {
+                        navAddProduct()
+                    },
+                    value = "",
+                    onValueChange = { },
                     trailingIcon = {
                         Icon(
-                            painter = painterResource(R.drawable.ic_slp),
-                            contentDescription = stringResource(R.string.add_product),
-                            modifier = Modifier
-                                .noRippleClickable {
-                                    addProduct()
-                                }
-                                .padding(end = 8.dp),
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_mic),
+                            contentDescription = stringResource(danilfedorov.common.R.string.add_product),
+                            modifier = Modifier.size(24.dp),
                             tint = colorScheme.primary,
                         )
                     },
-                    onDone = { addProduct() },
                     placeholder = {
                         Text(
-                            text = stringResource(R.string.add_product),
+                            text = stringResource(danilfedorov.common.R.string.add_product),
                             style = typography.titleMedium,
                             color = colorScheme.outline
                         )
                     },
-                    contentPadding = PaddingValues(start = 16.dp)
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_search),
+                            contentDescription = stringResource(danilfedorov.common.R.string.search),
+                            tint = colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    focusable = false
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }

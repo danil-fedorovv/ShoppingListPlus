@@ -7,7 +7,6 @@ data class ScreenState(
     val isLoading: Boolean = true,
     val products: List<Product> = emptyList(),
     val shoppingList: ShoppingList? = null,
-    val draftAddProduct: String = "",
     val editingProductId: Long? = null,
     val draftProductName: String = "",
     val draftAmount: String = "",

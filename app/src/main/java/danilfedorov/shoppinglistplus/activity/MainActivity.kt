@@ -34,7 +34,6 @@ import ru.rustore.sdk.pay.RuStorePayClient
 class MainActivity : ComponentActivity() {
 
     private val appComponent by lazy { (application as ShoppingListPlusApplication).appComponent }
-    private val intentInteractor: IntentInteractor by lazy { RuStorePayClient.instance.getIntentInteractor() }
 
     private var initialDeepLink by mutableStateOf<DeepLink?>(null)
 
@@ -102,7 +101,6 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         intent.let {
             setIntent(it)
-            intentInteractor.proceedIntent(it)
             processIncomingIntent(it)
         }
     }
@@ -131,8 +129,8 @@ class MainActivity : ComponentActivity() {
         initialDeepLink = newDeepLink
 
         navController?.let { nc ->
-            if (nc.currentDestination != Screen.Shoppinglist) {
-                nc.navigate(Screen.Shoppinglist) {
+            if (nc.currentDestination != Screen.ShoppingList) {
+                nc.navigate(Screen.ShoppingList) {
                     popUpTo(nc.graph.startDestinationId)
                     launchSingleTop = true
                 }

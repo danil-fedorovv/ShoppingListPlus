@@ -1,6 +1,7 @@
 package danilfedorov.common.compose
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.PaddingValues
@@ -49,13 +50,13 @@ fun AppTextField(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     textStyle: TextStyle = typography.titleMedium,
     containerColor: Color = colorScheme.surface,
-    selectAllOnFocus: Boolean = false,
-    autoFocus: Boolean = false
+    focusable: Boolean = true,
+    focusRequester: FocusRequester = remember { FocusRequester() }
 ) {
+
+
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
-
-    val focusRequester = remember { FocusRequester() }
 
     val borderColor = if (isFocused) colorScheme.primary else colorScheme.surface
 
@@ -76,12 +77,13 @@ fun AppTextField(
         BasicTextField(
             value = value,
             onValueChange = { newValue ->
-                val text = if (newValue.length <= maxSymbols) newValue else newValue.substring(0, maxSymbols)
+                val text = if (newValue.length <= maxSymbols) newValue else newValue.take(maxSymbols)
                 onValueChange(text)
             },
             modifier = modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
+                .focusable(focusable)
                 .dropShadow(
                     shape = shapes.medium,
                     shadow = Shadow(
@@ -90,9 +92,10 @@ fun AppTextField(
                         color = colorScheme.onSurface
                     )
                 )
-                .border(width = 1.dp, color = borderColor, shape = shapes.medium),
-            enabled = true,
-            readOnly = false,
+                .border(width = 1.dp, color = borderColor, shape = shapes.medium)
+            ,
+            enabled = focusable,
+            readOnly = !focusable,
             textStyle = textStyle.copy(color = colorScheme.secondary),
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardType,
