@@ -25,7 +25,7 @@ import danilfedorov.shared_shoppinglist.R
 private fun ShareListSheetContentPreview() {
     ShoppingListThemePreview {
         ShareListSheetContent(
-            {}, {}, {}, {},
+            {}, {}, {},
         )
     }
 }
@@ -33,7 +33,6 @@ private fun ShareListSheetContentPreview() {
 @Composable
 fun ShareListSheetContent(
     shareText: () -> Unit,
-    shareLink: () -> Unit,
     liveEditLink: () -> Unit,
     dismissRequest: () -> Unit,
 ) {
@@ -62,16 +61,16 @@ fun ShareListSheetContent(
                         }
                     )
                 },
-                {
-                    OptionRow(
-                        painter = painterResource(danilfedorov.common.R.drawable.ic_link),
-                        text = stringResource(R.string.share_link_title),
-                        onClick = {
-                            dismissRequest()
-                            shareLink()
-                        }
-                    )
-                },
+//                {
+//                    OptionRow(
+//                        painter = painterResource(danilfedorov.common.R.drawable.ic_link),
+//                        text = stringResource(R.string.share_link_title),
+//                        onClick = {
+//                            dismissRequest()
+//                            shareLink()
+//                        }
+//                    )
+//                },
                 {
                     OptionRow(
                         painter = painterResource(danilfedorov.common.R.drawable.ic_liveedit),

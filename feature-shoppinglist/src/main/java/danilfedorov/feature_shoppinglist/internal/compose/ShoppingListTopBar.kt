@@ -7,11 +7,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -20,26 +24,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import danilfedorov.common.extension.modifier.noRippleClickable
 import danilfedorov.feature_shoppinglist.R
 
 @Preview
 @Composable
 fun ShoppingListTopBarPreview() {
-    ShoppingListTopBar({},{},{}, {})
+    ShoppingListTopBar({}, {}, 4)
 }
 
 @Composable
 fun ShoppingListTopBar(
-    navFruitAlbum: () -> Unit,
-    navSubscription: () -> Unit,
     navArchive: () -> Unit,
-    navSettings: () -> Unit
+    navSettings: () -> Unit,
+    archivedCount: Int
 ) {
 
     val containerHeight = 56.dp
@@ -65,55 +70,40 @@ fun ShoppingListTopBar(
 
         Row {
             Box(
-                Modifier
+                modifier = Modifier
                     .height(containerHeight)
-                    .noRippleClickable {
-                        navFruitAlbum()
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(danilfedorov.common.R.drawable.grape),
-                    contentDescription = stringResource(R.string.subscription),
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .size(elementSize)
-                )
-            }
-            Box(
-                Modifier
-                    .height(containerHeight)
-                    .noRippleClickable {
-                        navSubscription()
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(danilfedorov.common.R.drawable.ic_diamond),
-                    contentDescription = stringResource(R.string.subscription),
-                    tint = colorScheme.primary,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .padding(top = 2.dp)
-                        .size(elementSize)
-                )
-            }
-            Box(
-                Modifier
-                    .height(containerHeight)
+                    .width(40.dp)
                     .noRippleClickable {
                         navArchive()
-                    },
-                contentAlignment = Alignment.Center
+                    }
+
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_basket),
+                    painter = painterResource(R.drawable.ic_archive),
                     contentDescription = stringResource(R.string.archive),
                     tint = colorScheme.secondary,
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
                         .size(elementSize)
+                        .align(Alignment.Center)
                 )
+
+                if (archivedCount != 0) {
+                    Badge(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 12.dp)
+                            .padding(end = 3.dp),
+                        containerColor = colorScheme.primary
+                    ) {
+                        Text(
+                            text = if(archivedCount<99) archivedCount.toString() else 99.toString(),
+                            color = Color.White,
+                            fontSize = 10.sp,
+                        )
+                    }
+                }
+
+
             }
             Box(
                 Modifier
@@ -128,7 +118,7 @@ fun ShoppingListTopBar(
                     contentDescription = stringResource(R.string.settings),
                     tint = colorScheme.secondary,
                     modifier = Modifier
-                        .padding(start = 8.dp, end = 16.dp)
+                        .padding(start = 4.dp, end = 16.dp)
                         .size(elementSize)
                 )
             }

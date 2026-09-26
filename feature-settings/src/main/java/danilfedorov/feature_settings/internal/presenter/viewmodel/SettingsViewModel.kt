@@ -7,7 +7,6 @@ import danilfedorov.domain_core.usecase.appearance.ChangeColorIndexUseCase
 import danilfedorov.domain_core.usecase.appearance.ChangeThemeUseCase
 import danilfedorov.domain_core.usecase.appearance.ColorIndexFlowUseCase
 import danilfedorov.domain_core.usecase.appearance.ThemeFlowUseCase
-import danilfedorov.domain_core.usecase.premium.PremiumStatusFlowUseCase
 import danilfedorov.feature_settings.internal.presenter.mvi.Action
 import danilfedorov.feature_settings.internal.presenter.mvi.Effect
 import danilfedorov.feature_settings.internal.presenter.mvi.ScreenState
@@ -21,14 +20,11 @@ import kotlinx.coroutines.launch
 
 internal class SettingsViewModel(
     private val navBack: () -> Unit,
-    private val navFruitCollection: () -> Unit,
-    private val navPremium: () -> Unit,
     themeFlowUseCase: ThemeFlowUseCase,
     colorIndexFlowUseCase: ColorIndexFlowUseCase,
     private val changeColorIndexUseCase: ChangeColorIndexUseCase,
     private val changeThemeUseCase: ChangeThemeUseCase,
-    private val adManager: AdManager,
-    private val premiumStatusFlowUseCase: PremiumStatusFlowUseCase,
+    private val adManager: AdManager
 ) : ViewModel() {
 
     private val _screenState = MutableStateFlow(ScreenState())
@@ -49,20 +45,11 @@ internal class SettingsViewModel(
                 _screenState.update { it.copy(colorIndex = index ?: 0) }
             }
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            premiumStatusFlowUseCase().collect { isPremium ->
-                _screenState.update {
-                    it.copy(isPremium = isPremium)
-                }
-            }
-        }
     }
 
     fun action(action: Action) {
         when (action) {
             is Action.NavBack -> navBack()
-            Action.NavFruitCollection -> navFruitCollection()
-            Action.NavPremium -> navPremium()
 
             is Action.SetDarkTheme -> setDarkTheme(action.darkTheme)
             is Action.SaveColor -> changeColor(action.colorIndex)
@@ -91,11 +78,7 @@ internal class SettingsViewModel(
 
     private fun changeColor(colorIndex: Int) {
         viewModelScope.launch(Dispatchers.Default) {
-            if (_screenState.value.isPremium) {
-                changeColorIndexUseCase(colorIndex)
-            } else {
-                showAd(colorIndex)
-            }
+            showAd(colorIndex)
         }
     }
 

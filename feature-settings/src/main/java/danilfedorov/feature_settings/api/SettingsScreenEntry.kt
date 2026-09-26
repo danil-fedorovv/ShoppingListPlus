@@ -11,13 +11,11 @@ import danilfedorov.feature_settings.internal.presenter.viewmodel.SettingsViewMo
 @Composable
 fun SettingsScreenEntry(
     navBack: () -> Unit,
-    navFruitCollection: () -> Unit,
-    navPremium: () -> Unit,
 ) {
     val context = LocalContext.current
     val deps = (context.applicationContext as SettingsDepsProvider).settingsDeps
     val viewModel: SettingsViewModel = daggerViewModel {
-        SettingsViewModelFactory(navBack, navFruitCollection, navPremium, deps, context)
+        SettingsViewModelFactory(navBack, deps, context)
     }
 
     val screenState = viewModel.screenState.collectAsState()

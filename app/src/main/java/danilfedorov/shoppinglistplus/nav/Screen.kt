@@ -16,11 +16,5 @@ sealed interface Screen {
     data object Archive: Screen
 
     @Serializable
-    data object Subscription: Screen
-
-    @Serializable
-    data object FruitAlbum: Screen
-
-    @Serializable
     data class AddProduct(val shoppingListId: Long, val remoteListId: String?): Screen
 }

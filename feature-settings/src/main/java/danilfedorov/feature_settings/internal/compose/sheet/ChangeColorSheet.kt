@@ -45,7 +45,6 @@ import danilfedorov.feature_settings.R
 fun ChangeColorSheet(
     colorIndex: Int,
     saveColor: (Int) -> Unit,
-    isPremium: Boolean,
     onDismissRequest: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -118,15 +117,14 @@ fun ChangeColorSheet(
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
-                if (!isPremium) {
-                    Text(
-                        text = stringResource(danilfedorov.common.R.string.watch_short_ad),
-                        style = typography.titleSmall,
-                        color = TextWhite,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
+                Text(
+                    text = stringResource(danilfedorov.common.R.string.watch_short_ad),
+                    style = typography.titleSmall,
+                    color = TextWhite,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+
                 Spacer(Modifier.height(8.dp))
             }
 

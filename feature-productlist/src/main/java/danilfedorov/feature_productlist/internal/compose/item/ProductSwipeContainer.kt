@@ -71,7 +71,7 @@ fun ProductSwipeContainer(
             SwipeContainer(swipeDismissState = swipeDismissState, modifier = modifier)
         },
         dismissContent = { content(item) },
-        dismissThresholds = { FractionalThreshold(0.5f) }
+        dismissThresholds = { FractionalThreshold(1f) }
     )
 
 }

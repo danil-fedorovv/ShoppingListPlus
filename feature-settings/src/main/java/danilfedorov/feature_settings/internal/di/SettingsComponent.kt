@@ -9,7 +9,6 @@ import danilfedorov.domain_core.usecase.appearance.ChangeColorIndexUseCase
 import danilfedorov.domain_core.usecase.appearance.ChangeThemeUseCase
 import danilfedorov.domain_core.usecase.appearance.ColorIndexFlowUseCase
 import danilfedorov.domain_core.usecase.appearance.ThemeFlowUseCase
-import danilfedorov.domain_core.usecase.premium.PremiumStatusFlowUseCase
 import danilfedorov.feature_settings.api.SettingsDeps
 
 @Component(
@@ -24,7 +23,6 @@ interface SettingsComponent {
     val changeColorIndexUseCase: ChangeColorIndexUseCase
     val changeThemeUseCase: ChangeThemeUseCase
     val adManager: AdManager
-    val premiumStatusFlowUseCase: PremiumStatusFlowUseCase
 
     @Component.Factory
     interface Factory {

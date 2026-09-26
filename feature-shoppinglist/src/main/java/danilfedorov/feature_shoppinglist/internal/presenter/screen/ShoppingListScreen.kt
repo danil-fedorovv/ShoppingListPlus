@@ -145,18 +145,6 @@ internal fun ShoppingListScreen(
     Scaffold(
         topBar = {
             ShoppingListTopBar(
-                navFruitAlbum = {
-                    snackbarJob?.let {
-                        action(Action.ConfirmDeleteList())
-                    }
-                    action(Action.NavigateFruitAlbum())
-                },
-                navSubscription = {
-                    snackbarJob?.let {
-                        action(Action.ConfirmDeleteList())
-                    }
-                    action(Action.NavigateSubscription())
-                },
                 navArchive = {
                     snackbarJob?.let {
                         action(Action.ConfirmDeleteList())
@@ -168,7 +156,8 @@ internal fun ShoppingListScreen(
                         action(Action.ConfirmDeleteList())
                     }
                     action(Action.NavigateSettings())
-                })
+                },
+                archivedCount = screenState.archivedCount)
         },
         floatingActionButton = {
             AnimatedContent(
@@ -344,14 +333,6 @@ internal fun ShoppingListScreen(
                 shareText = {
                     sharedAction(
                         SharedAction.ShareText(
-                            context = context,
-                            shoppingList = screenState.sharedShoppingList,
-                        )
-                    )
-                },
-                shareLink = {
-                    sharedAction(
-                        SharedAction.ShareLink(
                             context = context,
                             shoppingList = screenState.sharedShoppingList,
                         )

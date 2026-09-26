@@ -17,8 +17,6 @@ import androidx.navigation.navDeepLink
 import danilfedorov.common.deeplink.DeepLink
 import danilfedorov.feature_add_product.api.AddProductScreenEntry
 import danilfedorov.feature_archive.api.ArchiveScreenEntry
-import danilfedorov.feature_fruit_album.api.FruitAlbumScreenEntry
-import danilfedorov.feature_premium.api.PremiumScreenEntry
 import danilfedorov.feature_productlist.api.ProductListScreenEntry
 import danilfedorov.feature_settings.api.SettingsScreenEntry
 import danilfedorov.feature_shoppinglist.api.ShoppingListScreenEntry
@@ -45,9 +43,9 @@ fun ShoppingListAppNavigation(
     ) {
         composable<Screen.ShoppingList>(
             deepLinks = listOf(
-                navDeepLink { uriPattern = "https://shoppinglistplus.ru/live_edit/{remoteId}" },
-                navDeepLink { uriPattern = "https://shoppinglistplus.ru/share_long/{encodedData}" },
-                navDeepLink { uriPattern = "https://shoppinglistplus.ru/share_short/{id}" }
+                navDeepLink { uriPattern = "https://shoppinglistapp.ru/live_edit/{remoteId}" },
+                navDeepLink { uriPattern = "https://shoppinglistapp.ru/share_long/{encodedData}" },
+                navDeepLink { uriPattern = "https://shoppinglistapp.ru/share_short/{id}" }
             )
         ) {
             ShoppingListScreenEntry(
@@ -55,8 +53,6 @@ fun ShoppingListAppNavigation(
                 nullDeepLink = nullDeepLink,
                 navArchive = { navController.navigate(Screen.Archive) },
                 navSettings = { navController.navigate(Screen.Settings) },
-                navSubscription = { navController.navigate(Screen.Subscription) },
-                navFruitAlbum = { navController.navigate(Screen.FruitAlbum) },
                 navProduct = { shoppingListId ->
                     navController.navigate(
                         Screen.ProductList(
@@ -94,14 +90,7 @@ fun ShoppingListAppNavigation(
             SettingsScreenEntry(
                 navBack = {
                     navController.safePopBackStack()
-                },
-                navFruitCollection = {
-                    navController.navigate(Screen.FruitAlbum)
-                },
-                navPremium = {
-                    navController.navigate(Screen.Subscription)
                 }
-
             )
         }
 
@@ -115,28 +104,6 @@ fun ShoppingListAppNavigation(
                 navController.safePopBackStack()
             }
         }
-        composable<Screen.Subscription>(
-            enterTransition = { fadeInTransition },
-            exitTransition = { fadeOutTransition },
-            popEnterTransition = { fadeInTransition },
-            popExitTransition = { fadeOutTransition }
-        ) {
-            PremiumScreenEntry {
-                navController.safePopBackStack()
-            }
-        }
-
-        composable<Screen.FruitAlbum>(
-            enterTransition = { fadeInTransition },
-            exitTransition = { fadeOutTransition },
-            popEnterTransition = { fadeInTransition },
-            popExitTransition = { fadeOutTransition }
-        ) {
-            FruitAlbumScreenEntry {
-                navController.safePopBackStack()
-            }
-        }
-
         composable<Screen.AddProduct>(
             enterTransition = { fadeInTransition },
             exitTransition = { fadeOutTransition },

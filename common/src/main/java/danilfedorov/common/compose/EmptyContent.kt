@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -30,10 +31,11 @@ fun EmptyContent(
     ) {
         Spacer(Modifier.height(32.dp))
         Image(
-            painter = painterResource(id = R.drawable.abc),
+            modifier = Modifier.size(128.dp),
+            painter = painterResource(id = R.drawable.img_empty_basket),
             contentDescription = null
         )
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
             text = title,
             color = colorScheme.secondary,

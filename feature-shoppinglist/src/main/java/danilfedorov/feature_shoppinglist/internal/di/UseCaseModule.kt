@@ -3,10 +3,8 @@ package danilfedorov.feature_shoppinglist.internal.di
 import dagger.Module
 import dagger.Provides
 import danilfedorov.common.di.FeatureScope
-import danilfedorov.domain_core.repository.FruitAlbumRepository
 import danilfedorov.domain_core.repository.ProductRepository
 import danilfedorov.domain_core.repository.ShoppingListRepository
-import danilfedorov.domain_core.usecase.fruitalbum.GetRandomActiveUnlockedFruitUseCase
 import danilfedorov.domain_core.usecase.product.GetProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.product.GetSelectedProductCountUseCase
 import danilfedorov.domain_core.usecase.product.GetTotalProductCountUseCase
@@ -16,6 +14,7 @@ import danilfedorov.domain_core.usecase.shoppinglist.CreateListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.DeleteListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.FetchListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.GetRemoteShoppingListNameUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveArchivedShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.ObserveRemoteListNameUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.ObserveShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.PushListUseCase
@@ -108,9 +107,9 @@ internal object UseCaseModule {
 
     @Provides
     @FeatureScope
-    fun provideGetRandomActiveUnlockedFruitUseCase(
-        repository: FruitAlbumRepository
-    ): GetRandomActiveUnlockedFruitUseCase =
-        GetRandomActiveUnlockedFruitUseCase(repository)
+    fun provideObserveArchivedShoppingListsUseCase(
+        repository: ShoppingListRepository
+    ): ObserveArchivedShoppingListsUseCase =
+        ObserveArchivedShoppingListsUseCase(repository)
 
 }

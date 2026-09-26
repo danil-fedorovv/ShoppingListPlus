@@ -11,14 +11,12 @@ import danilfedorov.common.deeplink.DeepLinkFactory
 import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.model.ShoppingList
 import danilfedorov.domain_core.model.firebase.PushListResult
-import danilfedorov.domain_core.usecase.fruitalbum.GetRandomActiveUnlockedFruitUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.PushListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RenameShoppingListUseCase
 import danilfedorov.shared_shoppinglist.R
 import danilfedorov.shared_shoppinglist.presentation.compose.sheet.push_list.PushListSheetState
 import danilfedorov.shared_shoppinglist.presentation.mvi.SharedAction
 import danilfedorov.shared_shoppinglist.presentation.mvi.SharedScreenState
-import danilfedorov.shared_shoppinglist.util.ShoppingListCompressor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,8 +26,7 @@ import kotlinx.coroutines.withContext
 
 abstract class BaseListViewModel(
     private val pushListUseCase: PushListUseCase,
-    private val renameShoppingListUseCase: RenameShoppingListUseCase,
-    private val getRandomActiveUnlockedFruitUseCase: GetRandomActiveUnlockedFruitUseCase,
+    private val renameShoppingListUseCase: RenameShoppingListUseCase
 ) : ViewModel() {
 
     private val _sharedState = MutableStateFlow(SharedScreenState())
@@ -45,14 +42,6 @@ abstract class BaseListViewModel(
                 listName = action.listName,
                 products = action.products
             )
-
-            is SharedAction.ShareLink -> action.shoppingList?.let {
-                shareZIPLink(
-                    listName = it.name,
-                    context = action.context,
-                    products = action.products
-                )
-            }
 
             is SharedAction.ShareLiveEditLink -> action.shoppingList?.let {
                 shareLiveEditLink(
@@ -96,30 +85,6 @@ abstract class BaseListViewModel(
         }
         val message = context.getString(R.string.share_link_template, formattedList)
         shareMessage(context, message)
-    }
-
-    protected open fun shareZIPLink(
-        listName: String,
-        products: List<Product>,
-        context: Context,
-    ) {
-        viewModelScope.launch {
-            _sharedState.update { it.copy(isLinkLoading = true) }
-            try {
-                val suffix = ShoppingListCompressor.zip(
-                    listName, products
-                )
-                val link = DeepLinkFactory.createLink(
-                    DeepLink.Share(suffix)
-                )
-                val message = context.getString(R.string.share_link_template, link)
-                shareMessage(context, message)
-            } catch (_: Exception) {
-
-            }
-
-            _sharedState.update { it.copy(isLinkLoading = false) }
-        }
     }
 
     protected open fun shareLiveEditLink(
@@ -235,10 +200,9 @@ abstract class BaseListViewModel(
 
 
     protected open suspend fun getRandomActiveUnlockedFruit() {
-        val randomFruitResId = getRandomActiveUnlockedFruitUseCase()
         _sharedState.update {
             it.copy(
-                renameSheetFruitResId = fruitsRes[randomFruitResId].first)
+                renameSheetFruitResId = fruitsRes.random())
         }
 
     }

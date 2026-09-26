@@ -4,8 +4,6 @@ import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
 import danilfedorov.domain_core.repository.AppearanceRepository
-import danilfedorov.domain_core.repository.FruitAlbumRepository
-import danilfedorov.domain_core.repository.PremiumRepository
 import danilfedorov.domain_core.repository.ProductRepository
 import danilfedorov.domain_core.repository.ProductSuggestionRepository
 import danilfedorov.domain_core.repository.ShoppingListRepository
@@ -19,8 +17,6 @@ interface DataComponent {
     val productRepository: ProductRepository
     val shoppingListRepository: ShoppingListRepository
     val appearanceRepository: AppearanceRepository
-    val premiumRepository: PremiumRepository
-    val fruitAlbumRepository: FruitAlbumRepository
     val suggestionRepository: ProductSuggestionRepository
 
     @Component.Factory

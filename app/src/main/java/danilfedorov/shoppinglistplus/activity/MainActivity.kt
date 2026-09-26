@@ -46,7 +46,6 @@ class MainActivity : ComponentActivity() {
         processIncomingIntent(intent)
 
         lifecycleScope.launch {
-            val initialIsPremium = appComponent.premiumRepository.isPremiumFlow.first()
             val initialDarkTheme = appComponent.appearanceRepository.themeFlow.first()
             val initialColorIndex = appComponent.appearanceRepository.colorIndexFlow.first()
 
@@ -59,7 +58,6 @@ class MainActivity : ComponentActivity() {
                 val colorIndex by appComponent.appearanceRepository.colorIndexFlow.collectAsState(
                     initial = initialColorIndex
                 )
-                val isPremium by appComponent.premiumRepository.isPremiumFlow.collectAsState(initial = initialIsPremium)
 
                 LaunchedEffect(darkTheme) {
                     if (darkTheme == null) {
@@ -82,13 +80,9 @@ class MainActivity : ComponentActivity() {
                             nullDeepLink = { initialDeepLink = null },
                             modifier = Modifier.weight(1f)
                         )
-                        if (!isPremium) {
                             YandexStickyBanner(
                                 isDarkTheme = darkTheme ?: isSystemInDarkTheme
                             )
-                        }
-//                    SnowfallBackground()
-
 
                     }
                 }
@@ -111,14 +105,10 @@ class MainActivity : ComponentActivity() {
         initialDeepLink = null
 
         val newDeepLink = when (uri.host) {
-            "shoppinglistplus.ru" -> {
+            "shoppinglistapp.ru" -> {
                 when (uri.pathSegments.firstOrNull()) {
                     "live_edit" -> uri.lastPathSegment?.takeIf { it.isNotBlank() }
                         ?.let { DeepLink.LiveEdit(it) }
-
-                    "share" -> uri.lastPathSegment?.takeIf { it.isNotBlank() }
-                        ?.let { DeepLink.Share(it) }
-
                     else -> null
                 }
             }

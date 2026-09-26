@@ -296,8 +296,7 @@ internal fun ProductListScreen(
                 item {
                     TitledContent(
                         modifier = Modifier.animateItem(),
-                        title = stringResource(R.string.list_is_still_empty),
-                        subtitle = stringResource(R.string.shopping_list_done)
+                        title = stringResource(R.string.list_is_still_empty)
                     )
                 }
             }
@@ -309,8 +308,7 @@ internal fun ProductListScreen(
                 item {
                     TitledContent(
                         modifier = Modifier.animateItem(),
-                        title = stringResource(R.string.all_goods_purchased),
-                        subtitle = stringResource(R.string.shopping_list_done)
+                        title = stringResource(R.string.all_goods_purchased)
                     )
                     HorizontalDivider(
                         thickness = 1.dp,
@@ -528,15 +526,6 @@ internal fun ProductListScreen(
                         SharedAction.ShareText(
                             context = context,
                             listName = screenState.shoppingListName,
-                            products = screenState.products
-                        )
-                    )
-                },
-                shareLink = {
-                    sharedAction(
-                        SharedAction.ShareLink(
-                            context = context,
-                            shoppingList = screenState.shoppingList,
                             products = screenState.products
                         )
                     )

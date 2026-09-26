@@ -12,9 +12,8 @@
     <string name="amount">Кол-во</string>
     <string name="inc_amount">Увеличить количество</string>
     <string name="dec_amount">"Уменьшить количество "</string>
-    <string name="all_goods_purchased">Все товары куплены ✅</string>
-    <string name="list_is_still_empty">Список пока пуст 🛒</string>
-    <string name="shopping_list_done">Чтобы добавить новые продукты, введите название в поле сверху и нажмите +</string>
+    <string name="all_goods_purchased">Все товары куплены 💯</string>
+    <string name="list_is_still_empty">Список пока пуст 💤</string>
     <string name="close_product_actions">Закрыть действия продукта</string>
     <string name="delete">удалить</string>
     <string name="edit">редактировать</string>

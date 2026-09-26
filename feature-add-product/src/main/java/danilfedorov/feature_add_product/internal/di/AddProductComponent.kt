@@ -2,7 +2,6 @@ package danilfedorov.feature_add_product.internal.di
 
 import dagger.Component
 import danilfedorov.common.di.FeatureScope
-import danilfedorov.domain_core.usecase.premium.PremiumStatusFlowUseCase
 import danilfedorov.domain_core.usecase.product.DeleteProductsUseCase
 import danilfedorov.domain_core.usecase.product.ObserveProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.suggestion.InsertProductsFromNamesUseCase
@@ -19,7 +18,6 @@ interface AddProductComponent {
     val insertOrIncrementSuggestionUseCase: InsertOrIncrementSuggestionUseCase
     val observeProductListByListIdUseCase: ObserveProductListByListIdUseCase
     val deleteProductsUseCase: DeleteProductsUseCase
-    val premiumStatusFlowUseCase: PremiumStatusFlowUseCase
 
     @Component.Factory
     interface Factory {

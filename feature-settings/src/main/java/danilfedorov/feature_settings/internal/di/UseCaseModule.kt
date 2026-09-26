@@ -6,12 +6,10 @@ import dagger.Provides
 import danilfedorov.common.ad.AdManager
 import danilfedorov.common.di.FeatureScope
 import danilfedorov.domain_core.repository.AppearanceRepository
-import danilfedorov.domain_core.repository.PremiumRepository
 import danilfedorov.domain_core.usecase.appearance.ChangeColorIndexUseCase
 import danilfedorov.domain_core.usecase.appearance.ChangeThemeUseCase
 import danilfedorov.domain_core.usecase.appearance.ColorIndexFlowUseCase
 import danilfedorov.domain_core.usecase.appearance.ThemeFlowUseCase
-import danilfedorov.domain_core.usecase.premium.PremiumStatusFlowUseCase
 
 @Module
 object UseCaseModule {
@@ -43,9 +41,4 @@ object UseCaseModule {
     @Provides
     @FeatureScope
     fun provideAdManager(yandexRewardKey: String, context: Context): AdManager = AdManager(yandexRewardKey, context)
-
-    @Provides
-    @FeatureScope
-    fun providePremiumStatusFlowUseCase(premiumRepository: PremiumRepository) =
-        PremiumStatusFlowUseCase(premiumRepository)
 }

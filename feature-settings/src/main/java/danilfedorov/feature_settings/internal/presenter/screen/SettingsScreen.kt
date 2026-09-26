@@ -191,43 +191,43 @@ internal fun SettingsScreen(
             ) {
 
             }
-            HorizontalDivider(
-                color = colorScheme.surface,
-                thickness = 1.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .elevatedCard(colorScheme.surface)
-            )
-            SettingsOption(
-                title = stringResource(R.string.settings_fruit_collection),
-                rightContent = {
-                    Icon(
-                        painterResource(danilfedorov.common.R.drawable.ic_chevron_right),
-                        contentDescription = null,
-                        tint = colorScheme.secondary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            ) {
-                action(Action.NavFruitCollection)
-            }
+//            HorizontalDivider(
+//                color = colorScheme.surface,
+//                thickness = 1.dp,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(horizontal = 16.dp)
+//                    .elevatedCard(colorScheme.surface)
+//            )
+//            SettingsOption(
+//                title = stringResource(R.string.settings_fruit_collection),
+//                rightContent = {
+//                    Icon(
+//                        painterResource(danilfedorov.common.R.drawable.ic_chevron_right),
+//                        contentDescription = null,
+//                        tint = colorScheme.secondary,
+//                        modifier = Modifier.size(24.dp)
+//                    )
+//                }
+//            ) {
+//                action(Action.NavFruitCollection)
+//            }
 
             SettingsOptionTitle(title = stringResource(R.string.settings_section_application))
 
-            SettingsOption(
-                title = stringResource(R.string.settings_disable_ads),
-                rightContent = {
-                    Icon(
-                        painterResource(danilfedorov.common.R.drawable.ic_chevron_right),
-                        contentDescription = null,
-                        tint = colorScheme.secondary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            ) {
-                action(Action.NavPremium)
-            }
+//            SettingsOption(
+//                title = stringResource(R.string.settings_disable_ads),
+//                rightContent = {
+//                    Icon(
+//                        painterResource(danilfedorov.common.R.drawable.ic_chevron_right),
+//                        contentDescription = null,
+//                        tint = colorScheme.secondary,
+//                        modifier = Modifier.size(24.dp)
+//                    )
+//                }
+//            ) {
+//                action(Action.NavPremium)
+//            }
             HorizontalDivider(
                 color = colorScheme.surface,
                 thickness = 1.dp,
@@ -279,7 +279,6 @@ internal fun SettingsScreen(
         ChangeColorSheet(
             colorIndex = screenState.colorIndex,
             saveColor = { action(Action.SaveColor(it)) },
-            isPremium = screenState.isPremium,
             onDismissRequest = { action(Action.HideChangeColorSheet) }
         )
     }

@@ -1,12 +1,12 @@
 package danilfedorov.feature_shoppinglist.internal.presenter.viewmodel
 
 import android.content.res.Resources
+import android.util.Log.i
 import androidx.lifecycle.viewModelScope
 import danilfedorov.common.deeplink.DeepLink
 import danilfedorov.domain_core.model.ShoppingList
 import danilfedorov.domain_core.model.firebase.FetchRemoteListResult
 import danilfedorov.domain_core.model.firebase.GetRemoteListNameResult
-import danilfedorov.domain_core.usecase.fruitalbum.GetRandomActiveUnlockedFruitUseCase
 import danilfedorov.domain_core.usecase.product.GetProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.product.GetSelectedProductCountUseCase
 import danilfedorov.domain_core.usecase.product.GetTotalProductCountUseCase
@@ -15,6 +15,7 @@ import danilfedorov.domain_core.usecase.shoppinglist.ArchiveShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.CreateListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.FetchListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.GetRemoteShoppingListNameUseCase
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveArchivedShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.ObserveRemoteListNameUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.ObserveShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.PushListUseCase
@@ -26,7 +27,6 @@ import danilfedorov.feature_shoppinglist.internal.presenter.mvi.Effect
 import danilfedorov.feature_shoppinglist.internal.presenter.mvi.ScreenState
 import danilfedorov.shared_shoppinglist.presentation.mvi.SharedAction
 import danilfedorov.shared_shoppinglist.presentation.viewmodel.BaseListViewModel
-import danilfedorov.shared_shoppinglist.util.ShoppingListCompressor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,8 +42,6 @@ import kotlinx.coroutines.withContext
 class ShoppingListViewModel(
     private val navArchive: () -> Unit,
     private val navSettings: () -> Unit,
-    private val navSubscription: () -> Unit,
-    private val navFruitAlbum: () -> Unit,
     private val navProducts: (Long) -> Unit,
     private val observeShoppingListsUseCase: ObserveShoppingListsUseCase,
     private val createListUseCase: CreateListUseCase,
@@ -55,14 +53,13 @@ class ShoppingListViewModel(
     private val insertProductsUseCase: InsertProductsUseCase,
     private val getRemoteShoppingListNameUseCase: GetRemoteShoppingListNameUseCase,
     private val observeRemoteListNameUseCase: ObserveRemoteListNameUseCase,
+    private val observeArchivedShoppingLists: ObserveArchivedShoppingListsUseCase,
     private val res: Resources,
     pushListUseCase: PushListUseCase,
     renameShoppingListUseCase: RenameShoppingListUseCase,
-    getRandomActiveUnlockedFruitUseCase: GetRandomActiveUnlockedFruitUseCase,
 ) : BaseListViewModel(
     pushListUseCase,
-    renameShoppingListUseCase,
-    getRandomActiveUnlockedFruitUseCase
+    renameShoppingListUseCase
 ) {
 
     private val _screenState = MutableStateFlow(ScreenState())
@@ -77,6 +74,19 @@ class ShoppingListViewModel(
 
     init {
         observeShoppingLists()
+    }
+
+    init {
+        viewModelScope.launch(Dispatchers.Default) {
+            observeArchivedShoppingLists().collect { archives ->
+                _screenState.update {
+                    it.copy(
+                        archivedCount = archives.size
+                    )
+                }
+            }
+
+        }
     }
 
     private fun observeShoppingLists() {
@@ -159,8 +169,6 @@ class ShoppingListViewModel(
         when (action) {
             is Action.NavigateArchive -> navArchive()
             is Action.NavigateSettings -> navSettings()
-            is Action.NavigateSubscription -> navSubscription()
-            is Action.NavigateFruitAlbum -> navFruitAlbum()
             is Action.NavigateProduct -> navProducts(action.id)
 
             is Action.ConfirmDeleteList -> confirmDelete()
@@ -203,24 +211,6 @@ class ShoppingListViewModel(
 
                     action.shoppingList?.let {
                         shareText(
-                            context = action.context,
-                            listName = it.name,
-                            products = products
-                        )
-                    }
-                }
-            }
-
-            is SharedAction.ShareLink -> {
-                viewModelScope.launch(Dispatchers.Main) {
-                    val products = action.products.ifEmpty {
-                        withContext(Dispatchers.IO) {
-                            getProductListByListIdUseCase(action.shoppingList?.id ?: 0)
-                        }
-                    }
-
-                    action.shoppingList?.let {
-                        shareZIPLink(
                             context = action.context,
                             listName = it.name,
                             products = products
@@ -450,10 +440,6 @@ class ShoppingListViewModel(
             is DeepLink.LiveEdit -> {
                 loadLiveEditInvite(deepLink.suffix)
             }
-
-            is DeepLink.Share -> {
-                unzipLink(deepLink.suffix)
-            }
         }
     }
 
@@ -524,21 +510,6 @@ class ShoppingListViewModel(
         }
 
         loadLiveEditInvite(remoteListId)
-    }
-
-    private fun unzipLink(encodedData: String) {
-        val result = try {
-            val (shoppingListName, products) = ShoppingListCompressor.unzip(encodedData)
-            FetchListSheetState.CopyInvite(
-                listName = shoppingListName,
-                products = products
-            )
-        } catch (_: Exception) {
-            FetchListSheetState.NotFound
-        }
-
-
-        _screenState.update { it.copy(fetchListSheetState = result) }
     }
 
     private fun onClickAddUnzipList() {

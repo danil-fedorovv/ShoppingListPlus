@@ -11,7 +11,6 @@ import danilfedorov.common.compose.AppModalBottomSheet
 @Composable
 fun ShareListSheet(
     shareText: () -> Unit,
-    shareLink: () -> Unit,
     liveEditLink: () -> Unit,
     dismissRequest: () -> Unit
 ) {
@@ -26,7 +25,6 @@ fun ShareListSheet(
     ) {
         ShareListSheetContent(
             shareText = shareText,
-            shareLink = shareLink,
             liveEditLink = liveEditLink,
             dismissRequest = dismissRequest
         )

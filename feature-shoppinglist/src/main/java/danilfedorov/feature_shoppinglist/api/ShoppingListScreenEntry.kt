@@ -17,14 +17,12 @@ fun ShoppingListScreenEntry(
     nullDeepLink: () -> Unit,
     navArchive: () -> Unit,
     navSettings: () -> Unit,
-    navSubscription: () -> Unit,
-    navFruitAlbum: () -> Unit,
     navProduct: (id: Long) -> Unit,
 ) {
     val deps =
         (LocalContext.current.applicationContext as ShoppingListDepsProvider).shoppingListDeps
     val viewModel: ShoppingListViewModel = daggerViewModel {
-        ShoppingListViewModelFactory(navArchive, navSettings, navSubscription, navFruitAlbum, navProduct, deps)
+        ShoppingListViewModelFactory(navArchive, navSettings, navProduct, deps)
     }
 
     LaunchedEffect(deepLink) {

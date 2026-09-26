@@ -15,12 +15,6 @@ sealed class SharedAction {
         val products: List<Product> = emptyList(),
     ) : SharedAction()
 
-    class ShareLink(
-        val context: Context,
-        val shoppingList: ShoppingList? = null,
-        val products: List<Product> = emptyList(),
-    ) : SharedAction()
-
     class ShareLiveEditLink(
         val context: Context,
         val shoppingList: ShoppingList? = null,

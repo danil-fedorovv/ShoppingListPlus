@@ -3,10 +3,8 @@ package danilfedorov.feature_productlist.internal.di
 import dagger.Module
 import dagger.Provides
 import danilfedorov.common.di.FeatureScope
-import danilfedorov.domain_core.repository.FruitAlbumRepository
 import danilfedorov.domain_core.repository.ProductRepository
 import danilfedorov.domain_core.repository.ShoppingListRepository
-import danilfedorov.domain_core.usecase.fruitalbum.GetRandomActiveUnlockedFruitUseCase
 import danilfedorov.domain_core.usecase.product.DeleteProductsUseCase
 import danilfedorov.domain_core.usecase.product.GetShoppingListProgressUseCase
 import danilfedorov.domain_core.usecase.product.InsertProductUseCase
@@ -126,13 +124,6 @@ internal object UseCaseModule {
         repository: ShoppingListRepository
     ): ObserveRemoteListNameUseCase =
         ObserveRemoteListNameUseCase(repository)
-
-    @Provides
-    @FeatureScope
-    fun provideGetRandomActiveUnlockedFruitUseCase(
-        repository: FruitAlbumRepository
-    ): GetRandomActiveUnlockedFruitUseCase =
-        GetRandomActiveUnlockedFruitUseCase(repository)
 }
 
 

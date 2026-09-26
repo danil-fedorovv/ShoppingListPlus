@@ -4,10 +4,8 @@ import danilfedorov.common.deeplink.DeepLink
 import danilfedorov.domain_core.model.ShoppingList
 
 sealed class Action {
-    class NavigateArchive(): Action()
-    class NavigateSettings(): Action()
-    class NavigateSubscription(): Action()
-    class NavigateFruitAlbum(): Action()
+    class NavigateArchive : Action()
+    class NavigateSettings : Action()
     class NavigateProduct(val id: Long): Action()
 
     class ShowListOptions(val shoppingList: ShoppingList): Action()

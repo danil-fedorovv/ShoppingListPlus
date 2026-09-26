@@ -2,14 +2,13 @@ package danilfedorov.feature_shoppinglist.internal.presenter.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import danilfedorov.domain_core.usecase.shoppinglist.ObserveArchivedShoppingListsUseCase
 import danilfedorov.feature_shoppinglist.api.ShoppingListDeps
 import danilfedorov.feature_shoppinglist.internal.di.DaggerShoppingListComponent
 
 internal class ShoppingListViewModelFactory(
     val navArchive: () -> Unit,
     val navSettings: () -> Unit,
-    val navSubscription: () -> Unit,
-    val navFruitAlbum: () -> Unit,
     val navProduct: (id: Long) -> Unit,
     val deps: ShoppingListDeps
 ) : ViewModelProvider.Factory {
@@ -20,8 +19,6 @@ internal class ShoppingListViewModelFactory(
         return ShoppingListViewModel(
             navArchive = navArchive,
             navSettings = navSettings,
-            navSubscription = navSubscription,
-            navFruitAlbum = navFruitAlbum,
             navProducts = navProduct,
             observeShoppingListsUseCase = component.observeShoppingListsUseCase,
             createListUseCase = component.createListUseCase,
@@ -35,7 +32,7 @@ internal class ShoppingListViewModelFactory(
             pushListUseCase = component.pushListUseCase,
             getRemoteShoppingListNameUseCase = component.getRemoteShoppingListNameUseCase,
             observeRemoteListNameUseCase = component.observeRemoteListNameUseCase,
-            getRandomActiveUnlockedFruitUseCase = component.getRandomActiveUnlockedFruitUseCase,
+            observeArchivedShoppingLists = component.observeArchivedShoppingListsUseCase,
             res = component.res
         ) as T
     }

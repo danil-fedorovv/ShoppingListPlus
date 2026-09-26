@@ -12,9 +12,8 @@
     <string name="amount">Amount</string>
     <string name="inc_amount">Increment Amount</string>
     <string name="dec_amount">Decrement Amount</string>
-    <string name="all_goods_purchased">All goods purchased ✅</string>
-    <string name="list_is_still_empty">List is still empty 🛒</string>
-    <string name="shopping_list_done">To add new products, enter the name in the field above and click +</string>
+    <string name="all_goods_purchased">All goods purchased 💯</string>
+    <string name="list_is_still_empty">List is still empty 💤</string>
     <string name="close_product_actions">Close product actions</string>
     <string name="delete">delete</string>
     <string name="edit">edit</string>

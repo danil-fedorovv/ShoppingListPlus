@@ -3,6 +3,5 @@ package danilfedorov.feature_settings.internal.presenter.mvi
 data class ScreenState(
     val darkTheme: Boolean = false,
     val colorIndex: Int = 0,
-    val isChangeColorSheetVisible: Boolean = false,
-    val isPremium: Boolean = false
+    val isChangeColorSheetVisible: Boolean = false
 )

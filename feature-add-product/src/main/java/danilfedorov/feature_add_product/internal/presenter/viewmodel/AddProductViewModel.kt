@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.model.ProductSuggestion
-import danilfedorov.domain_core.usecase.premium.PremiumStatusFlowUseCase
 import danilfedorov.domain_core.usecase.product.DeleteProductsUseCase
 import danilfedorov.domain_core.usecase.product.ObserveProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.suggestion.InsertProductsFromNamesUseCase
@@ -19,6 +18,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -35,8 +36,7 @@ class AddProductViewModel(
     private val insertProductsFromNamesUseCase: InsertProductsFromNamesUseCase,
     private val insertOrIncrementSuggestionUseCase: InsertOrIncrementSuggestionUseCase,
     private val observeProductListByListIdUseCase: ObserveProductListByListIdUseCase,
-    private val deleteProductsUseCase: DeleteProductsUseCase,
-    private val premiumStatusFlowUseCase: PremiumStatusFlowUseCase,
+    private val deleteProductsUseCase: DeleteProductsUseCase
     ) : ViewModel() {
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()
@@ -51,14 +51,18 @@ class AddProductViewModel(
             }
         }
         viewModelScope.launch(Dispatchers.Default) {
-            screenState
-                .map { it.searchInput }
-                .flatMapLatest { query ->
+            combine(
+                screenState.map { it.searchInput }.distinctUntilChanged(),
+                screenState.map { it.productsToAdd }.distinctUntilChanged()
+            ) { query, selected -> query to selected }
+                .flatMapLatest { (query, _) ->
                     searchProductSuggestionsUseCase(query)
                 }
                 .collect { dbSuggestions ->
                     val currentInput = screenState.value.searchInput.trim()
-                    val suggestions =
+                    val selected = screenState.value.productsToAdd
+
+                    val baseSuggestions =
                         if (dbSuggestions.none { it.normalizedName == currentInput } && currentInput.isNotBlank()) {
                             val tempSuggestion = ProductSuggestion(
                                 displayName = currentInput,
@@ -69,17 +73,14 @@ class AddProductViewModel(
                         } else {
                             dbSuggestions
                         }
-                    _screenState.update {
-                        it.copy(suggestions = suggestions)
-                    }
+
+                    val sorted = baseSuggestions.sortedWith(
+                        compareByDescending<ProductSuggestion> { it.normalizedName in selected }
+                            .thenByDescending { it.usageCount }
+                    )
+
+                    _screenState.update { it.copy(suggestions = sorted) }
                 }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            premiumStatusFlowUseCase().collect { isPremium ->
-                _screenState.update {
-                    it.copy(isPremium = isPremium)
-                }
-            }
         }
     }
 

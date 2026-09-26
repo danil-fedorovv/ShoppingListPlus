@@ -14,4 +14,5 @@ data class ScreenState(
     val listOptions: ShoppingList? = null,
     val sharedShoppingList: ShoppingList? = null,
     val fetchListSheetState: FetchListSheetState = FetchListSheetState.Hidden,
+    val archivedCount: Int = 0
 )

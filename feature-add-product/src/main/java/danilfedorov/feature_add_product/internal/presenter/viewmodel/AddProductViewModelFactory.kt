@@ -24,8 +24,7 @@ class AddProductViewModelFactory(
             component.insertProductsFromNamesUseCase,
             component.insertOrIncrementSuggestionUseCase,
             component.observeProductListByListIdUseCase,
-            component.deleteProductsUseCase,
-            component.premiumStatusFlowUseCase
+            component.deleteProductsUseCase
         ) as T
     }
 }

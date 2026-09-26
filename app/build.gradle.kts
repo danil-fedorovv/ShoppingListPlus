@@ -19,8 +19,8 @@ android {
         applicationId = "danilfedorov.shoppinglistplus"
         minSdk = 24
         targetSdk = 36
-        versionCode = 4
-        versionName = "2.0-grape"
+        versionCode = 6
+        versionName = "2.3.11-grape"
 
         setProperty("archivesBaseName", "slp-$versionName")
 
@@ -114,8 +114,6 @@ dependencies {
     implementation(project(":feature-productlist"))
     implementation(project(":feature-settings"))
     implementation(project(":feature-archive"))
-    implementation(project(":feature-premium"))
-    implementation(project(":feature-fruit-album"))
     implementation(project(":feature-add-product"))
 
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))

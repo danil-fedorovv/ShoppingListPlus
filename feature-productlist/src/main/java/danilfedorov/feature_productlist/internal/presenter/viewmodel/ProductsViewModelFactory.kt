@@ -39,8 +39,7 @@ internal class ProductsViewModelFactory(
             getShoppingListsUseCase = component.getShoppingListsUseCase,
             observeRemoteProductChangesUseCase = component.observeRemoteProductChangesUseCase,
             observeConnectionStatusUseCase = component.observeConnectionStatusUseCase,
-            observeRemoteListNameUseCase = component.observeRemoteListNameUseCase,
-            getRandomActiveUnlockedFruitUseCase = component.getRandomActiveUnlockedFruitUseCase
+            observeRemoteListNameUseCase = component.observeRemoteListNameUseCase
         ) as T
 
     }

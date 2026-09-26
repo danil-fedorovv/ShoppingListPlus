@@ -106,18 +106,17 @@ fun AddProductScreen(
     val feedAd = remember {
         FeedAd.Builder(context, config, appearance).build()
     }
-    if (!screenState.isPremium) {
-        feedAd.preloadAd()
+    feedAd.preloadAd()
 
-        feedAd.loadListener = object : FeedAdLoadListener {
-            override fun onAdLoaded() {
-                showPartnerOffers = true
-            }
-
-            override fun onAdFailedToLoad(error: AdRequestError) {
-                Log.d("adLoaded", "-")
-            }
+    feedAd.loadListener = object : FeedAdLoadListener {
+        override fun onAdLoaded() {
+            showPartnerOffers = true
         }
+
+        override fun onAdFailedToLoad(error: AdRequestError) {
+            Log.d("adLoaded", "-")
+        }
+
     }
 
 
@@ -244,7 +243,7 @@ fun AddProductScreen(
                         )
                     }
                 }
-                if (showPartnerOffers && shouldShowPartnerOffers ) {
+                if (showPartnerOffers && shouldShowPartnerOffers) {
                     item {
                         Column(
                             modifier = Modifier
@@ -299,12 +298,12 @@ fun AddProductScreen(
                             Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(
-                                top = screenHeightDp
-                                        - keyboardHeightDp
-                                        - fabSize
-                                        - margin,
-                                end = margin
-                            )
+                                    top = screenHeightDp
+                                            - keyboardHeightDp
+                                            - fabSize
+                                            - margin,
+                                    end = margin
+                                )
                         } else {
                             Modifier
                                 .align(Alignment.BottomEnd)

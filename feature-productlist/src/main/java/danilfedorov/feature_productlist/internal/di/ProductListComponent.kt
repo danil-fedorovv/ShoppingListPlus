@@ -3,7 +3,6 @@ package danilfedorov.feature_productlist.internal.di
 import android.content.res.Resources
 import dagger.Component
 import danilfedorov.common.di.FeatureScope
-import danilfedorov.domain_core.usecase.fruitalbum.GetRandomActiveUnlockedFruitUseCase
 import danilfedorov.domain_core.usecase.product.DeleteProductsUseCase
 import danilfedorov.domain_core.usecase.product.GetShoppingListProgressUseCase
 import danilfedorov.domain_core.usecase.product.InsertProductUseCase
@@ -48,7 +47,6 @@ internal interface ProductListComponent {
     val observeRemoteProductChangesUseCase: ObserveRemoteProductChangesUseCase
     val observeConnectionStatusUseCase: ObserveConnectionStatusUseCase
     val observeRemoteListNameUseCase: ObserveRemoteListNameUseCase
-    val getRandomActiveUnlockedFruitUseCase: GetRandomActiveUnlockedFruitUseCase
     val resources: Resources
 
     @Component.Factory

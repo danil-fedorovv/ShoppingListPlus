@@ -3,6 +3,7 @@ package danilfedorov.feature_productlist.internal.compose
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -20,8 +21,7 @@ import androidx.compose.ui.unit.dp
 fun TitledContentPreview() {
     TitledContent(
         Modifier,
-        "abc",
-        "defg"
+        "abc"
     )
 }
 
@@ -30,26 +30,20 @@ fun TitledContentPreview() {
 @Composable
 fun TitledContent(
     modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String
+    title: String
 ) {
     Column(
-        modifier = modifier.padding(vertical = 32.dp),
+        modifier = modifier.padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = title,
             style = typography.titleLarge,
-            color = colorScheme.secondary
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = subtitle,
-            style = typography.titleMedium,
-            color = colorScheme.outline,
+            color = colorScheme.secondary,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         )
+
     }
 }

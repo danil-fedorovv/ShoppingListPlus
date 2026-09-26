@@ -8,8 +8,6 @@ import danilfedorov.feature_settings.internal.di.DaggerSettingsComponent
 
 internal class SettingsViewModelFactory(
     private val navBack: () -> Unit,
-    private val navFruitCollection: () -> Unit,
-    private val navPremium: () -> Unit,
     private val deps: SettingsDeps,
     private val context: Context
 ) : ViewModelProvider.Factory {
@@ -18,14 +16,11 @@ internal class SettingsViewModelFactory(
         val component = DaggerSettingsComponent.factory().create(context, deps)
         return SettingsViewModel(
             navBack,
-            navFruitCollection,
-            navPremium,
             component.themeFlowUseCase,
             component.colorIndexFlowUseCase,
             component.changeColorIndexUseCase,
             component.changeThemeUseCase,
-            component.adManager,
-            component.premiumStatusFlowUseCase
+            component.adManager
         ) as T
     }
 }

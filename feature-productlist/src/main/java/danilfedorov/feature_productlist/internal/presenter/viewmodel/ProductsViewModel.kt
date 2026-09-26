@@ -4,7 +4,6 @@ import android.content.res.Resources
 import androidx.lifecycle.viewModelScope
 import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.model.ShoppingList
-import danilfedorov.domain_core.usecase.fruitalbum.GetRandomActiveUnlockedFruitUseCase
 import danilfedorov.domain_core.usecase.product.DeleteProductsUseCase
 import danilfedorov.domain_core.usecase.product.GetShoppingListProgressUseCase
 import danilfedorov.domain_core.usecase.product.InsertProductUseCase
@@ -63,11 +62,9 @@ internal class ProductsViewModel(
     private val observeRemoteListNameUseCase: ObserveRemoteListNameUseCase,
     pushListUseCase: PushListUseCase,
     renameShoppingListUseCase: RenameShoppingListUseCase,
-    getRandomActiveUnlockedFruitUseCase: GetRandomActiveUnlockedFruitUseCase
 ) : BaseListViewModel(
     pushListUseCase,
-    renameShoppingListUseCase,
-    getRandomActiveUnlockedFruitUseCase
+    renameShoppingListUseCase
 ) {
 
     private val _screenState = MutableStateFlow(ScreenState())
