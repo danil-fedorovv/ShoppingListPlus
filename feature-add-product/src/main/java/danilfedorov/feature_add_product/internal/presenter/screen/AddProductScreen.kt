@@ -67,14 +67,17 @@ import com.yandex.mobile.ads.feed.FeedAdLoadListener
 import com.yandex.mobile.ads.feed.FeedAdRequestConfiguration
 import danilfedorov.common.R
 import danilfedorov.common.compose.AppTextField
+import danilfedorov.common.compose.NoRippleInteractionSource
 import danilfedorov.common.compose.rememberVoiceInputLauncher
 import danilfedorov.common.core_res.TextWhite
 import danilfedorov.common.core_res.outline
 import danilfedorov.common.extension.modifier.noRippleClickable
+import danilfedorov.domain_core.model.ProductSuggestion
 import danilfedorov.feature_add_product.internal.ad.YandexFeedAd
 import danilfedorov.feature_add_product.internal.compose.SuggestionItem
 import danilfedorov.feature_add_product.internal.presenter.mvi.Action
 import danilfedorov.feature_add_product.internal.presenter.mvi.ScreenState
+import java.util.Locale
 import kotlin.math.max
 
 @Composable
@@ -84,12 +87,8 @@ fun AddProductScreen(
 ) {
     val context = LocalContext.current
     var showPartnerOffers by rememberSaveable { mutableStateOf(false) }
-    val shouldShowPartnerOffers = remember(
-        screenState.suggestions,
-        screenState.voiceSuggestions
-    ) {
-        screenState.suggestions.size > 7 ||
-                screenState.voiceSuggestions.size > 7
+    val shouldShowPartnerOffers = remember(screenState.suggestions) {
+        screenState.suggestions.size > 7
     }
     val screenWidthPx = LocalConfiguration.current.screenWidthDp
     val cardWidthDp = screenWidthPx - 32
@@ -116,9 +115,7 @@ fun AddProductScreen(
         override fun onAdFailedToLoad(error: AdRequestError) {
             Log.d("adLoaded", "-")
         }
-
     }
-
 
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -138,6 +135,10 @@ fun AddProductScreen(
 
     BackHandler {
         action(Action.SaveProducts)
+    }
+
+    val normalizedSelected = remember(screenState.productsToAdd) {
+        screenState.productsToAdd.map { it.trim().lowercase(Locale.ROOT) }.toHashSet()
     }
 
     Scaffold(
@@ -215,26 +216,79 @@ fun AddProductScreen(
                     },
                     focusRequester = focusRequester,
                     onDone = {
-                        action(Action.ToggleSuggestion(screenState.searchInput))
+                        if (screenState.searchInput.isNotBlank()) {
+                            action(Action.ToggleSuggestion(screenState.searchInput))
+                        }
                     }
                 )
-
             }
         }
     ) { innerPadding ->
         Column(Modifier.padding(innerPadding)) {
+
+            // Дедуп по normalizedName (case-insensitive) через LinkedHashMap,
+            // чтобы "MILK" и "milk" не создавали два элемента с одинаковым ключом.
+            // После голосового ввода товары попадают в productsToAdd, а не в отдельный
+            // voiceSuggestions, поэтому при пустом поиске они сразу видны как выбранные.
+            val displayItems = remember(
+                screenState.productsToAdd,
+                screenState.suggestions,
+                screenState.searchInput
+            ) {
+                val selected = screenState.productsToAdd
+                val searchList = screenState.suggestions
+                val query = screenState.searchInput.trim()
+
+                // LinkedHashMap сохраняет порядок вставки и убирает дубли по ключу
+                val map = LinkedHashMap<String, ProductSuggestion>(selected.size + searchList.size)
+
+                // 1. Выбранные товары добавляем ТОЛЬКО при пустом поиске
+                if (query.isEmpty()) {
+                    selected.forEach { name ->
+                        val normalized = name.trim().lowercase(Locale.ROOT)
+                        if (normalized.isNotEmpty() && !map.containsKey(normalized)) {
+                            map[normalized] = ProductSuggestion(
+                                displayName = name,
+                                normalizedName = normalized,
+                                usageCount = 0
+                            )
+                        }
+                    }
+                }
+
+                // 2. Поисковые подсказки
+                searchList.forEach { suggestion ->
+                    val normalized = suggestion.normalizedName.trim().lowercase(Locale.ROOT)
+                    if (normalized.isNotEmpty() && !map.containsKey(normalized)) {
+                        map[normalized] = suggestion
+                    }
+                }
+
+                map.values.toList()
+            }
+
             LazyColumn(
                 modifier = Modifier
                     .nestedScroll(nestedScrollConnection)
             ) {
                 items(
-                    items = screenState.voiceSuggestions.ifEmpty { screenState.suggestions },
-                    key = { it.normalizedName }) { suggestion ->
-                    Column(Modifier.animateItem()) {
+                    items = displayItems,
+                    key = { it.normalizedName }
+                ) { suggestion ->
+                    Column(
+                        Modifier.animateItem(
+                            fadeInSpec = null,
+                            fadeOutSpec = null
+                        )
+                    ) {
                         SuggestionItem(
-                            isAdded = screenState.productsToAdd.contains(suggestion.displayName),
+                            isAdded = normalizedSelected.contains(
+                                suggestion.displayName.trim().lowercase(Locale.ROOT)
+                            ),
                             displayName = suggestion.displayName,
-                            toggleSuggestion = { action(Action.ToggleSuggestion(suggestion.displayName)) },
+                            toggleSuggestion = {
+                                action(Action.ToggleSuggestion(suggestion.displayName))
+                            },
                         )
                         HorizontalDivider(
                             thickness = 1.dp,
@@ -312,7 +366,9 @@ fun AddProductScreen(
                     )
                     .size(fabSize),
                 containerColor = colorScheme.primary,
-                contentColor = TextWhite
+                contentColor = TextWhite,
+                interactionSource = NoRippleInteractionSource
+
             ) {
                 Icon(
                     painter = painterResource(

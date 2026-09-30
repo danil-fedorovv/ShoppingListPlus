@@ -34,9 +34,6 @@ abstract class BaseListViewModel(
 
     open fun sharedAction(action: SharedAction) {
         when (action) {
-            is SharedAction.ShowShareListSheet -> showShareListSheet()
-            is SharedAction.HideShareListSheet -> hideShareListSheet()
-
             is SharedAction.ShareText -> shareText(
                 context = action.context,
                 listName = action.listName,
@@ -146,18 +143,6 @@ abstract class BaseListViewModel(
         context.startActivity(chooser)
     }
 
-    protected open fun showShareListSheet() {
-        _sharedState.update {
-            it.copy(isShareListSheetVisible = true)
-        }
-    }
-
-    protected open fun hideShareListSheet() {
-        _sharedState.update {
-            it.copy(isShareListSheetVisible = false)
-        }
-    }
-
     protected open fun hidePushListSheet() {
         _sharedState.update {
             it.copy(pushListSheetState = PushListSheetState.Hidden)
@@ -171,6 +156,12 @@ abstract class BaseListViewModel(
     }
 
     protected open fun saveListName() {
+        val newName = _sharedState.value.tempListName.trim()
+
+        if (newName.isEmpty()) {
+            hideRenameListSheet()
+            return
+        }
         viewModelScope.launch(Dispatchers.Main) {
             withContext(Dispatchers.IO) {
                 _sharedState.value.renamingList?.let {

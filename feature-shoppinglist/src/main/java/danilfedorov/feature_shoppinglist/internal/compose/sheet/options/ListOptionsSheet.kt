@@ -26,7 +26,8 @@ import danilfedorov.feature_shoppinglist.R
 fun ListOptionsSheet(
     listName: String,
     onRename: () -> Unit,
-    onShare: () -> Unit,
+    shareListAsText: () -> Unit,
+    shareLiveEditLink: () -> Unit,
     onDelete: () -> Unit,
     onCopy: () -> Unit,
     onDismiss: () -> Unit,
@@ -67,14 +68,26 @@ fun ListOptionsSheet(
                     },
                     {
                         OptionRow(
-                            painter = painterResource(danilfedorov.common.R.drawable.ic_share),
-                            text = stringResource(R.string.share),
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_send),
+                            text = stringResource(danilfedorov.common.R.string.action_send_as_text),
                             onClick = {
                                 onDismiss()
-                                onShare()
+                                shareListAsText()
                             }
                         )
-                    }, {
+                    },
+                    {
+                        OptionRow(
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_share_nodes),
+                            text = stringResource(danilfedorov.common.R.string.action_edit_together),
+                            onClick = {
+                                onDismiss()
+                                shareLiveEditLink()
+                            },
+                            iconSize = 20.dp,
+                            subtext = stringResource(danilfedorov.common.R.string.action_invite_via_link)
+                        )
+                    },{
                         OptionRow(
                             painter = painterResource(R.drawable.ic_copy),
                             text = stringResource(R.string.copy),

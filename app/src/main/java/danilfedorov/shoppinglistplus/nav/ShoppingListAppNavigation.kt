@@ -44,8 +44,8 @@ fun ShoppingListAppNavigation(
         composable<Screen.ShoppingList>(
             deepLinks = listOf(
                 navDeepLink { uriPattern = "https://shoppinglistapp.ru/live_edit/{remoteId}" },
-                navDeepLink { uriPattern = "https://shoppinglistapp.ru/share_long/{encodedData}" },
-                navDeepLink { uriPattern = "https://shoppinglistapp.ru/share_short/{id}" }
+                navDeepLink { uriPattern = "https://shoppinglistplus.ru/live_edit/{remoteId}" }
+
             )
         ) {
             ShoppingListScreenEntry(

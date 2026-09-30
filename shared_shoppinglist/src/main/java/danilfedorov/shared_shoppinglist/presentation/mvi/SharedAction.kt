@@ -5,9 +5,6 @@ import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.model.ShoppingList
 
 sealed class SharedAction {
-    class ShowShareListSheet(val shoppingList: ShoppingList? = null) : SharedAction()
-    class HideShareListSheet() : SharedAction()
-
     class ShareText(
         val context: Context,
         val listName: String = "",

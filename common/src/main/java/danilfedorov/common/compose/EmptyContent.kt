@@ -1,8 +1,10 @@
 package danilfedorov.common.compose
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,8 +28,9 @@ fun EmptyContent(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Spacer(Modifier.height(32.dp))
         Image(
@@ -37,6 +40,7 @@ fun EmptyContent(
         )
         Spacer(Modifier.height(8.dp))
         Text(
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = title,
             color = colorScheme.secondary,
             style = typography.titleMedium,
@@ -44,11 +48,11 @@ fun EmptyContent(
             )
         Spacer(Modifier.height(16.dp))
         Text(
+            modifier = Modifier.padding(horizontal = 24.dp),
             text = subtitle,
             color = colorScheme.outline,
             style = typography.titleSmall,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            textAlign = TextAlign.Center
         )
     }
 }

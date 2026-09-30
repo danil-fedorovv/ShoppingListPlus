@@ -11,7 +11,8 @@ import danilfedorov.common.compose.AppModalBottomSheet
 @Composable
 fun OptionsSheet(
     search: () -> Unit,
-    shareList: () -> Unit,
+    shareListAsText: () -> Unit,
+    shareLiveEditLink: () -> Unit,
     renameList: () -> Unit,
     selectAll: () -> Unit,
     clearSelection: () -> Unit,
@@ -31,7 +32,8 @@ fun OptionsSheet(
     ) {
         OptionsSheetContent(
             search = search,
-            shareList = shareList,
+            shareListAsText = shareListAsText,
+            shareLiveEditLink = shareLiveEditLink,
             renameList = renameList,
             selectAll = selectAll,
             clearSelection = clearSelection,

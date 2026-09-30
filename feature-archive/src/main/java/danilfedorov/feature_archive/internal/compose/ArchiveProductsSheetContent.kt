@@ -1,6 +1,7 @@
 package danilfedorov.feature_archive.internal.compose
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -94,8 +95,7 @@ fun ArchiveProductsSheetContent(
                         Text(
                             text = stringResource(R.string.this_list_is_empty),
                             style = typography.titleMedium,
-                            color = colorScheme.outline,
-                            modifier = Modifier
+                            color = colorScheme.outline
                         )
                     }
                 }
@@ -125,18 +125,20 @@ fun ArchiveProductsSheetContent(
             }
             item {
                 ActionButtonRow(
-                    leftText = stringResource(R.string.delete).uppercase(),
+                    leftText = stringResource(R.string.delete).replaceFirstChar { it.uppercase() },
                     onLeftClick = {
                         onDismiss()
                         onDelete()
                     },
-                    rightText = stringResource(R.string.restore).uppercase(),
+                    rightText = stringResource(R.string.restore).replaceFirstChar { it.uppercase() },
                     onRightClick = {
                         onDismiss()
                         onRestore()
                     },
-                    background = if (productList.any { it.isSelected })
-                        colorScheme.background else onBackground
+                    background =
+                        if (productList.any { it.isSelected }) colorScheme.background
+                        else if(productList.isEmpty()) colorScheme.background
+                        else colorScheme.onBackground
                 )
 
             }

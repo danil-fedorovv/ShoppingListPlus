@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -177,6 +178,7 @@ class ProductRepositoryImpl(
 
     override fun observeRemoteChanges(remoteListId: String, shoppingListId: Long): Flow<Unit> {
         return firebaseRealtimeDataSource.observeProductEvents(remoteListId)
+            .debounce(150L)
             .onEach { event ->
                 when (event) {
                     is ProductEvent.Added -> {

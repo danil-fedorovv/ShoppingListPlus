@@ -38,10 +38,10 @@ internal fun ShoppingListItemContainer(
     total: Int,
     navProduct: (Long) -> Unit,
     deleteList: () -> Unit,
-    shareList: () -> Unit,
+    shareLiveEditLink: () -> Unit,
     renameList: () -> Unit,
-    extendedId: Long?,
-    extendShoppingList: (Long?) -> Unit,
+    extendedList: ShoppingList?,
+    extendShoppingList: (ShoppingList?) -> Unit,
     onClickOptions: () -> Unit,
     addMultiSelect: (ShoppingList) -> Unit,
     removeMultiSelect: (ShoppingList) -> Unit,
@@ -52,8 +52,8 @@ internal fun ShoppingListItemContainer(
     var contentHeight by remember { mutableIntStateOf(0) }
 
     var offsetX by remember { mutableFloatStateOf(0f) }
-    val isExtended by remember (extendedId, shoppingList.id) {
-        derivedStateOf { extendedId == shoppingList.id }
+    val isExtended by remember (extendedList?.id, shoppingList.id) {
+        derivedStateOf { extendedList?.id == shoppingList.id }
     }
     val animatedOffsetX by animateFloatAsState(
         targetValue = if (isExtended) -150f else 0f,
@@ -69,7 +69,7 @@ internal fun ShoppingListItemContainer(
 
     fun onDragEnd() {
         if (offsetX < -60f && !isExtended) {
-            extendShoppingList(shoppingList.id)
+            extendShoppingList(shoppingList)
         } else if (isExtended && offsetX >= -60f) {
             extendShoppingList(null)
             offsetX = 0f
@@ -83,7 +83,7 @@ internal fun ShoppingListItemContainer(
                 extendShoppingList(null)
             },
             onShare = {
-                shareList()
+                shareLiveEditLink()
                 extendShoppingList(null)
             },
             onDelete = {

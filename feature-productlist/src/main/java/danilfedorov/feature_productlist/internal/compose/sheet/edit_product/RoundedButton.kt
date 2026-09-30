@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.core_res.ShoppingListThemePreview
 import danilfedorov.common.extension.modifier.noRippleClickable
-import danilfedorov.productlist.R
 
 @Composable
 @Preview
@@ -31,7 +30,7 @@ fun CircleIconButtonPreview() {
 @Composable
 fun CircleIconButton(
     modifier: Modifier = Modifier,
-    painterResource: Painter = painterResource(danilfedorov.common.R.drawable.ic_plus),
+    painterResource: Painter = painterResource(danilfedorov.common.R.drawable.ic_plus2),
     contentDescription: String? = null,
     enable: Boolean = true,
     onClick: () -> Unit,

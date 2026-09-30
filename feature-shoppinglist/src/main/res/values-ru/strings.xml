@@ -13,16 +13,16 @@
 
 
     <string name="rename">Переименовать</string>
-    <string name="share">Поделиться</string>
+    <string name="send_text">Поделиться текстом</string>
     <string name="copy">Копировать</string>
     <string name="copy_suffix"> — копия</string>
     <string name="delete">Удалить</string>
-    <string name="list_copied">Список скопирован</string>
+    <string name="list_copied">список скопирован</string>
 
     <string name="edit">редактировать</string>
 
-    <string name="empty_lists_title">Давайте спланируем покупки!</string>
-    <string name="empty_lists_subtitle">Нажмите «+ Новый список» внизу, чтобы добавить первый список</string>
+    <string name="empty_lists_title">Списков пока нет</string>
+    <string name="empty_lists_subtitle">Добавьте первый — он появится здесь</string>
 
     <string name="shared_editing">∙ Общий список</string>
 
@@ -45,7 +45,7 @@
     <string name="add_list_button">Добавить</string>
 
     <plurals name="lists_copied">
-        <item quantity="one">%d Список скопирован</item>
+        <item quantity="one">%d список скопирован</item>
         <item quantity="few">%d списка скопировано</item>
         <item quantity="many">%d списков скопировано</item>
         <item quantity="other">%d списков скопировано</item>
@@ -57,4 +57,7 @@
         <item quantity="many">%d списков удалено</item>
         <item quantity="other">%d списков удалено</item>
     </plurals>
+
+    <string name="new_list_title">Новый список</string>
+    <string name="new_list_create_button">Создать</string>
 </resources>

@@ -37,6 +37,7 @@ dependencies {
     implementation(project(":common"))
 
     implementation(libs.dagger)
+    implementation(libs.androidx.compose.animation)
     ksp(libs.dagger.compiler)
 
     implementation(libs.androidx.recyclerview)

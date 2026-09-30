@@ -108,12 +108,14 @@ internal class ProductsViewModel(
                         if (query.isEmpty()) products
                         else products.filter { it.name.contains(query, ignoreCase = true) }
 
-                    shoppingList to filtered
+                    Triple(shoppingList, products, filtered)   // ← было Pair, стало Triple
                 }
-                .collect { (shoppingList, filteredProducts) ->
-
-                    updateScreenState(shoppingList, filteredProducts)
-
+                .collect { (shoppingList, totalProducts, filteredProducts) ->
+                    updateScreenState(
+                        shoppingList = shoppingList,
+                        products = filteredProducts,
+                        totalCount = totalProducts.size
+                    )
                     _screenState.update {
                         it.copy(shoppingList = shoppingList)
                     }
@@ -183,6 +185,7 @@ internal class ProductsViewModel(
     private fun updateScreenState(
         shoppingList: ShoppingList,
         products: List<Product>,
+        totalCount: Int,
     ) {
         _screenState.update {
             it.copy(
@@ -190,6 +193,7 @@ internal class ProductsViewModel(
                 shoppingListName = shoppingList.name,
                 isSortByAlphabet = shoppingList.isSortedByAlphabet,
                 filteredCount = products.size,
+                totalCount = totalCount,
                 isLoading = false
             )
         }
@@ -298,39 +302,29 @@ internal class ProductsViewModel(
     }
 
     private fun changeProductName(newValue: String) {
-        viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update { it.copy(draftProductName = newValue) }
-        }
+        _screenState.update { it.copy(draftProductName = newValue) }
     }
 
     private fun changeAmount(newValue: String) {
-        viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update { it.copy(draftAmount = newValue) }
-        }
+        _screenState.update { it.copy(draftAmount = newValue) }
+    }
+
+    private fun changeUnit(newValue: String) {
+        _screenState.update { it.copy(draftUnit = newValue) }
     }
 
     private fun incAmount() {
-        viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update {
-                val incAmount = (it.draftAmount.toIntOrNull()?.inc() ?: 1).toString()
-                it.copy(draftAmount = incAmount)
-            }
+        _screenState.update {
+            val incAmount = (it.draftAmount.toIntOrNull()?.inc() ?: 1).toString()
+            it.copy(draftAmount = incAmount)
         }
     }
 
     private fun decAmount() {
-        viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update {
-                val amount = it.draftAmount.toIntOrNull() ?: 0
-                val decAmount = amount.dec().coerceAtLeast(0).toString()
-                it.copy(draftAmount = if (decAmount == "0") "" else decAmount)
-            }
-        }
-    }
-
-    private fun changeUnit(newValue: String) {
-        viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update { it.copy(draftUnit = newValue) }
+        _screenState.update {
+            val amount = it.draftAmount.toIntOrNull() ?: 0
+            val decAmount = amount.dec().coerceAtLeast(0).toString()
+            it.copy(draftAmount = if (decAmount == "0") "" else decAmount)
         }
     }
 
@@ -456,9 +450,7 @@ internal class ProductsViewModel(
     }
 
     private fun onChangeSearchValue(newValue: String) {
-        viewModelScope.launch(Dispatchers.Main) {
-            _screenState.update { it.copy(searchValue = newValue) }
-        }
+        _screenState.update { it.copy(searchValue = newValue) }
     }
 
     private fun setSortByAlphabet(checked: Boolean) {
@@ -527,6 +519,7 @@ internal class ProductsViewModel(
             copyProducts(shoppingListId)
         }
     }
+
     override fun onCleared() {
         remoteListenersJob?.cancel()
         super.onCleared()

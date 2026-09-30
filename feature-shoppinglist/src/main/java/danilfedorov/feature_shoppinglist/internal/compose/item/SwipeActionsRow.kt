@@ -51,7 +51,7 @@ internal fun BoxScope.SwipeActionsRow(
         ActionButton(
             color = green,
             width = 50.dp,
-            painterId = danilfedorov.common.R.drawable.ic_share,
+            painterId = danilfedorov.common.R.drawable.ic_share_nodes,
             contentDescription = "share",
             onClick = onShare
         )

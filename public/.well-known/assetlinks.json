@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "danilfedorov.shoppinglistplus",
+      "sha256_cert_fingerprints": [
+        "56:DC:A5:0B:62:58:3C:E6:06:FC:F5:BE:D6:26:A8:6E:E6:FE:35:35:AE:FD:E3:78:F0:E2:50:D9:78:18:FB:04"
+      ]
+    }
+  }
+]

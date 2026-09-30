@@ -51,7 +51,7 @@ fun ArchiveScreen(
 ) {
     var snackbarJob by remember { mutableStateOf<Job?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
-    val undoString = stringResource(R.string.undo).uppercase()
+    val undoString = stringResource(R.string.undo).replaceFirstChar { it.uppercase() }
 
     LaunchedEffect(effect) {
         effect.collect { effect ->
@@ -144,6 +144,7 @@ fun ArchiveScreen(
             if (screenState.archiveLists.isEmpty() && !screenState.isLoading) {
                 item {
                     EmptyContent(
+                        modifier = Modifier.fillParentMaxHeight(0.75f),
                         title = stringResource(R.string.archive_empty_title),
                         subtitle = stringResource(R.string.archive_empty_subtitle)
                     )

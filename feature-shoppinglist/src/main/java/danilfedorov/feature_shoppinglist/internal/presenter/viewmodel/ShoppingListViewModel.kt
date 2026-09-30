@@ -183,7 +183,7 @@ class ShoppingListViewModel(
             is Action.ShowAddListSheet -> showAddListSheet()
             is Action.HideAddListSheet -> hideAddListSheet()
             is Action.ChangeDraftListName -> changeAddListName(action.newValue)
-            is Action.ExtendList -> extendShoppingList(action.id)
+            is Action.ExtendList -> extendShoppingList(action.extendedList)
             is Action.CopyList -> copyList(action.shoppingList)
             is Action.AddMultiSelect -> addMultiSelect(action.shoppingList)
             is Action.RemoveMultiSelect -> removeMultiSelect(action.shoppingList)
@@ -235,13 +235,6 @@ class ShoppingListViewModel(
                         )
                     }
                 }
-            }
-
-            is SharedAction.ShowShareListSheet -> {
-                _screenState.update {
-                    it.copy(sharedShoppingList = action.shoppingList)
-                }
-                super.showShareListSheet()
             }
 
             else -> super.sharedAction(action)
@@ -326,9 +319,9 @@ class ShoppingListViewModel(
         }
     }
 
-    private fun extendShoppingList(id: Long?) {
+    private fun extendShoppingList(extendedList: ShoppingList?) {
         _screenState.update {
-            it.copy(extendedListId = id)
+            it.copy(extendedList = extendedList)
         }
     }
 
@@ -436,6 +429,7 @@ class ShoppingListViewModel(
     }
 
     private fun handleDeepLink(deepLink: DeepLink) {
+
         when (deepLink) {
             is DeepLink.LiveEdit -> {
                 loadLiveEditInvite(deepLink.suffix)

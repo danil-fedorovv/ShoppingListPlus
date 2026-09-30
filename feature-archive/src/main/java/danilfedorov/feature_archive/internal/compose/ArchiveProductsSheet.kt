@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import danilfedorov.common.compose.AppModalBottomSheet
+import danilfedorov.common.core_res.background
 import danilfedorov.domain_core.model.Product
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -20,10 +21,12 @@ fun ArchiveProductsSheet(
         skipPartiallyExpanded = false
     )
 
+
     AppModalBottomSheet(
         sheetState = sheetState,
         onDismissRequest = onDismiss,
-        backgroundColor = colorScheme.onBackground
+        backgroundColor = if(productList.any { !it.isSelected}) colorScheme.onBackground
+        else colorScheme.background
     ) {
         ArchiveProductsSheetContent(
             archiveName = archiveName,

@@ -13,7 +13,7 @@
 
     <string name="share_sheet_title">Поделиться списком</string>
 
-    <string name="share_text_title">Текстом</string>
+    <string name="share_text_title">Отправить текст</string>
     <string name="share_link_title">Ссылкой</string>
     <string name="share_liveedit_title">Совместное редактирование</string>
 
@@ -33,4 +33,15 @@
 
     <string name="add_list_title">Вам прислали список покупок</string>
     <string name="add_list_button">Добавить</string>
+
+    <string name="new_list_templates_hint">Предложения</string>
+
+    <string name="template_groceries">Продукты</string>
+    <string name="template_shopping">Покупки</string>
+    <string name="template_weekly">На неделю</string>
+    <string name="template_weekend">На выходные</string>
+    <string name="template_pharmacy">Аптека</string>
+    <string name="template_home">Для дома</string>
+    <string name="template_dacha">Для дачи</string>
+    <string name="template_holiday">Для праздника</string>
 </resources>

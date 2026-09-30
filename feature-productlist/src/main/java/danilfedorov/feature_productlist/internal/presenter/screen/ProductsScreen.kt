@@ -70,7 +70,6 @@ import danilfedorov.shared_shoppinglist.presentation.compose.sheet.editname.Edit
 import danilfedorov.shared_shoppinglist.presentation.compose.sheet.loading.LoadingSheet
 import danilfedorov.shared_shoppinglist.presentation.compose.sheet.push_list.PushListResultSheet
 import danilfedorov.shared_shoppinglist.presentation.compose.sheet.push_list.PushListSheetState
-import danilfedorov.shared_shoppinglist.presentation.compose.sheet.share.ShareListSheet
 import danilfedorov.shared_shoppinglist.presentation.mvi.SharedAction
 import danilfedorov.shared_shoppinglist.presentation.mvi.SharedScreenState
 import kotlinx.coroutines.Job
@@ -100,7 +99,7 @@ internal fun ProductListScreen(
 
     val context = LocalContext.current
     val res = LocalResources.current
-    val undoString = stringResource(R.string.undo).uppercase()
+    val undoString = stringResource(R.string.undo).replaceFirstChar { it.uppercase() }
     val headerKey = "header_key"
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -412,7 +411,7 @@ internal fun ProductListScreen(
                 item(key = "search info") {
                     SearchInfoColumn(
                         filteredCount = screenState.filteredCount,
-                        itemsCount = screenState.products.size,
+                        itemsCount = screenState.totalCount,
                         onClickClear = { action(Action.OnChangeSearchValue("")) }
                     )
                 }
@@ -464,9 +463,24 @@ internal fun ProductListScreen(
         if (screenState.isOptionsSheetVisible) {
             OptionsSheet(
                 search = { action(Action.EnableSearchMode()) },
-                shareList = {
+                shareListAsText = {
                     action(Action.DismissOptionsSheet())
-                    sharedAction(SharedAction.ShowShareListSheet())
+                    sharedAction(
+                        SharedAction.ShareText(
+                            context = context,
+                            listName = screenState.shoppingListName,
+                            products = screenState.products
+                        )
+                    )
+                },
+                shareLiveEditLink = {
+                    sharedAction(
+                        SharedAction.ShareLiveEditLink(
+                            context = context,
+                            shoppingList = screenState.shoppingList,
+                            products = screenState.products
+                        )
+                    )
                 },
                 renameList = {
                     screenState.shoppingList?.let {
@@ -517,31 +531,6 @@ internal fun ProductListScreen(
                 },
                 onDismissRequest = { sharedAction(SharedAction.HidePushListSheet) }
             )
-        }
-
-        if (sharedScreenState.isShareListSheetVisible) {
-            ShareListSheet(
-                shareText = {
-                    sharedAction(
-                        SharedAction.ShareText(
-                            context = context,
-                            listName = screenState.shoppingListName,
-                            products = screenState.products
-                        )
-                    )
-                },
-                liveEditLink = {
-                    sharedAction(
-                        SharedAction.ShareLiveEditLink(
-                            context = context,
-                            shoppingList = screenState.shoppingList,
-                            products = screenState.products
-                        )
-                    )
-                },
-                dismissRequest = {
-                    sharedAction(SharedAction.HideShareListSheet())
-                })
         }
     }
 }

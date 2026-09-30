@@ -18,14 +18,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class AddProductViewModel(
@@ -37,7 +35,7 @@ class AddProductViewModel(
     private val insertOrIncrementSuggestionUseCase: InsertOrIncrementSuggestionUseCase,
     private val observeProductListByListIdUseCase: ObserveProductListByListIdUseCase,
     private val deleteProductsUseCase: DeleteProductsUseCase
-    ) : ViewModel() {
+) : ViewModel() {
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()
     private var initialProducts: List<Product> = emptyList()
@@ -51,11 +49,10 @@ class AddProductViewModel(
             }
         }
         viewModelScope.launch(Dispatchers.Default) {
-            combine(
-                screenState.map { it.searchInput }.distinctUntilChanged(),
-                screenState.map { it.productsToAdd }.distinctUntilChanged()
-            ) { query, selected -> query to selected }
-                .flatMapLatest { (query, _) ->
+            screenState
+                .map { it.searchInput }
+                .distinctUntilChanged()
+                .flatMapLatest { query ->
                     searchProductSuggestionsUseCase(query)
                 }
                 .collect { dbSuggestions ->
@@ -63,10 +60,10 @@ class AddProductViewModel(
                     val selected = screenState.value.productsToAdd
 
                     val baseSuggestions =
-                        if (dbSuggestions.none { it.normalizedName == currentInput } && currentInput.isNotBlank()) {
+                        if (dbSuggestions.none { it.normalizedName == currentInput.lowercase(Locale.ROOT) } && currentInput.isNotBlank()) {
                             val tempSuggestion = ProductSuggestion(
                                 displayName = currentInput,
-                                normalizedName = currentInput.trim().lowercase(),
+                                normalizedName = currentInput.lowercase(Locale.ROOT),
                                 usageCount = 1
                             )
                             listOf(tempSuggestion) + dbSuggestions
@@ -74,8 +71,12 @@ class AddProductViewModel(
                             dbSuggestions
                         }
 
+                    val selectedNormalized = selected
+                        .map { it.trim().lowercase(Locale.ROOT) }
+                        .toHashSet()
+
                     val sorted = baseSuggestions.sortedWith(
-                        compareByDescending<ProductSuggestion> { it.normalizedName in selected }
+                        compareByDescending<ProductSuggestion> { it.normalizedName in selectedNormalized }
                             .thenByDescending { it.usageCount }
                     )
 
@@ -95,10 +96,7 @@ class AddProductViewModel(
 
     private fun onChangeSearchInput(input: String) {
         _screenState.update {
-            it.copy(
-                searchInput = input,
-                voiceSuggestions = emptyList()
-            )
+            it.copy(searchInput = input)
         }
     }
 
@@ -108,17 +106,26 @@ class AddProductViewModel(
         val searchInput = _screenState.value.searchInput.trim()
 
         _screenState.update { state ->
-            if (state.productsToAdd.contains(trimmed))
-                state.copy(productsToAdd = state.productsToAdd - trimmed, searchInput = "")
-            else state.copy(
-                productsToAdd = state.productsToAdd + trimmed, searchInput = ""
-            )
+            val existing = state.productsToAdd.firstOrNull {
+                it.equals(trimmed, ignoreCase = true)
+            }
+
+            if (existing != null) {
+                state.copy(
+                    productsToAdd = state.productsToAdd - existing,
+                    searchInput = ""
+                )
+            } else {
+                state.copy(
+                    productsToAdd = state.productsToAdd + trimmed,
+                    searchInput = ""
+                )
+            }
         }
+
         viewModelScope.launch(Dispatchers.Default) {
             if (searchInput.equals(trimmed, ignoreCase = true)) {
-                insertOrIncrementSuggestionUseCase(
-                    listOf(searchInput)
-                )
+                insertOrIncrementSuggestionUseCase(listOf(searchInput))
             }
         }
     }
@@ -130,7 +137,8 @@ class AddProductViewModel(
 
         navBack(shoppingListId, namesToAdd.size)
 
-
+        // Оставляем как было: отдельный CoroutineScope, чтобы сохранение
+        // дожило до конца после выхода с экрана и отмены viewModelScope.
         CoroutineScope(Dispatchers.IO).launch {
             val productsToDelete = initialProducts.filter { it.name !in productsToAdd }
             if (namesToAdd.isNotEmpty()) {
@@ -153,11 +161,9 @@ class AddProductViewModel(
         val cleaned = voiceInput
             .replace(Regex("\\s+"), " ")
             .trim()
-
         if (cleaned.isBlank()) return
 
         val andSep = productsAndSeparator().trim()
-
         val unified = cleaned
             .replace(Regex("\\s+$andSep\\s+", RegexOption.IGNORE_CASE), ",")
             .replace(Regex("\\s*,\\s*"), ",")
@@ -170,21 +176,21 @@ class AddProductViewModel(
 
         if (rawNames.isEmpty()) return
 
-        viewModelScope.launch(Dispatchers.Default) {
-
-            val parsed = rawNames.map { name ->
-                ProductSuggestion(
-                    displayName = name,
-                    normalizedName = name.lowercase()
-                )
+        _screenState.update { state ->
+            val existingNormalized = state.productsToAdd
+                .map { it.trim().lowercase(Locale.ROOT) }
+                .toHashSet()
+            val toAdd = rawNames.filter {
+                it.trim().lowercase(Locale.ROOT) !in existingNormalized
             }
+            state.copy(
+                productsToAdd = state.productsToAdd + toAdd,
+                searchInput = ""
+            )
+        }
 
-            _screenState.update { state ->
-                state.copy(
-                    productsToAdd = state.productsToAdd + rawNames.toSet(),
-                    voiceSuggestions = parsed
-                )
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            insertOrIncrementSuggestionUseCase(rawNames)
         }
     }
 

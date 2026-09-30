@@ -28,6 +28,8 @@ dependencies {
     implementation(project(":core-domain"))
     implementation(project(":common"))
 
+    implementation("ru.rustore.sdk:review:6.0.0")
+
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
 

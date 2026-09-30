@@ -5,7 +5,7 @@
     <string name="archive">Archive</string>
     <string name="delete">delete</string>
     <string name="restore">restore</string>
-    <string name="moved_to_trash">Moved to trash</string>
+    <string name="moved_to_trash">Archived</string>
     <string name="deleted_today">Today</string>
     <string name="deleted_yesterday">Yesterday</string>
     <string name="undo">undo</string>
@@ -13,11 +13,8 @@
     <string name="deleteAll">deleteAll</string>
     <string name="this_list_is_empty">This list is empty</string>
 
-    <string name="archive_empty_title">Here you will find all deleted lists.</string>
-    <string name="archive_empty_subtitle">You can restore them or delete them permanently.</string>
-
-
-
+    <string name="archive_empty_title">Archive is empty</string>
+    <string name="archive_empty_subtitle">Deleted lists will appear here</string>
 
     <plurals name="deleted_days_ago">
         <item quantity="one">%d ago</item>

@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
         initialDeepLink = null
 
         val newDeepLink = when (uri.host) {
-            "shoppinglistapp.ru" -> {
+            "shoppinglistapp.ru", "shoppinglistplus.ru" -> {
                 when (uri.pathSegments.firstOrNull()) {
                     "live_edit" -> uri.lastPathSegment?.takeIf { it.isNotBlank() }
                         ?.let { DeepLink.LiveEdit(it) }

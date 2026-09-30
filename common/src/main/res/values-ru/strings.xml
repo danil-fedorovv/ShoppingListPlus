@@ -40,11 +40,15 @@
     <string name="fruit_persimmon">Хурма</string>
 
     <string name="ad_load_failed">Не удалось загрузить рекламу</string>
-    <string name="watch_short_ad">Посмотри короткую рекламу</string>
+    <string name="watch_short_ad">За просмотр рекламы</string>
 
     <string name="add_product">Добавить товар</string>
     <string name="search">Поиск</string>
 
     <string name="voice_input_prompt">Называйте продукты через «и» или запятую</string>
+
+    <string name="action_send_as_text">Отправить как текст</string>
+    <string name="action_edit_together">Совместный доступ</string>
+    <string name="action_invite_via_link">Создать ссылку для друга</string>
 
 </resources>

@@ -76,7 +76,6 @@ abstract class ShoppingListDatabase : RoomDatabase() {
                 context.getString(R.string.feature_edit) to false,
                 context.getString(R.string.feature_multi_select) to false,
                 context.getString(R.string.feature_share) to false,
-                context.getString(R.string.feature_fruit_collection) to false,
                 context.getString(R.string.feature_add_product_screen) to false,
                 context.getString(R.string.feature_voice_input) to false,
                 context.getString(R.string.feature_ps) to true

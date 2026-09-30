@@ -18,6 +18,7 @@ data class ScreenState(
     val shoppingListName: String = "",
     val searchValue: String = "",
     val filteredCount: Int = 0,
+    val totalCount: Int = 0,
     val isSortByAlphabet: Boolean = false,
     val isCopySheetVisible: Boolean = false,
     val shoppingListProgress: Map<ShoppingList, String> = emptyMap(),

@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -13,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -62,7 +65,7 @@ fun ArchiveItem(
                 text = progress,
                 style = typography.titleMedium,
                 color = colorScheme.secondary,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp).align(Alignment.Top)
             )
         }
         Row(
@@ -72,36 +75,42 @@ fun ArchiveItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = context.getString(R.string.moved_to_trash).uppercase() + " ",
-                style = typography.titleSmall.copy(fontSize = 12.sp),
+                text = context.getString(R.string.moved_to_trash).replaceFirstChar
+                { it.uppercase() } + ": ",
+                style = typography.titleMedium,
                 color = colorScheme.outline
             )
             Text(
-                text = deleteAtText.uppercase(),
-                style = typography.titleSmall.copy(fontSize = 12.sp),
+                text = deleteAtText.replaceFirstChar { it.uppercase() },
+                style = typography.titleMedium,
                 color = colorScheme.secondary
             )
         }
         Row(
-            modifier.fillMaxWidth().padding(vertical = 16.dp),
+            modifier.fillMaxWidth().padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = stringResource(R.string.delete).uppercase(),
+                text = stringResource(R.string.delete).replaceFirstChar { it.uppercase() },
                 style = typography.titleMedium,
                 color = colorScheme.error,
                 modifier = Modifier
+                    .weight(0.5f)
+                    .padding(vertical = 8.dp)
                     .noRippleClickable {
                         onDelete()
                     },
                 textAlign = TextAlign.Center
             )
+            Spacer(Modifier.width(16.dp))
             Text(
-                text = stringResource(R.string.restore).uppercase(),
+                text = stringResource(R.string.restore).replaceFirstChar { it.uppercase() },
                 style = typography.titleMedium,
                 color = green,
-                modifier = modifier
+                modifier = Modifier
+                    .weight(0.5f)
+                    .padding(vertical = 8.dp)
                     .noRippleClickable {
                         onRestore()
                     },

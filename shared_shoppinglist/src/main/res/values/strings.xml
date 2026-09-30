@@ -12,7 +12,7 @@
 
     <string name="share_sheet_title">Share list</string>
 
-    <string name="share_text_title">Text</string>
+    <string name="share_text_title">Send text</string>
     <string name="share_link_title">Link</string>
     <string name="share_liveedit_title">Edit together</string>
 
@@ -33,5 +33,14 @@
     <string name="timeout_subtitle">Check your internet connection</string>
     <string name="retry_button">Retry</string>
 
+    <string name="new_list_templates_hint">Suggestions</string>
 
+    <string name="template_groceries">Groceries</string>
+    <string name="template_shopping">Shopping</string>
+    <string name="template_weekly">For the week</string>
+    <string name="template_weekend">For the weekend</string>
+    <string name="template_pharmacy">Pharmacy</string>
+    <string name="template_home">For home</string>
+    <string name="template_dacha">For the dacha</string>
+    <string name="template_holiday">For the holiday</string>
 </resources>

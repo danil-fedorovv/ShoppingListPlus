@@ -7,16 +7,16 @@
     <string name="add">Add</string>
 
     <string name="undo">undo</string>
-    <string name="new_list">new list</string>
+    <string name="new_list">New list</string>
     <string name="shopping_list">Shopping list</string>
     <string name="add_new_list">Add new list</string>
 
     <string name="rename">Rename</string>
-    <string name="share">Share</string>
+    <string name="send_text">Send text</string>
     <string name="copy">Copy</string>
     <string name="copy_suffix"> — copy</string>
     <string name="delete">Delete</string>
-    <string name="list_copied">List copied</string>
+    <string name="list_copied">list copied</string>
 
     <string name="edit">edit</string>
 
@@ -51,5 +51,8 @@
         <item quantity="one">%d list deleted</item>
         <item quantity="other">%d lists deleted</item>
     </plurals>
+
+    <string name="new_list_title">New list</string>
+    <string name="new_list_create_button">Create</string>
 
 </resources>

@@ -58,6 +58,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import ru.rustore.sdk.review.RuStoreReviewManagerFactory
 
 @Composable
 internal fun SettingsScreen(
@@ -92,7 +93,10 @@ internal fun SettingsScreen(
                 }
 
                 Effect.NavContactUs -> openContactUsEmail(context)
-                Effect.NavRateUs -> openInRuStore(context)
+                Effect.NavRateUs -> showReviewFlow(
+                    context = context,
+                    onFallback = { openInRuStore(context) }
+                )
             }
         }
     }
@@ -191,43 +195,7 @@ internal fun SettingsScreen(
             ) {
 
             }
-//            HorizontalDivider(
-//                color = colorScheme.surface,
-//                thickness = 1.dp,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 16.dp)
-//                    .elevatedCard(colorScheme.surface)
-//            )
-//            SettingsOption(
-//                title = stringResource(R.string.settings_fruit_collection),
-//                rightContent = {
-//                    Icon(
-//                        painterResource(danilfedorov.common.R.drawable.ic_chevron_right),
-//                        contentDescription = null,
-//                        tint = colorScheme.secondary,
-//                        modifier = Modifier.size(24.dp)
-//                    )
-//                }
-//            ) {
-//                action(Action.NavFruitCollection)
-//            }
-
             SettingsOptionTitle(title = stringResource(R.string.settings_section_application))
-
-//            SettingsOption(
-//                title = stringResource(R.string.settings_disable_ads),
-//                rightContent = {
-//                    Icon(
-//                        painterResource(danilfedorov.common.R.drawable.ic_chevron_right),
-//                        contentDescription = null,
-//                        tint = colorScheme.secondary,
-//                        modifier = Modifier.size(24.dp)
-//                    )
-//                }
-//            ) {
-//                action(Action.NavPremium)
-//            }
             HorizontalDivider(
                 color = colorScheme.surface,
                 thickness = 1.dp,
@@ -282,6 +250,24 @@ internal fun SettingsScreen(
             onDismissRequest = { action(Action.HideChangeColorSheet) }
         )
     }
+}
+
+private fun showReviewFlow(
+    context: Context,
+    onFallback: () -> Unit
+) {
+    val manager = RuStoreReviewManagerFactory.create(context)
+
+    manager.requestReviewFlow()
+        .addOnSuccessListener { reviewInfo ->
+            manager.launchReviewFlow(reviewInfo)
+                .addOnFailureListener {
+                    onFallback()
+                }
+        }
+        .addOnFailureListener {
+            onFallback()
+        }
 }
 
 fun openInRuStore(context: Context) {

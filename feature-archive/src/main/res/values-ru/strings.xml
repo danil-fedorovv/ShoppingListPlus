@@ -5,7 +5,7 @@
     <string name="archive">Архив</string>
     <string name="delete">удалить</string>
     <string name="restore">восстановить</string>
-    <string name="moved_to_trash">Перемещен в корзину</string>
+    <string name="moved_to_trash">Перемещен в архив</string>
     <string name="deleted_today">Сегодня</string>
     <string name="deleted_yesterday">Вчера</string>
     <string name="undo">отмена</string>
@@ -14,8 +14,8 @@
     <string name="search">Искать</string>
     <string name="deleteAll">Удалить все</string>
 
-    <string name="archive_empty_title">Здесь вы найдёте все удалённые списки</string>
-    <string name="archive_empty_subtitle">Вы можете восстановить их или удалить навсегда</string>
+    <string name="archive_empty_title">Архив пуст</string>
+    <string name="archive_empty_subtitle">Удалённые списки появятся здесь</string>
 
 
 

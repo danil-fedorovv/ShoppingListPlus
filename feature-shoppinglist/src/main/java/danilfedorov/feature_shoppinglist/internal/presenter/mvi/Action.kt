@@ -16,7 +16,7 @@ sealed class Action {
     class ShowAddListSheet(): Action()
     class HideAddListSheet(): Action()
     class ChangeDraftListName(val newValue: String): Action()
-    class ExtendList(val id: Long?): Action()
+    class ExtendList(val extendedList: ShoppingList?): Action()
     class CopyList(val shoppingList: ShoppingList): Action()
     class AddMultiSelect(val shoppingList: ShoppingList): Action()
     class RemoveMultiSelect(val shoppingList: ShoppingList): Action()

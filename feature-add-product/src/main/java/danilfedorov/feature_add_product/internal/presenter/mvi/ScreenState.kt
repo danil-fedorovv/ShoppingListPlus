@@ -6,6 +6,5 @@ data class ScreenState(
     val searchInput: String = "",
     val suggestions: List<ProductSuggestion> = emptyList(),
     val productsToAdd: Set<String> = emptySet(),
-    val initialProducts: Set<String> = emptySet(),
-    val voiceSuggestions: List<ProductSuggestion> = emptyList()
+    val initialProducts: Set<String> = emptySet()
 )

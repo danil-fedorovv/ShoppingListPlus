@@ -39,6 +39,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -47,10 +48,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import danilfedorov.common.compose.EmptyContent
 import danilfedorov.common.compose.NoRippleInteractionSource
 import danilfedorov.feature_shoppinglist.R
@@ -67,7 +72,6 @@ import danilfedorov.shared_shoppinglist.presentation.compose.sheet.editname.Edit
 import danilfedorov.shared_shoppinglist.presentation.compose.sheet.loading.LoadingSheet
 import danilfedorov.shared_shoppinglist.presentation.compose.sheet.push_list.PushListResultSheet
 import danilfedorov.shared_shoppinglist.presentation.compose.sheet.push_list.PushListSheetState
-import danilfedorov.shared_shoppinglist.presentation.compose.sheet.share.ShareListSheet
 import danilfedorov.shared_shoppinglist.presentation.mvi.SharedAction
 import danilfedorov.shared_shoppinglist.presentation.mvi.SharedScreenState
 import kotlinx.coroutines.Job
@@ -94,7 +98,7 @@ internal fun ShoppingListScreen(
         )
     )
     val res = LocalResources.current
-    val undoString = stringResource(R.string.undo).uppercase()
+    val undoString = stringResource(R.string.undo).replaceFirstChar { it.uppercase() }
 
     val isScrollingUp by remember {
         derivedStateOf {
@@ -104,6 +108,17 @@ internal fun ShoppingListScreen(
 
     BackHandler(enabled = screenState.multiSelectLists.isNotEmpty()) {
         action(Action.ClearMultiSelect())
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                action(Action.ConfirmDeleteList())
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     LaunchedEffect(effect) {
@@ -157,7 +172,8 @@ internal fun ShoppingListScreen(
                     }
                     action(Action.NavigateSettings())
                 },
-                archivedCount = screenState.archivedCount)
+                archivedCount = screenState.archivedCount
+            )
         },
         floatingActionButton = {
             AnimatedContent(
@@ -175,20 +191,21 @@ internal fun ShoppingListScreen(
                 if (visible) {
 
                     ExtendedFloatingActionButton(
+                        modifier = Modifier.padding(bottom = 8.dp),
                         onClick = { action(Action.ShowAddListSheet()) },
                         icon = {
                             Icon(
                                 imageVector = Icons.Rounded.Add,
-                                contentDescription = stringResource(R.string.add).uppercase(),
+                                contentDescription = stringResource(R.string.add),
                                 modifier = Modifier.size(28.dp),
-                                tint = colorScheme.background
+                                tint = Color.White
                             )
                         },
                         text = {
                             Text(
-                                text = stringResource(R.string.new_list).uppercase(),
+                                text = stringResource(R.string.new_list),
                                 style = typography.titleMedium,
-                                color = colorScheme.background
+                                color = Color.White
                             )
                         },
                         expanded = isScrollingUp,
@@ -249,6 +266,7 @@ internal fun ShoppingListScreen(
             if (screenState.shoppingLists.isEmpty() && !screenState.isLoading) {
                 item {
                     EmptyContent(
+                        modifier = Modifier.fillParentMaxHeight(0.75f),
                         title = stringResource(R.string.empty_lists_title),
                         subtitle = stringResource(R.string.empty_lists_subtitle)
                     )
@@ -270,9 +288,16 @@ internal fun ShoppingListScreen(
                         }
                         action(Action.NavigateProduct(shoppingListId))
                     },
-                    shareList = { sharedAction(SharedAction.ShowShareListSheet(shoppingList)) },
+                    shareLiveEditLink = {
+                        sharedAction(
+                            SharedAction.ShareLiveEditLink(
+                                context = context,
+                                shoppingList = screenState.extendedList
+                            )
+                        )
+                    },
                     renameList = { sharedAction(SharedAction.ShowRenameListSheet(shoppingList)) },
-                    extendedId = screenState.extendedListId,
+                    extendedList = screenState.extendedList,
                     extendShoppingList = { action(Action.ExtendList(it)) },
                     onClickOptions = { action(Action.ShowListOptions(shoppingList)) },
                     addMultiSelect = { action(Action.AddMultiSelect(shoppingList)) },
@@ -293,14 +318,18 @@ internal fun ShoppingListScreen(
         }
         if (screenState.isAddListSheetVisible) {
             EditShoppingListNameSheet(
-                title = stringResource(R.string.add_new_list),
+                title = stringResource(R.string.new_list_title),
                 titleImageResId = sharedScreenState.renameSheetFruitResId,
-                placeholderText = stringResource(R.string.new_list),
-                buttonText = stringResource(R.string.add),
+                placeholderText = stringResource(R.string.shopping_list),
+                buttonText = stringResource(R.string.new_list_create_button),
                 value = screenState.draftListName,
                 onValueChange = { action(Action.ChangeDraftListName(it)) },
                 onClick = { action(Action.CreateList()) },
-                onDismissRequest = { action(Action.HideAddListSheet()) }
+                onDismissRequest = {
+                    action(Action.HideAddListSheet())
+                    action(Action.ChangeDraftListName(""))
+                                   },
+                isAddNewList = true
             )
         }
         if (sharedScreenState.renamingList != null) {
@@ -317,38 +346,25 @@ internal fun ShoppingListScreen(
             ListOptionsSheet(
                 listName = listOptions.name,
                 onRename = { sharedAction(SharedAction.ShowRenameListSheet(listOptions)) },
-                onShare = {
-                    action(Action.HideListOptions())
-                    sharedAction(SharedAction.ShowShareListSheet(listOptions))
+                shareListAsText = { sharedAction(
+                    SharedAction.ShareText(
+                        context = context,
+                        shoppingList = screenState.listOptions,
+                    )
+                ) },
+                shareLiveEditLink = {
+                    sharedAction(
+                        SharedAction.ShareLiveEditLink(
+                            context = context,
+                            shoppingList = screenState.listOptions
+                        )
+                    )
                 },
                 onDelete = { action(Action.DeleteList(listOptions)) },
                 onCopy = { action(Action.CopyList(listOptions)) },
                 onDismiss = { action(Action.HideListOptions()) }
 
             )
-        }
-
-        if (sharedScreenState.isShareListSheetVisible) {
-            ShareListSheet(
-                shareText = {
-                    sharedAction(
-                        SharedAction.ShareText(
-                            context = context,
-                            shoppingList = screenState.sharedShoppingList,
-                        )
-                    )
-                },
-                liveEditLink = {
-                    sharedAction(
-                        SharedAction.ShareLiveEditLink(
-                            context = context,
-                            shoppingList = screenState.sharedShoppingList
-                        )
-                    )
-                },
-                dismissRequest = {
-                    sharedAction(SharedAction.HideShareListSheet())
-                })
         }
 
         if (screenState.fetchListSheetState is FetchListSheetState.Loading) {

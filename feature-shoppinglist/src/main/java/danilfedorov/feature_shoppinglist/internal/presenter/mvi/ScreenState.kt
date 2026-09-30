@@ -10,9 +10,8 @@ data class ScreenState(
     val draftListName: String = "",
     val isAddListSheetVisible: Boolean = false,
     val multiSelectLists: List<ShoppingList> = emptyList(),
-    val extendedListId: Long? = null,
+    val extendedList: ShoppingList? = null,
     val listOptions: ShoppingList? = null,
-    val sharedShoppingList: ShoppingList? = null,
     val fetchListSheetState: FetchListSheetState = FetchListSheetState.Hidden,
     val archivedCount: Int = 0
 )

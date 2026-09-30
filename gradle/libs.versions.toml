@@ -28,6 +28,7 @@ runtimeVersion = "1.9.4"
 firebaseCommonKtx = "22.0.1"
 recyclerview = "1.4.0"
 composeTesting = "1.0.0-alpha09"
+animationVersion = "1.9.1"
 
 
 [libraries]
@@ -70,6 +71,7 @@ androidx-runtime = { group = "androidx.compose.runtime", name = "runtime", versi
 firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 androidx-compose-testing = { group = "androidx.xr.compose", name = "compose-testing", version.ref = "composeTesting" }
+androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animationVersion" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "agp" }

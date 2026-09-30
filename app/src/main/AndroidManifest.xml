@@ -47,8 +47,8 @@
 
                 <data
                     android:scheme="https"
-                    android:host="shoppinglistapp.ru"
-                    android:pathPrefix="/share" />
+                    android:host="shoppinglistplus.ru"
+                    android:pathPrefix="/live_edit" />
             </intent-filter>
         </activity>
     </application>

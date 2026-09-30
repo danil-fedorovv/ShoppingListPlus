@@ -19,7 +19,8 @@ import danilfedorov.productlist.R
 fun OptionsSheetContent(
     search: () -> Unit,
     modifier: Modifier = Modifier,
-    shareList: () -> Unit,
+    shareListAsText: () -> Unit,
+    shareLiveEditLink: () -> Unit,
     renameList: () -> Unit,
     selectAll: () -> Unit,
     clearSelection: () -> Unit,
@@ -53,9 +54,18 @@ fun OptionsSheetContent(
                     },
                     {
                         OptionRow(
-                            painter = painterResource(danilfedorov.common.R.drawable.ic_share),
-                            text = stringResource(R.string.share),
-                            onClick = { shareList() }
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_send),
+                            text = stringResource(danilfedorov.common.R.string.action_send_as_text),
+                            onClick = { shareListAsText() }
+                        )
+                    },
+                    {
+                        OptionRow(
+                            painter = painterResource(danilfedorov.common.R.drawable.ic_share_nodes),
+                            text = stringResource(danilfedorov.common.R.string.action_edit_together),
+                            subtext = stringResource(danilfedorov.common.R.string.action_invite_via_link),
+                            onClick = { shareLiveEditLink() },
+                            iconSize = 20.dp
                         )
                     }
                 )
