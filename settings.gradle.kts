@@ -18,7 +18,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ShoppingListPlus"
+rootProject.name = "ShoppingListAI"
 include(":app")
 include(":common")
 include(":core-data")

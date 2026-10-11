@@ -19,8 +19,8 @@ android {
         applicationId = "danilfedorov.shoppinglistplus"
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
-        versionName = "2.3-grape"
+        versionCode = 8
+        versionName = "3.0"
 
         setProperty("archivesBaseName", "slp-$versionName")
 

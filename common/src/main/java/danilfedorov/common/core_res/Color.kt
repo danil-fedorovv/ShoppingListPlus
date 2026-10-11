@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 val red = Color(0xFFD21E19)
 
-val lime = Color(0xFFCDDC39)
+val lime = Color(0xFFcedf91)
 val green = Color(0xFF4CAF50)
 val blue = Color(0xFF2196F3)
 val hotPink = Color(0xFFFF4081)

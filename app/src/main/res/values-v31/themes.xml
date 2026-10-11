@@ -2,7 +2,7 @@
 <resources>
 
     <style name="SLPTheme" parent="Theme.Material3.Light.NoActionBar">
-        <item name="android:windowBackground">#CDDC39</item>
-        <item name="android:windowSplashScreenBackground">#CDDC39</item>
+        <item name="android:windowBackground">#cedf91</item>
+        <item name="android:windowSplashScreenBackground">#cedf91</item>
     </style>
 </resources>
