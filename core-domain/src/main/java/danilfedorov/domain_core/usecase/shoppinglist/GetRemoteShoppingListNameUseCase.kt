@@ -6,8 +6,9 @@ import danilfedorov.domain_core.model.firebase.GetRemoteListNameResult
 import danilfedorov.domain_core.repository.ShoppingListRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import javax.inject.Inject
 
-class GetRemoteShoppingListNameUseCase(
+class GetRemoteShoppingListNameUseCase @Inject constructor(
     private val shoppingListRepository: ShoppingListRepository,
 ) {
     suspend operator fun invoke(remoteListId: String): GetRemoteListNameResult = runCatching {

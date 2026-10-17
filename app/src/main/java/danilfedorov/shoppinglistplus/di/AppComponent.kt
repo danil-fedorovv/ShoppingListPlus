@@ -15,6 +15,7 @@ import danilfedorov.feature_add_product.api.AddProductDeps
 import danilfedorov.feature_archive.api.ArchiveDeps
 import danilfedorov.feature_productlist.api.ProductListDeps
 import danilfedorov.feature_settings.api.SettingsDeps
+import danilfedorov.feature_settings.internal.di.YandexRewardedKey
 import danilfedorov.feature_shoppinglist.api.ShoppingListDeps
 import danilfedorov.shoppinglistplus.BuildConfig
 import danilfedorov.shoppinglistplus.ShoppingListPlusApplication
@@ -27,6 +28,7 @@ interface AppComponent : ShoppingListDeps, ProductListDeps, SettingsDeps, Archiv
     override val productRepository: ProductRepository
     override val appearanceRepository: AppearanceRepository
     override val productSuggestionRepository: ProductSuggestionRepository
+    @get:YandexRewardedKey
     override val yandexRewardedKey: String
         get() = BuildConfig.YANDEX_REWARDED_KEY
     override val res: Resources

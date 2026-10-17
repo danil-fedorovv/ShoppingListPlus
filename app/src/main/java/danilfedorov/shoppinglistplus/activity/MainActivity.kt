@@ -28,8 +28,6 @@ import danilfedorov.shoppinglistplus.nav.ShoppingListAppNavigation
 import danilfedorov.shoppinglistplus.theme.ShoppingListTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import ru.rustore.sdk.pay.IntentInteractor
-import ru.rustore.sdk.pay.RuStorePayClient
 
 class MainActivity : ComponentActivity() {
 

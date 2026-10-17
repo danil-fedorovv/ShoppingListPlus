@@ -10,20 +10,13 @@ import danilfedorov.domain_core.usecase.shoppinglist.DeleteListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.ObserveArchivedShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RestoreShoppingListUseCase
 import danilfedorov.feature_archive.api.ArchiveDeps
+import danilfedorov.feature_archive.internal.presenter.viewmodel.ArchiveViewModel
 
 @FeatureScope
-@Component(
-    dependencies = [ArchiveDeps::class],
-    modules = [UseCaseModule::class]
-)
+@Component(dependencies = [ArchiveDeps::class])
 interface ArchiveComponent {
-    val observeArchivedShoppingListsUseCase: ObserveArchivedShoppingListsUseCase
-    val getSelectedProductCountUseCase: GetSelectedProductCountUseCase
-    val getTotalProductCountUseCase: GetTotalProductCountUseCase
-    val deleteListsUseCase: DeleteListsUseCase
-    val getProductListByListIdUseCase: GetProductListByListIdUseCase
-    val restoreShoppingListUseCase: RestoreShoppingListUseCase
-    val res: Resources
+
+    val archiveViewModelFactory: ArchiveViewModel.Factory
 
     @Component.Factory
     interface Factory {

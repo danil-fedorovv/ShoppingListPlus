@@ -3,6 +3,9 @@ package danilfedorov.feature_shoppinglist.internal.presenter.viewmodel
 import android.content.res.Resources
 import android.util.Log.i
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import danilfedorov.common.deeplink.DeepLink
 import danilfedorov.domain_core.model.ShoppingList
 import danilfedorov.domain_core.model.firebase.FetchRemoteListResult
@@ -39,10 +42,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ShoppingListViewModel(
-    private val navArchive: () -> Unit,
-    private val navSettings: () -> Unit,
-    private val navProducts: (Long) -> Unit,
+class ShoppingListViewModel @AssistedInject constructor(
+    @Assisted("navArchive") private val navArchive: () -> Unit,
+    @Assisted("navSettings") private val navSettings: () -> Unit,
+    @Assisted private val navProducts: (Long) -> Unit,
     private val observeShoppingListsUseCase: ObserveShoppingListsUseCase,
     private val createListUseCase: CreateListUseCase,
     private val archiveShoppingListsUseCase: ArchiveShoppingListsUseCase,
@@ -61,6 +64,15 @@ class ShoppingListViewModel(
     pushListUseCase,
     renameShoppingListUseCase
 ) {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            @Assisted("navArchive") navArchive: () -> Unit,
+            @Assisted("navSettings") navSettings: () -> Unit,
+            navProducts: (Long) -> Unit,
+        ): ShoppingListViewModel
+    }
 
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()
@@ -246,6 +258,7 @@ class ShoppingListViewModel(
         viewModelScope.launch {
             if (_recentlyDeletedIds.value.isNotEmpty()) {
                 archiveShoppingListsUseCase(_recentlyDeletedIds.value.toList())
+                _recentlyDeletedIds.value = emptySet()
             }
             _recentlyDeletedIds.value = setOf(list.id)
             _effect.emit(Effect.ShowSnackbarDelete(1))
@@ -375,11 +388,18 @@ class ShoppingListViewModel(
 
     private fun multiDelete() {
         viewModelScope.launch {
+            val deletedItems = _screenState.value.multiSelectLists
+            if (deletedItems.isEmpty()) {
+                _screenState.update { it.copy(multiSelectLists = emptyList()) }
+                return@launch
+            }
+
             if (_recentlyDeletedIds.value.isNotEmpty()) {
                 archiveShoppingListsUseCase(_recentlyDeletedIds.value.toList())
+                _recentlyDeletedIds.value = emptySet()
             }
-            _recentlyDeletedIds.value = _screenState.value.multiSelectLists.map { it.id }.toSet()
-            _effect.emit(Effect.ShowSnackbarDelete(_screenState.value.multiSelectLists.size))
+            _recentlyDeletedIds.value = deletedItems.map { it.id }.toSet()
+            _effect.emit(Effect.ShowSnackbarDelete(deletedItems.size))
             _screenState.update { it.copy(multiSelectLists = emptyList()) }
         }
     }

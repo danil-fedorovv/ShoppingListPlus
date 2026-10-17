@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -52,9 +51,10 @@ internal fun ShoppingListItemContainer(
     var contentHeight by remember { mutableIntStateOf(0) }
 
     var offsetX by remember { mutableFloatStateOf(0f) }
-    val isExtended by remember (extendedList?.id, shoppingList.id) {
-        derivedStateOf { extendedList?.id == shoppingList.id }
-    }
+
+    // isExtended — чистое вычисление, derivedStateOf не нужен
+    val isExtended = extendedList?.id == shoppingList.id
+
     val animatedOffsetX by animateFloatAsState(
         targetValue = if (isExtended) -150f else 0f,
         label = ""
@@ -113,7 +113,8 @@ internal fun ShoppingListItemContainer(
                     shape = shapes.medium
                 )
                 .onGloballyPositioned { coordinates ->
-                    contentHeight = coordinates.size.height
+                    val h = coordinates.size.height
+                    if (h != contentHeight) contentHeight = h
                 },
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally

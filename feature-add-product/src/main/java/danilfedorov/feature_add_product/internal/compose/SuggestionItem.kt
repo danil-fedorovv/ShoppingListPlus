@@ -1,13 +1,11 @@
 package danilfedorov.feature_add_product.internal.compose
 
-import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -37,6 +35,12 @@ fun SuggestionItem(
     val progress = remember { Animatable(if (isAdded) 1f else 0f) }
     var isAnimating by remember { mutableStateOf(false) }
 
+    val backgroundColor = if (isAdded) {
+        colorScheme.background
+    } else {
+        colorScheme.onBackground
+    }
+
     val onClick: () -> Unit = {
         if (!isAnimating) {
             scope.launch {
@@ -53,7 +57,7 @@ fun SuggestionItem(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp)
-            .background(colorScheme.background)
+            .background(backgroundColor)
             .padding(horizontal = 16.dp)
             .noRippleClickable { onClick() },
         verticalAlignment = Alignment.CenterVertically,

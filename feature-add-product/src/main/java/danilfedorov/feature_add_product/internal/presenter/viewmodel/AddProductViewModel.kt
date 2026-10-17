@@ -4,6 +4,9 @@ package danilfedorov.feature_add_product.internal.presenter.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.model.ProductSuggestion
 import danilfedorov.domain_core.usecase.product.DeleteProductsUseCase
@@ -24,18 +27,29 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
-class AddProductViewModel(
-    private val shoppingListId: Long,
-    private val remoteListId: String?,
-    private val navBack: (Long, Int?) -> Unit,
+class AddProductViewModel @AssistedInject constructor(
+    @Assisted private val shoppingListId: Long,
+    @Assisted private val remoteListId: String?,
+    @Assisted private val navBack: (Long, Int?) -> Unit,
     private val searchProductSuggestionsUseCase: SearchProductSuggestionsUseCase,
     private val insertProductsFromNamesUseCase: InsertProductsFromNamesUseCase,
     private val insertOrIncrementSuggestionUseCase: InsertOrIncrementSuggestionUseCase,
     private val observeProductListByListIdUseCase: ObserveProductListByListIdUseCase,
     private val deleteProductsUseCase: DeleteProductsUseCase
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            shoppingListId: Long,
+            remoteListId: String?,
+            navBack: (Long, Int?) -> Unit,
+        ): AddProductViewModel
+    }
+
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()
     private var initialProducts: List<Product> = emptyList()
@@ -133,17 +147,35 @@ class AddProductViewModel(
     fun saveProducts() {
         val productsToAdd = _screenState.value.productsToAdd
 
-        val namesToAdd = productsToAdd - initialProducts.map { it.name }.toSet()
-
-        navBack(shoppingListId, namesToAdd.size)
-
-        // Оставляем как было: отдельный CoroutineScope, чтобы сохранение
-        // дожило до конца после выхода с экрана и отмены viewModelScope.
+        // Оставляем отдельный scope — сохранение должно дожить после onCleared
         CoroutineScope(Dispatchers.IO).launch {
+            // Свежий список из Room — там могли появиться товары от других юзеров
+            val currentProducts = observeProductListByListIdUseCase(shoppingListId).first()
+            val currentNamesNormalized = currentProducts
+                .map { it.name.trim().lowercase() }
+                .toSet()
+
+            val initialNames = initialProducts.map { it.name }
+
+            // Что юзер хочет добавить (не было в initial)
+            val desiredNew = productsToAdd - initialNames.toSet()
+
+            // Что реально нужно добавить — фильтруем то, что уже появилось в Room
+            val reallyNew = desiredNew.filter { name ->
+                name.trim().lowercase() !in currentNamesNormalized
+            }
+
+            // Что удалить — было в initial, а юзер снял галочку
             val productsToDelete = initialProducts.filter { it.name !in productsToAdd }
-            if (namesToAdd.isNotEmpty()) {
+
+            // Навигация — после того как узнали реальное число
+            withContext(Dispatchers.Main) {
+                navBack(shoppingListId, reallyNew.size)
+            }
+
+            if (reallyNew.isNotEmpty()) {
                 insertProductsFromNamesUseCase(
-                    shoppingListId, remoteListId, namesToAdd.toList()
+                    shoppingListId, remoteListId, reallyNew
                 )
             }
 
@@ -153,7 +185,7 @@ class AddProductViewModel(
                 )
             }
 
-            insertOrIncrementSuggestionUseCase(namesToAdd.toList())
+            insertOrIncrementSuggestionUseCase(reallyNew)
         }
     }
 

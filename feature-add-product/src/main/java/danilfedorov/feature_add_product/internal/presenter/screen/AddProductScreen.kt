@@ -12,17 +12,10 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationTarget
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -37,6 +30,7 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,13 +39,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.WindowInsetsRulers.Companion.Ime
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -78,7 +69,6 @@ import danilfedorov.feature_add_product.internal.compose.SuggestionItem
 import danilfedorov.feature_add_product.internal.presenter.mvi.Action
 import danilfedorov.feature_add_product.internal.presenter.mvi.ScreenState
 import java.util.Locale
-import kotlin.math.max
 
 @Composable
 fun AddProductScreen(
@@ -93,27 +83,39 @@ fun AddProductScreen(
     val screenWidthPx = LocalConfiguration.current.screenWidthDp
     val cardWidthDp = screenWidthPx - 32
 
-    val appearance = FeedAdAppearance
-        .Builder(cardWidthDp)
-        .setCardCornerRadius(20.0)
-        .build()
+    val appearance = remember(cardWidthDp) {
+        FeedAdAppearance
+            .Builder(cardWidthDp)
+            .setCardCornerRadius(20.0)
+            .build()
+    }
 
-    val config = FeedAdRequestConfiguration
-        .Builder("R-M-17580296-3")
-        .build()
+    val config = remember {
+        FeedAdRequestConfiguration
+            .Builder("R-M-17580296-3")
+            .build()
+    }
 
     val feedAd = remember {
         FeedAd.Builder(context, config, appearance).build()
     }
-    feedAd.preloadAd()
 
-    feedAd.loadListener = object : FeedAdLoadListener {
-        override fun onAdLoaded() {
-            showPartnerOffers = true
+    DisposableEffect(feedAd) {
+        val listener = object : FeedAdLoadListener {
+            override fun onAdLoaded() {
+                showPartnerOffers = true
+            }
+
+            override fun onAdFailedToLoad(error: AdRequestError) {
+                Log.d("adLoaded", "-")
+            }
         }
 
-        override fun onAdFailedToLoad(error: AdRequestError) {
-            Log.d("adLoaded", "-")
+        feedAd.loadListener = listener
+        feedAd.preloadAd()
+
+        onDispose {
+            feedAd.loadListener = null
         }
     }
 
@@ -139,6 +141,9 @@ fun AddProductScreen(
 
     val normalizedSelected = remember(screenState.productsToAdd) {
         screenState.productsToAdd.map { it.trim().lowercase(Locale.ROOT) }.toHashSet()
+    }
+    val normalizedInput = remember(screenState.searchInput) {
+        screenState.searchInput.trim().lowercase(Locale.ROOT)
     }
 
     Scaffold(
@@ -226,10 +231,6 @@ fun AddProductScreen(
     ) { innerPadding ->
         Column(Modifier.padding(innerPadding)) {
 
-            // Дедуп по normalizedName (case-insensitive) через LinkedHashMap,
-            // чтобы "MILK" и "milk" не создавали два элемента с одинаковым ключом.
-            // После голосового ввода товары попадают в productsToAdd, а не в отдельный
-            // voiceSuggestions, поэтому при пустом поиске они сразу видны как выбранные.
             val displayItems = remember(
                 screenState.productsToAdd,
                 screenState.suggestions,
@@ -239,10 +240,8 @@ fun AddProductScreen(
                 val searchList = screenState.suggestions
                 val query = screenState.searchInput.trim()
 
-                // LinkedHashMap сохраняет порядок вставки и убирает дубли по ключу
                 val map = LinkedHashMap<String, ProductSuggestion>(selected.size + searchList.size)
 
-                // 1. Выбранные товары добавляем ТОЛЬКО при пустом поиске
                 if (query.isEmpty()) {
                     selected.forEach { name ->
                         val normalized = name.trim().lowercase(Locale.ROOT)
@@ -256,7 +255,6 @@ fun AddProductScreen(
                     }
                 }
 
-                // 2. Поисковые подсказки
                 searchList.forEach { suggestion ->
                     val normalized = suggestion.normalizedName.trim().lowercase(Locale.ROOT)
                     if (normalized.isNotEmpty() && !map.containsKey(normalized)) {
@@ -273,13 +271,17 @@ fun AddProductScreen(
             ) {
                 items(
                     items = displayItems,
-                    key = { it.normalizedName }
+                    key = { suggestion ->
+                        val normalized = suggestion.normalizedName.trim().lowercase(Locale.ROOT)
+                        when {
+                            normalized.isNotEmpty() && normalized == normalizedInput -> "input_echo"
+                            normalizedSelected.contains(normalized) -> "selected_$normalized"
+                            else -> "unselected_$normalized"
+                        }
+                    }
                 ) { suggestion ->
                     Column(
-                        Modifier.animateItem(
-                            fadeInSpec = null,
-                            fadeOutSpec = null
-                        )
+                        Modifier.animateItem()
                     ) {
                         SuggestionItem(
                             isAdded = normalizedSelected.contains(
@@ -301,7 +303,6 @@ fun AddProductScreen(
                     item {
                         Column(
                             modifier = Modifier
-                                .animateItem()
                                 .fillMaxSize()
                                 .nestedScroll(nestedScrollConnection),
                             horizontalAlignment = Alignment.CenterHorizontally
@@ -320,6 +321,15 @@ fun AddProductScreen(
                                 feedAd = feedAd
                             )
                         }
+                    }
+                } else {
+                    item {
+                        Spacer(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(350.dp)
+                                .background(colorScheme.background)
+                        )
                     }
                 }
             }

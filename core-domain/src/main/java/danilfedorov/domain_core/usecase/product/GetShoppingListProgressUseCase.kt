@@ -1,8 +1,9 @@
 package danilfedorov.domain_core.usecase.product
 
 import danilfedorov.domain_core.repository.ProductRepository
+import javax.inject.Inject
 
-class GetShoppingListProgressUseCase(
+class GetShoppingListProgressUseCase @Inject constructor(
     private val repository: ProductRepository
 ) {
     suspend operator fun invoke(shoppingListId: Long): String {

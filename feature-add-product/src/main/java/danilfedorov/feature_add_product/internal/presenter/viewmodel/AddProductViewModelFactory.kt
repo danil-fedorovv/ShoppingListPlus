@@ -6,25 +6,20 @@ import danilfedorov.feature_add_product.api.AddProductDeps
 import danilfedorov.feature_add_product.internal.di.DaggerAddProductComponent
 
 class AddProductViewModelFactory(
-    val shoppingListId: Long,
-    val remoteListId: String?,
-    val navBack: (Long, Int?) -> Unit,
-    val deps: AddProductDeps,
+    private val shoppingListId: Long,
+    private val remoteListId: String?,
+    private val navBack: (Long, Int?) -> Unit,
+    private val deps: AddProductDeps,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-
         val component = DaggerAddProductComponent.factory().create(deps)
 
-        return AddProductViewModel(
-            shoppingListId,
-            remoteListId,
-            navBack,
-            component.searchProductSuggestionsUseCase,
-            component.insertProductsFromNamesUseCase,
-            component.insertOrIncrementSuggestionUseCase,
-            component.observeProductListByListIdUseCase,
-            component.deleteProductsUseCase
+        @Suppress("UNCHECKED_CAST")
+        return component.addProductViewModelFactory.create(
+            shoppingListId = shoppingListId,
+            remoteListId = remoteListId,
+            navBack = navBack,
         ) as T
     }
 }

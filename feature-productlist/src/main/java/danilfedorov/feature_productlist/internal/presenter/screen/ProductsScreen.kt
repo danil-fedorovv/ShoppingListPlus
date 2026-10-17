@@ -73,7 +73,6 @@ import danilfedorov.shared_shoppinglist.presentation.compose.sheet.push_list.Pus
 import danilfedorov.shared_shoppinglist.presentation.mvi.SharedAction
 import danilfedorov.shared_shoppinglist.presentation.mvi.SharedScreenState
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -92,9 +91,7 @@ internal fun ProductListScreen(
     val coroutineScope = rememberCoroutineScope()
     val animateSnackBarBottomPadding by animateDpAsState(
         targetValue = if (screenState.multiSelectProducts.isNotEmpty()) 64.dp else 0.dp,
-        animationSpec = tween(
-            durationMillis = 500
-        )
+        animationSpec = tween(durationMillis = 500)
     )
 
     val context = LocalContext.current
@@ -104,14 +101,32 @@ internal fun ProductListScreen(
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    val selectedIdsSet by remember(screenState.products) {
-        derivedStateOf { screenState.products.filter { it.isSelected }.map { it.roomId }.toSet() }
+    val unselectedProducts = remember(screenState.products) {
+        screenState.products.filterNot { it.isSelected }
+    }
+    val selectedProducts = remember(screenState.products) {
+        screenState.products.filter { it.isSelected }
+    }
+    val hasSelected = remember(screenState.products) {
+        screenState.products.any { it.isSelected }
+    }
+    val allSelected = remember(screenState.products) {
+        screenState.products.isNotEmpty() && screenState.products.all { it.isSelected }
+    }
+    val progress = remember(screenState.products) {
+        val total = screenState.products.size
+        if (total == 0) 0f
+        else screenState.products.count { it.isSelected }.toFloat() / total
+    }
+    val selectedIdsSet = remember(selectedProducts) {
+        selectedProducts.mapTo(HashSet()) { it.roomId }
+    }
+    val unselectedIdsSet = remember(unselectedProducts) {
+        unselectedProducts.mapTo(HashSet()) { it.roomId }
     }
 
-    val unselectedIdsSet by remember(screenState.products) {
-        derivedStateOf {
-            screenState.products.filterNot { it.isSelected }.map { it.roomId }.toSet()
-        }
+    val multiSelectIds = remember(screenState.multiSelectProducts) {
+        screenState.multiSelectProducts.mapTo(HashSet()) { it.roomId }
     }
 
     val visiblePair by remember(listState) {
@@ -122,7 +137,13 @@ internal fun ProductListScreen(
             if (headerVisible) {
                 emptySet<Long>() to true
             } else {
-                val visibleIds = infos.mapNotNull { it.key as? Long }.toSet()
+                val visibleIds = infos.mapNotNull { info ->
+                    when (val k = info.key) {
+                        is Long -> k
+                        is String -> k.substringAfterLast('_').toLongOrNull()
+                        else -> null
+                    }
+                }.toSet()
                 visibleIds to false
             }
         }
@@ -152,7 +173,7 @@ internal fun ProductListScreen(
 
             snackbarHostState.currentSnackbarData?.dismiss()
 
-            snackbarJob?.cancelAndJoin()
+            snackbarJob?.cancel()
 
             snackbarJob = launch {
                 when (effect) {
@@ -201,14 +222,6 @@ internal fun ProductListScreen(
         action(Action.DisableSearchMode())
     }
 
-    val progress by remember(screenState.products) {
-        derivedStateOf {
-            val total = screenState.products.size
-            if (total == 0) 0f
-            else screenState.products.count { it.isSelected }.toFloat() / total.toFloat()
-        }
-    }
-
     Scaffold(
         topBar = {
             if (screenState.searchMode) {
@@ -237,7 +250,6 @@ internal fun ProductListScreen(
                         navAddProduct = {
                             action(ConfirmDeleteProduct())
                             action(Action.NavAddProduct)
-
                         }
                     )
                     ProgressIndicator(progress)
@@ -300,10 +312,7 @@ internal fun ProductListScreen(
                 }
             }
 
-            if (screenState.products.isNotEmpty() &&
-                screenState.products.all { it.isSelected } &&
-                !screenState.searchMode && !screenState.isLoading
-            ) {
+            if (allSelected && !screenState.searchMode && !screenState.isLoading) {
                 item {
                     TitledContent(
                         modifier = Modifier.animateItem(),
@@ -317,10 +326,9 @@ internal fun ProductListScreen(
                 }
             }
 
-
             items(
-                items = screenState.products.filterNot { it.isSelected },
-                key = { item -> item.roomId }
+                items = unselectedProducts,
+                key = { item -> "unselected_${item.roomId}" }
             ) { product ->
                 ProductSwipeContainer(
                     item = product,
@@ -333,7 +341,7 @@ internal fun ProductListScreen(
                             product = product,
                             action = action,
                             screenState = screenState,
-                            isInMultiSelect = screenState.multiSelectProducts.any { it.roomId == product.roomId }
+                            isInMultiSelect = product.roomId in multiSelectIds
                         )
                         HorizontalDivider(
                             thickness = 1.dp,
@@ -344,14 +352,14 @@ internal fun ProductListScreen(
                 }
             }
 
-            if (screenState.products.any { it.isSelected } && !screenState.searchMode) {
+            if (hasSelected && !screenState.searchMode) {
                 item(key = headerKey) {
                     HideSelectedRow(
                         Modifier
                             .animateItem()
                             .noRippleClickable { action(Action.ToggleHideSelectedRowExpanded()) },
                         screenState.isSelectedListExpanded,
-                        screenState.products.count { it.isSelected }
+                        selectedProducts.size
                     )
                     HorizontalDivider(
                         thickness = 1.dp,
@@ -361,12 +369,10 @@ internal fun ProductListScreen(
                 }
             }
 
-
-
             if (screenState.isSelectedListExpanded || screenState.searchMode) {
                 items(
-                    items = screenState.products.filter { it.isSelected },
-                    key = { item -> item.roomId }
+                    items = selectedProducts,
+                    key = { item -> "selected_${item.roomId}" }
                 ) { product ->
                     ProductSwipeContainer(
                         item = product,
@@ -377,9 +383,8 @@ internal fun ProductListScreen(
                         ProductListItem(
                             product = product,
                             action = action,
-
                             screenState = screenState,
-                            isInMultiSelect = screenState.multiSelectProducts.any { it.roomId == product.roomId }
+                            isInMultiSelect = product.roomId in multiSelectIds
                         )
                     }
                 }
@@ -402,7 +407,6 @@ internal fun ProductListScreen(
                                 color = colorScheme.outline,
                                 textAlign = TextAlign.Center
                             )
-
                         }
                     }
                 }
@@ -430,7 +434,6 @@ internal fun ProductListScreen(
             isVisible = shouldShowFloatingHideSelected,
             onClick = { action(Action.ToggleHideSelectedRowExpanded()) }
         )
-
 
         ActionRow(
             modifier = Modifier.padding(innerPadding),
@@ -485,9 +488,7 @@ internal fun ProductListScreen(
                 renameList = {
                     screenState.shoppingList?.let {
                         sharedAction(
-                            SharedAction.ShowRenameListSheet(
-                                it
-                            )
+                            SharedAction.ShowRenameListSheet(it)
                         )
                     }
                 },

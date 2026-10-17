@@ -8,16 +8,13 @@ import danilfedorov.domain_core.usecase.suggestion.InsertProductsFromNamesUseCas
 import danilfedorov.domain_core.usecase.suggestion.InsertOrIncrementSuggestionUseCase
 import danilfedorov.domain_core.usecase.suggestion.SearchProductSuggestionsUseCase
 import danilfedorov.feature_add_product.api.AddProductDeps
+import danilfedorov.feature_add_product.internal.presenter.viewmodel.AddProductViewModel
 
 @FeatureScope
-@Component(dependencies = [AddProductDeps::class], modules = [UseCaseModule::class])
+@Component(dependencies = [AddProductDeps::class])
 interface AddProductComponent {
 
-    val searchProductSuggestionsUseCase: SearchProductSuggestionsUseCase
-    val insertProductsFromNamesUseCase: InsertProductsFromNamesUseCase
-    val insertOrIncrementSuggestionUseCase: InsertOrIncrementSuggestionUseCase
-    val observeProductListByListIdUseCase: ObserveProductListByListIdUseCase
-    val deleteProductsUseCase: DeleteProductsUseCase
+    val addProductViewModelFactory: AddProductViewModel.Factory
 
     @Component.Factory
     interface Factory {

@@ -37,9 +37,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-database")
 
-    implementation(platform("ru.rustore.sdk:bom:2025.08.01"))
-    implementation("ru.rustore.sdk:pay")
-
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
 

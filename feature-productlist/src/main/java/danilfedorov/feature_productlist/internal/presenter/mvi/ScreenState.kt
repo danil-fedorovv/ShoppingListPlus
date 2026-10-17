@@ -1,8 +1,10 @@
 package danilfedorov.feature_productlist.internal.presenter.mvi
 
+import androidx.compose.runtime.Immutable
 import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.model.ShoppingList
 
+@Immutable
 data class ScreenState(
     val isLoading: Boolean = true,
     val products: List<Product> = emptyList(),

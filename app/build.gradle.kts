@@ -19,10 +19,10 @@ android {
         applicationId = "danilfedorov.shoppinglistplus"
         minSdk = 24
         targetSdk = 36
-        versionCode = 9
-        versionName = "3.0.1"
+        versionCode = 10
+        versionName = "3.1.0"
 
-        setProperty("archivesBaseName", "slp-$versionName")
+        setProperty("archivesBaseName", "slai-$versionName")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -118,9 +118,6 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
     implementation("com.google.firebase:firebase-common")
-
-    implementation(platform("ru.rustore.sdk:bom:2025.08.01"))
-    implementation("ru.rustore.sdk:pay")
 
     implementation(libs.material)
 

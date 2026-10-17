@@ -32,6 +32,12 @@ android {
     }
 }
 
+composeCompiler {
+    stabilityConfigurationFiles.add(
+        project.layout.projectDirectory.file("compose_stability.conf")
+    )
+}
+
 dependencies {
     implementation(project(":core-domain"))
     implementation(project(":common"))

@@ -20,7 +20,7 @@ interface ProductSuggestionDao {
         INSTR(normalizedName, :query) ASC,         
         usageCount DESC,
         displayName ASC
-    LIMIT 20
+    LIMIT 30
 """)
     fun searchSuggestions(query: String): Flow<List<ProductSuggestionEntity>>
 

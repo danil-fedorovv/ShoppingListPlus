@@ -3,26 +3,18 @@ package danilfedorov.feature_settings.internal.di
 import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
-import danilfedorov.common.ad.AdManager
 import danilfedorov.common.di.FeatureScope
-import danilfedorov.domain_core.usecase.appearance.ChangeColorIndexUseCase
-import danilfedorov.domain_core.usecase.appearance.ChangeThemeUseCase
-import danilfedorov.domain_core.usecase.appearance.ColorIndexFlowUseCase
-import danilfedorov.domain_core.usecase.appearance.ThemeFlowUseCase
 import danilfedorov.feature_settings.api.SettingsDeps
+import danilfedorov.feature_settings.internal.presenter.viewmodel.SettingsViewModel
 
 @Component(
     dependencies = [SettingsDeps::class],
-    modules = [UseCaseModule::class]
+    modules = [AdModule::class]
 )
 @FeatureScope
-interface SettingsComponent {
+internal interface SettingsComponent {
 
-    val themeFlowUseCase: ThemeFlowUseCase
-    val colorIndexFlowUseCase: ColorIndexFlowUseCase
-    val changeColorIndexUseCase: ChangeColorIndexUseCase
-    val changeThemeUseCase: ChangeThemeUseCase
-    val adManager: AdManager
+    val settingsViewModelFactory: SettingsViewModel.Factory
 
     @Component.Factory
     interface Factory {

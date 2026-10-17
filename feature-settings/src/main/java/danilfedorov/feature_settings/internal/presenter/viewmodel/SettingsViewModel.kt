@@ -2,6 +2,9 @@ package danilfedorov.feature_settings.internal.presenter.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import danilfedorov.common.ad.AdManager
 import danilfedorov.domain_core.usecase.appearance.ChangeColorIndexUseCase
 import danilfedorov.domain_core.usecase.appearance.ChangeThemeUseCase
@@ -18,14 +21,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-internal class SettingsViewModel(
-    private val navBack: () -> Unit,
+internal class SettingsViewModel @AssistedInject constructor(
+    @Assisted private val navBack: () -> Unit,
     themeFlowUseCase: ThemeFlowUseCase,
     colorIndexFlowUseCase: ColorIndexFlowUseCase,
     private val changeColorIndexUseCase: ChangeColorIndexUseCase,
     private val changeThemeUseCase: ChangeThemeUseCase,
     private val adManager: AdManager
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navBack: () -> Unit): SettingsViewModel
+    }
 
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()

@@ -9,13 +9,16 @@ import danilfedorov.domain_core.model.firebase.ProductEvent
 import danilfedorov.domain_core.model.firebase.ProductField
 import danilfedorov.domain_core.repository.ProductRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class ProductRepositoryImpl(
@@ -23,6 +26,8 @@ class ProductRepositoryImpl(
     private val mapper: ProductMapper,
     private val firebaseRealtimeDataSource: FirebaseRealtimeDataSource,
 ) : ProductRepository {
+
+    private val addedMutex = Mutex()
 
     override suspend fun addProduct(remoteListId: String?, item: Product): Long = coroutineScope {
         val localId = dao.insertProduct(mapper.mapToEntity(item.copy(firebaseId = null)))
@@ -37,7 +42,6 @@ class ProductRepositoryImpl(
         }
         localId
     }
-
 
     override suspend fun addProducts(items: List<Product>) {
         val entities = mapper.mapToEntities(items)
@@ -66,7 +70,6 @@ class ProductRepositoryImpl(
     override suspend fun getTotalProductCount(shoppingListId: Long): Int =
         dao.getTotalProductCount(shoppingListId)
 
-
     override suspend fun updateProductSelection(
         remoteListId: String?,
         product: Product,
@@ -80,7 +83,7 @@ class ProductRepositoryImpl(
                     launch(Dispatchers.IO) {
                         FirebaseDatabase.getInstance()
                             .getReference("shopping_lists/$remoteId/items/$firebaseId/selected")
-                            .setValue(isSelected)   // ← без await, без runCatching, без let
+                            .setValue(isSelected)
                     }
                 }
             }
@@ -112,23 +115,19 @@ class ProductRepositoryImpl(
         unit: String?,
     ) {
         coroutineScope {
-            // Локально в Room — всегда сразу
             launch { dao.updateProductAmountAndUnit(product.roomId, amount, unit) }
 
-            // В Firebase — fire-and-forget (сам отправит, когда сможет)
             remoteListId?.let { remoteId ->
                 product.firebaseId?.let { firebaseId ->
 
-                    // Amount
                     amount?.let { amt ->
                         launch(Dispatchers.IO) {
                             FirebaseDatabase.getInstance()
                                 .getReference("shopping_lists/$remoteId/items/$firebaseId/amount")
-                                .setValue(amt)   // ← без await, без runCatching
+                                .setValue(amt)
                         }
                     }
 
-                    // Unit
                     unit?.let { unt ->
                         launch(Dispatchers.IO) {
                             FirebaseDatabase.getInstance()
@@ -172,73 +171,83 @@ class ProductRepositoryImpl(
 
                 launch { firebaseRealtimeDataSource.deleteProducts(remoteId, firebaseIds) }
             }
-
         }
     }
 
-    override fun observeRemoteChanges(remoteListId: String, shoppingListId: Long): Flow<Unit> {
-        return firebaseRealtimeDataSource.observeProductEvents(remoteListId)
-            .debounce(150L)
-            .onEach { event ->
-                when (event) {
-                    is ProductEvent.Added -> {
-                        val incoming = event.product
-                        val firebaseId = incoming.firebaseId ?: return@onEach
+    override fun observeRemoteChanges(remoteListId: String, shoppingListId: Long): Flow<Unit> =
+        channelFlow<Unit> {
+            val changedJobs = mutableMapOf<String, Job>()
 
-                        withContext(Dispatchers.IO) {
-                            if (dao.existsByFirebaseId(firebaseId)) return@withContext
+            firebaseRealtimeDataSource.observeProductEvents(remoteListId)
+                .collect { event ->
+                    when (event) {
+                        is ProductEvent.Added -> {
+                            val incoming = event.product
+                            val firebaseId = incoming.firebaseId ?: return@collect
 
-                            val existingProduct = dao.getProductByDetails(
-                                listId = shoppingListId,
-                                name = incoming.name,
-                                amount = incoming.amount,
-                                unit = incoming.unit
-                            )
+                            addedMutex.withLock {
+                                withContext(Dispatchers.IO) {
+                                    if (dao.existsByFirebaseId(firebaseId)) return@withContext
 
-                            if (existingProduct != null) {
-                                dao.updateFirebaseId(
-                                    roomId = existingProduct.id,
-                                    firebaseId = firebaseId
-                                )
-                            } else {
-                                val entity = mapper.mapToEntity(
-                                    incoming.copy(
+                                    val existingProduct = dao.getProductByDetails(
                                         listId = shoppingListId,
-                                        firebaseId = firebaseId
+                                        name = incoming.name,
+                                        amount = incoming.amount,
+                                        unit = incoming.unit
                                     )
-                                )
-                                dao.upsertProduct(entity)
+
+                                    if (existingProduct != null) {
+                                        dao.updateFirebaseId(existingProduct.id, firebaseId)
+                                    } else {
+                                        val entity = mapper.mapToEntity(
+                                            incoming.copy(
+                                                listId = shoppingListId,
+                                                firebaseId = firebaseId
+                                            )
+                                        )
+                                        dao.upsertProduct(entity)
+                                    }
+                                }
+                            }
+                        }
+
+                        is ProductEvent.Changed -> {
+                            val fbId = event.product.firebaseId ?: return@collect
+                            changedJobs[fbId]?.cancel()
+                            changedJobs[fbId] = launch {
+                                delay(150)
+                                handleChanged(event)
+                                changedJobs.remove(fbId)
+                            }
+                        }
+
+                        is ProductEvent.Removed -> {
+                            event.product.firebaseId?.let { firebaseId ->
+                                withContext(Dispatchers.IO) {
+                                    dao.deleteByFirebaseId(firebaseId)
+                                }
                             }
                         }
                     }
-
-                    is ProductEvent.Changed -> {
-                        val incoming = event.product
-
-                        incoming.firebaseId?.let { fbId ->
-                            val existing = dao.getProductByFirebaseId(fbId)
-
-                            if (existing != null) {
-                                val updated = existing.copy(
-                                    name = incoming.name,
-                                    amount = incoming.amount,
-                                    unit = incoming.unit,
-                                    isSelected = incoming.isSelected
-                                )
-                                dao.upsertProduct(updated)
-                            }
-                        }
-                    }
-
-                    is ProductEvent.Removed -> {
-                        event.product.firebaseId?.let { firebaseId ->
-                            dao.deleteByFirebaseId(firebaseId)
-                        }
-                    }
-
                 }
+        }.map { }
+
+    private suspend fun handleChanged(event: ProductEvent.Changed) {
+        val incoming = event.product
+        val fbId = incoming.firebaseId ?: return
+
+        withContext(Dispatchers.IO) {
+            val existing = dao.getProductByFirebaseId(fbId)
+            if (existing != null) {
+                val updated = existing.copy(
+                    name = incoming.name,
+                    amount = incoming.amount,
+                    unit = incoming.unit,
+                    isSelected = incoming.isSelected
+                )
+                dao.upsertProduct(updated)
             }
-            .map { }
+        }
     }
 
     override fun observeConnectionStatus(): Flow<Boolean> =

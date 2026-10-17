@@ -21,33 +21,13 @@ import danilfedorov.domain_core.usecase.shoppinglist.ObserveShoppingListByIdUseC
 import danilfedorov.domain_core.usecase.shoppinglist.PushListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RenameShoppingListUseCase
 import danilfedorov.feature_productlist.api.ProductListDeps
+import danilfedorov.feature_productlist.internal.presenter.viewmodel.ProductsViewModel
 
-
-@Component(
-    dependencies = [ProductListDeps::class],
-    modules = [UseCaseModule::class]
-)
+@Component(dependencies = [ProductListDeps::class])
 @FeatureScope
 internal interface ProductListComponent {
 
-    val renameShoppingListUseCase: RenameShoppingListUseCase
-    val insertProductUseCase: InsertProductUseCase
-    val observeProductListByListIdUseCase: ObserveProductListByListIdUseCase
-    val updateProductUseCase: UpdateProductSelectionUseCase
-    val selectAllProductsUseCase: SelectAllProductsUseCase
-    val unselectAllProductsUseCase: UnselectAllProductsUseCase
-    val updateProductCardUseCase: UpdateProductCardUseCase
-    val deleteProductsUseCase: DeleteProductsUseCase
-    val observeShoppingListByIdUseCase: ObserveShoppingListByIdUseCase
-    val changeSortByAlphabetUseCase: ChangeSortByAlphabetUseCase
-    val getShoppingListProgressUseCase: GetShoppingListProgressUseCase
-    val createListUseCase: CreateListUseCase
-    val pushListUseCase: PushListUseCase
-    val getShoppingListsUseCase: GetShoppingListsUseCase
-    val observeRemoteProductChangesUseCase: ObserveRemoteProductChangesUseCase
-    val observeConnectionStatusUseCase: ObserveConnectionStatusUseCase
-    val observeRemoteListNameUseCase: ObserveRemoteListNameUseCase
-    val resources: Resources
+    val productsViewModelFactory: ProductsViewModel.Factory
 
     @Component.Factory
     interface Factory {

@@ -3,6 +3,9 @@ package danilfedorov.feature_archive.internal.presenter.viewmodel
 import android.content.res.Resources
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import danilfedorov.archive.R
 import danilfedorov.domain_core.model.ShoppingList
 import danilfedorov.domain_core.usecase.product.GetProductListByListIdUseCase
@@ -26,8 +29,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ArchiveViewModel(
-    private val navHome: () -> Unit,
+class ArchiveViewModel @AssistedInject constructor(
+    @Assisted private val navHome: () -> Unit,
     private val observeArchivedShoppingListsUseCase: ObserveArchivedShoppingListsUseCase,
     private val getSelectedProductCountUseCase: GetSelectedProductCountUseCase,
     private val getTotalProductCountUseCase: GetTotalProductCountUseCase,
@@ -36,6 +39,12 @@ class ArchiveViewModel(
     private val restoreShoppingListUseCase: RestoreShoppingListUseCase,
     private val res: Resources,
 ) : ViewModel() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navHome: () -> Unit): ArchiveViewModel
+    }
+
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()
 
@@ -104,8 +113,11 @@ class ArchiveViewModel(
 
     private fun deleteArchive(archive: ShoppingList) {
         viewModelScope.launch(Dispatchers.Main) {
-            if (recentlyDeletedIds.value.isNotEmpty()) {
-                deleteListsUseCase(recentlyDeletedIds.value.toList())
+            val oldIds = recentlyDeletedIds.value
+            if (oldIds.isNotEmpty()) {
+                withContext(Dispatchers.IO) {
+                    deleteListsUseCase(oldIds.toList())
+                }
             }
             recentlyDeletedIds.value = setOf(archive.id)
             _effect.emit(Effect.ShowSnackbarDelete(res.getString(R.string.list_deleted)))
@@ -117,10 +129,10 @@ class ArchiveViewModel(
     }
 
     private fun confirmDelete() {
-        if (recentlyDeletedIds.value.isNotEmpty()) {
+        val ids = recentlyDeletedIds.value
+        if (ids.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
-                deleteListsUseCase(recentlyDeletedIds.value.toList())
-                recentlyDeletedIds.value = emptySet()
+                deleteListsUseCase(ids.toList())
             }
         }
     }

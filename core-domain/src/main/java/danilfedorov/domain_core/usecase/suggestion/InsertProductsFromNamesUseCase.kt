@@ -2,8 +2,9 @@ package danilfedorov.domain_core.usecase.suggestion
 
 import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.repository.ProductRepository
+import javax.inject.Inject
 
-class InsertProductsFromNamesUseCase(
+class InsertProductsFromNamesUseCase @Inject constructor(
     private val productRepository: ProductRepository
 ) {
     suspend operator fun invoke(

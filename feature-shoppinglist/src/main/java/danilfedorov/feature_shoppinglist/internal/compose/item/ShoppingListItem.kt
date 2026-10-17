@@ -83,6 +83,14 @@ internal fun ShoppingListItem(
         0f
     }
 
+    // stringResource вне Text — не вычисляется, когда isLiveEditMode = false
+    val displayName = if (isLiveEditMode) {
+        val sharedLabel = stringResource(R.string.shared_editing)
+        "${shoppingList.name} $sharedLabel"
+    } else {
+        shoppingList.name
+    }
+
     Column(
         Modifier
             .fillMaxHeight()
@@ -117,8 +125,7 @@ internal fun ShoppingListItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = shoppingList.name + if (isLiveEditMode)
-                    " " + stringResource(R.string.shared_editing) else "",
+                text = displayName,
                 style = typography.titleLarge,
                 color = colorScheme.secondary,
                 modifier = Modifier.weight(1f)

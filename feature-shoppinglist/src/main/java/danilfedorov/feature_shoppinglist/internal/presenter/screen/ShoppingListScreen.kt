@@ -93,9 +93,7 @@ internal fun ShoppingListScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val animateSnackBarBottomPadding by animateDpAsState(
         targetValue = if (screenState.multiSelectLists.isNotEmpty()) 64.dp else 0.dp,
-        animationSpec = tween(
-            durationMillis = 500
-        )
+        animationSpec = tween(durationMillis = 500)
     )
     val res = LocalResources.current
     val undoString = stringResource(R.string.undo).replaceFirstChar { it.uppercase() }
@@ -104,6 +102,11 @@ internal fun ShoppingListScreen(
         derivedStateOf {
             listState.firstVisibleItemIndex == 0
         }
+    }
+
+    // Set для O(1) проверки мультивыбора вместо any {} на каждом айтеме
+    val multiSelectIds = remember(screenState.multiSelectLists) {
+        screenState.multiSelectLists.mapTo(HashSet()) { it.id }
     }
 
     BackHandler(enabled = screenState.multiSelectLists.isNotEmpty()) {
@@ -302,8 +305,8 @@ internal fun ShoppingListScreen(
                     onClickOptions = { action(Action.ShowListOptions(shoppingList)) },
                     addMultiSelect = { action(Action.AddMultiSelect(shoppingList)) },
                     removeMultiSelect = { action(Action.RemoveMultiSelect(shoppingList)) },
-                    isMultiSelectMode = screenState.multiSelectLists.isNotEmpty(),
-                    isMultiSelect = screenState.multiSelectLists.any { it.id == shoppingList.id },
+                    isMultiSelectMode = multiSelectIds.isNotEmpty(),
+                    isMultiSelect = shoppingList.id in multiSelectIds,
                     isLiveEditMode = shoppingList.remoteListId != null,
                     deleteList = { action(Action.DeleteList(shoppingList)) }
                 )
@@ -328,7 +331,7 @@ internal fun ShoppingListScreen(
                 onDismissRequest = {
                     action(Action.HideAddListSheet())
                     action(Action.ChangeDraftListName(""))
-                                   },
+                },
                 isAddNewList = true
             )
         }

@@ -18,34 +18,16 @@ import danilfedorov.domain_core.usecase.shoppinglist.ObserveShoppingListsUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.PushListUseCase
 import danilfedorov.domain_core.usecase.shoppinglist.RenameShoppingListUseCase
 import danilfedorov.feature_shoppinglist.api.ShoppingListDeps
+import danilfedorov.feature_shoppinglist.internal.presenter.viewmodel.ShoppingListViewModel
 
 @FeatureScope
-@Component(
-    dependencies = [ShoppingListDeps::class],
-    modules = [UseCaseModule::class]
-)
+@Component(dependencies = [ShoppingListDeps::class])
 internal interface ShoppingListComponent {
 
-    val createListUseCase: CreateListUseCase
-    val deleteListsUseCase: DeleteListsUseCase
-    val renameShoppingListUseCase: RenameShoppingListUseCase
-    val getSelectedProductCountUseCase: GetSelectedProductCountUseCase
-    val getTotalProductCountUseCase: GetTotalProductCountUseCase
-    val getProductListByListIdUseCase: GetProductListByListIdUseCase
-    val insertProductsUseCase: InsertProductsUseCase
-    val archiveShoppingListsUseCase: ArchiveShoppingListsUseCase
-    val pushListUseCase: PushListUseCase
-    val fetchListUseCase: FetchListUseCase
-    val res: Resources
-    val observeShoppingListsUseCase: ObserveShoppingListsUseCase
-    val getRemoteShoppingListNameUseCase: GetRemoteShoppingListNameUseCase
-    val observeRemoteListNameUseCase: ObserveRemoteListNameUseCase
-    val observeArchivedShoppingListsUseCase: ObserveArchivedShoppingListsUseCase
+    val shoppingListViewModelFactory: ShoppingListViewModel.Factory
 
     @Component.Factory
     interface Factory {
-
         fun create(deps: ShoppingListDeps): ShoppingListComponent
-
     }
 }

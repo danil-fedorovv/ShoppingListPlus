@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.dp
 import danilfedorov.common.compose.AnimatedCheckbox
@@ -51,14 +53,54 @@ internal fun ProductListItem(
 ) {
     var isSelected by remember(product.roomId) { mutableStateOf(product.isSelected) }
 
+    // Синхронизация с внешним состоянием (ClearSelection, SelectAll и т.д.)
+    LaunchedEffect(product.isSelected) {
+        if (isSelected != product.isSelected) {
+            isSelected = product.isSelected
+        }
+    }
+
+    // Читаем цвета из темы здесь — в composable-контексте
+    val selectedBgColor = colorScheme.background
+    val unselectedBgColor = colorScheme.onBackground
+    val selectedTextColor = colorScheme.outline
+    val unselectedTextColor = colorScheme.secondary
+
+    // --- Цвет фона ---
+    var targetBackgroundColor by remember(product.roomId) {
+        mutableStateOf(if (product.isSelected) selectedBgColor else unselectedBgColor)
+    }
+
+    // При выборе — плавно меняем цвет. При снятии — НЕ меняем ничего.
+    LaunchedEffect(isSelected) {
+        if (isSelected) {
+            targetBackgroundColor = selectedBgColor
+        }
+        // если isSelected == false, оставляем targetBackgroundColor без изменений
+    }
+
     val backgroundColor by animateColorAsState(
-        targetValue = if(isSelected) colorScheme.background else colorScheme.onBackground,
-        animationSpec = tween(durationMillis = 350)
+        targetValue = targetBackgroundColor,
+        animationSpec = tween(durationMillis = 300),
+        label = "bg"
     )
 
+    // --- Цвет текста ---
+    var targetTextColor by remember(product.roomId) {
+        mutableStateOf(if (product.isSelected) selectedTextColor else unselectedTextColor)
+    }
+
+    LaunchedEffect(isSelected) {
+        if (isSelected) {
+            targetTextColor = selectedTextColor
+        }
+        // при снятии цвет текста не меняется
+    }
+
     val textColor by animateColorAsState(
-        targetValue = if(isSelected) colorScheme.outline else colorScheme.secondary,
-        animationSpec = tween(durationMillis = 350)
+        targetValue = targetTextColor,
+        animationSpec = tween(durationMillis = 300),
+        label = "text"
     )
 
     val coroutineScope = rememberCoroutineScope()
@@ -68,9 +110,9 @@ internal fun ProductListItem(
 
     val animatedBackground by animateColorAsState(
         targetValue = if (isInMultiSelect) highlightOpaque else backgroundColor,
-        animationSpec = tween(durationMillis = 350)
+        animationSpec = tween(durationMillis = 350),
+        label = "highlight"
     )
-
 
     Row(
         modifier = Modifier
@@ -134,7 +176,6 @@ internal fun ProductListItem(
                     softWrap = true
                 )
             }
-
         }
         Box(
             modifier = Modifier
@@ -156,8 +197,5 @@ internal fun ProductListItem(
                 isChecked = isSelected,
             )
         }
-
     }
-
-
 }

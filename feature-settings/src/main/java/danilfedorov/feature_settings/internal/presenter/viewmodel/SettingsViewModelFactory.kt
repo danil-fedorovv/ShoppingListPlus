@@ -9,18 +9,15 @@ import danilfedorov.feature_settings.internal.di.DaggerSettingsComponent
 internal class SettingsViewModelFactory(
     private val navBack: () -> Unit,
     private val deps: SettingsDeps,
-    private val context: Context
+    private val context: Context,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val component = DaggerSettingsComponent.factory().create(context, deps)
-        return SettingsViewModel(
-            navBack,
-            component.themeFlowUseCase,
-            component.colorIndexFlowUseCase,
-            component.changeColorIndexUseCase,
-            component.changeThemeUseCase,
-            component.adManager
+
+        @Suppress("UNCHECKED_CAST")
+        return component.settingsViewModelFactory.create(
+            navBack = navBack,
         ) as T
     }
 }

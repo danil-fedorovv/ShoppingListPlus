@@ -10,37 +10,18 @@ internal class ProductsViewModelFactory(
     private val addedCount: Int?,
     private val onNavigateHome: () -> Unit,
     private val navAddProduct: (Long, String?) -> Unit,
-    private val deps: ProductListDeps
+    private val deps: ProductListDeps,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-
         val component = DaggerProductListComponent.factory().create(deps)
 
-        return ProductsViewModel(
+        @Suppress("UNCHECKED_CAST")
+        return component.productsViewModelFactory.create(
             shoppingListId = shoppingListId,
-            onNavigateHome = onNavigateHome,
             addedCount = addedCount,
+            onNavigateHome = onNavigateHome,
             navAddProduct = navAddProduct,
-            res = component.resources,
-            renameShoppingListUseCase = component.renameShoppingListUseCase,
-            observeProductListByListIdUseCase = component.observeProductListByListIdUseCase,
-            insertProductUseCase = component.insertProductUseCase,
-            updateProductSelectionUseCase = component.updateProductUseCase,
-            selectAllProductsUseCase = component.selectAllProductsUseCase,
-            unselectAllProductsUseCase = component.unselectAllProductsUseCase,
-            updateProductCardUseCase = component.updateProductCardUseCase,
-            deleteProductsUseCase = component.deleteProductsUseCase,
-            observeShoppingListByIdUseCase = component.observeShoppingListByIdUseCase,
-            changeSortByAlphabetUseCase = component.changeSortByAlphabetUseCase,
-            getShoppingListProgressUseCase = component.getShoppingListProgressUseCase,
-            createListUseCase = component.createListUseCase,
-            pushListUseCase = component.pushListUseCase,
-            getShoppingListsUseCase = component.getShoppingListsUseCase,
-            observeRemoteProductChangesUseCase = component.observeRemoteProductChangesUseCase,
-            observeConnectionStatusUseCase = component.observeConnectionStatusUseCase,
-            observeRemoteListNameUseCase = component.observeRemoteListNameUseCase
         ) as T
-
     }
 }

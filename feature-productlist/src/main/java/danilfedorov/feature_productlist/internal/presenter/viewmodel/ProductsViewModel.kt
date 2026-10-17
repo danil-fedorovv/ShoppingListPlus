@@ -2,9 +2,13 @@ package danilfedorov.feature_productlist.internal.presenter.viewmodel
 
 import android.content.res.Resources
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import danilfedorov.domain_core.model.Product
 import danilfedorov.domain_core.model.ShoppingList
 import danilfedorov.domain_core.usecase.product.DeleteProductsUseCase
+import danilfedorov.domain_core.usecase.product.GetProductListByListIdUseCase
 import danilfedorov.domain_core.usecase.product.GetShoppingListProgressUseCase
 import danilfedorov.domain_core.usecase.product.InsertProductUseCase
 import danilfedorov.domain_core.usecase.product.ObserveConnectionStatusUseCase
@@ -28,6 +32,7 @@ import danilfedorov.productlist.R
 import danilfedorov.shared_shoppinglist.presentation.viewmodel.BaseListViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -35,15 +40,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-internal class ProductsViewModel(
-    private val shoppingListId: Long,
-    private val addedCount: Int?,
-    private val onNavigateHome: () -> Unit,
-    private val navAddProduct: (Long, String?) -> Unit,
+internal class ProductsViewModel @AssistedInject constructor(
+    @Assisted private val shoppingListId: Long,
+    @Assisted private val addedCount: Int?,
+    @Assisted private val onNavigateHome: () -> Unit,
+    @Assisted private val navAddProduct: (Long, String?) -> Unit,
     private val res: Resources,
     private val observeProductListByListIdUseCase: ObserveProductListByListIdUseCase,
     private val insertProductUseCase: InsertProductUseCase,
@@ -60,12 +66,22 @@ internal class ProductsViewModel(
     private val observeRemoteProductChangesUseCase: ObserveRemoteProductChangesUseCase,
     private val observeConnectionStatusUseCase: ObserveConnectionStatusUseCase,
     private val observeRemoteListNameUseCase: ObserveRemoteListNameUseCase,
+    private val getProductListByListIdUseCase: GetProductListByListIdUseCase,
     pushListUseCase: PushListUseCase,
     renameShoppingListUseCase: RenameShoppingListUseCase,
 ) : BaseListViewModel(
     pushListUseCase,
     renameShoppingListUseCase
 ) {
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            shoppingListId: Long,
+            addedCount: Int?,
+            onNavigateHome: () -> Unit,
+            navAddProduct: (Long, String?) -> Unit,
+        ): ProductsViewModel
+    }
 
     private val _screenState = MutableStateFlow(ScreenState())
     val screenState = _screenState.asStateFlow()
@@ -73,7 +89,11 @@ internal class ProductsViewModel(
     private val _effect = MutableSharedFlow<Effect>(replay = 1)
     val effect = _effect.asSharedFlow()
 
-    private val recentlyDeletedSet = MutableStateFlow<Set<Product>>(emptySet())
+    // ИЗМЕНЕНО: Map<Long, Product> вместо Set<Product>.
+    // Ключ — roomId, значение — снапшот на момент удаления (для firebaseId).
+    // Раньше сравнивались через equals полные объекты, из-за чего смена isSelected
+    // (SelectAll / ClearSelection) "воскрешала" удалённый товар.
+    private val recentlyDeletedSet = MutableStateFlow<Map<Long, Product>>(emptyMap())
 
     private var remoteListId: String? = null
     private var remoteListenersJob: Job? = null
@@ -95,8 +115,9 @@ internal class ProductsViewModel(
 
                     shoppingList to sortProducts(products, shoppingList)
                 }
-                .combine(recentlyDeletedSet) { (shoppingList, sortedProducts), deletedSet ->
-                    val visible = sortedProducts.filter { it !in deletedSet }
+                .combine(recentlyDeletedSet) { (shoppingList, sortedProducts), deletedMap ->
+                    // ИЗМЕНЕНО: фильтр по roomId, а не по equals объекта
+                    val visible = sortedProducts.filter { it.roomId !in deletedMap.keys }
                     shoppingList to visible
                 }
                 .combine(
@@ -108,7 +129,7 @@ internal class ProductsViewModel(
                         if (query.isEmpty()) products
                         else products.filter { it.name.contains(query, ignoreCase = true) }
 
-                    Triple(shoppingList, products, filtered)   // ← было Pair, стало Triple
+                    Triple(shoppingList, products, filtered)
                 }
                 .collect { (shoppingList, totalProducts, filteredProducts) ->
                     updateScreenState(
@@ -124,38 +145,26 @@ internal class ProductsViewModel(
     }
 
     private fun handleRemoteListIdChanged(newRemoteId: String?) {
+        viewModelScope.launch {
+            // Ждём, пока старый job РЕАЛЬНО завершится
+            remoteListenersJob?.cancelAndJoin()
+            remoteListenersJob = null
 
-        // Отписываемся от старых
-        remoteListenersJob?.cancel()
-        remoteListenersJob = null
+            remoteListId = newRemoteId
+            if (newRemoteId == null) return@launch
 
-        // Запоминаем новый
-        remoteListId = newRemoteId
-
-        if (newRemoteId == null) return
-
-        // Подписываемся на новый
-        remoteListenersJob = viewModelScope.launch {
-
-            // Слушаем имя списка
-            launch {
-                observeRemoteListNameUseCase(newRemoteId).collect { }
-            }
-
-            // Слушаем изменения продуктов
-            launch {
-                observeRemoteProductChangesUseCase(newRemoteId, shoppingListId)
-                    .distinctUntilChanged()
-                    .collect {
-                        // Room сам всё обновит
-                    }
-            }
-
-            launch {
-                observeConnectionStatusUseCase()
-                    .collect { status ->
+            remoteListenersJob = launch {
+                launch { observeRemoteListNameUseCase(newRemoteId).collect { } }
+                launch {
+                    observeRemoteProductChangesUseCase(newRemoteId, shoppingListId)
+                        .distinctUntilChanged()
+                        .collect { }
+                }
+                launch {
+                    observeConnectionStatusUseCase().collect { status ->
                         _screenState.update { it.copy(connectionStatus = status) }
                     }
+                }
             }
         }
     }
@@ -244,23 +253,23 @@ internal class ProductsViewModel(
     private fun deleteProduct(product: Product) {
         viewModelScope.launch {
             if (recentlyDeletedSet.value.isNotEmpty()) {
-                deleteProductsUseCase(remoteListId, recentlyDeletedSet.value.toList())
+                deleteProductsUseCase(remoteListId, recentlyDeletedSet.value.values.toList())
             }
-            recentlyDeletedSet.value = setOf(product)
+            // ИЗМЕНЕНО: Map по roomId
+            recentlyDeletedSet.value = mapOf(product.roomId to product)
             _effect.emit(Effect.ShowSnackbarDelete(1))
         }
     }
 
     private fun restoreState() {
-        recentlyDeletedSet.value = emptySet()
+        recentlyDeletedSet.value = emptyMap()
     }
 
     private fun confirmDelete() {
         if (recentlyDeletedSet.value.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
-                deleteProductsUseCase(remoteListId, recentlyDeletedSet.value.toList())
-                recentlyDeletedSet.value = emptySet()
-
+                deleteProductsUseCase(remoteListId, recentlyDeletedSet.value.values.toList())
+                recentlyDeletedSet.value = emptyMap()
             }
         }
     }
@@ -354,14 +363,19 @@ internal class ProductsViewModel(
 
     private fun multiDelete() {
         viewModelScope.launch {
-            if (recentlyDeletedSet.value.isNotEmpty()) {
-                deleteProductsUseCase(remoteListId, recentlyDeletedSet.value.toList())
-            }
             val deletedItems = _screenState.value.multiSelectProducts
-            recentlyDeletedSet.update { deletedItems.toSet() }
+            if (deletedItems.isEmpty()) {
+                _screenState.update { it.copy(multiSelectProducts = emptyList()) }
+                return@launch
+            }
+
+            if (recentlyDeletedSet.value.isNotEmpty()) {
+                deleteProductsUseCase(remoteListId, recentlyDeletedSet.value.values.toList())
+            }
+            // ИЗМЕНЕНО: Map по roomId
+            recentlyDeletedSet.value = deletedItems.associateBy { it.roomId }
             _effect.emit(Effect.ShowSnackbarDelete(deletedItems.size))
             _screenState.update { it.copy(multiSelectProducts = emptyList()) }
-
         }
     }
 
@@ -408,18 +422,25 @@ internal class ProductsViewModel(
 
     private fun deleteAllSelected() {
         viewModelScope.launch {
+            if (recentlyDeletedSet.value.isNotEmpty()) {
+                deleteProductsUseCase(remoteListId, recentlyDeletedSet.value.values.toList())
+                recentlyDeletedSet.value = emptyMap()
+            }
+
             if (_screenState.value.products.none { it.isSelected }) {
                 _effect.emit(Effect.ShowSnackbarInfo(res.getString(R.string.no_products_to_delete)))
             } else {
-                _effect.emit(Effect.ShowSnackbarDelete(_screenState.value.products.count { it.isSelected }))
+                // ИЗМЕНЕНО: Map по roomId
+                recentlyDeletedSet.value = _screenState.value.products
+                    .filter { it.isSelected }
+                    .associateBy { it.roomId }
+
+                _effect.emit(
+                    Effect.ShowSnackbarDelete(_screenState.value.products.count { it.isSelected })
+                )
             }
 
-            recentlyDeletedSet.update {
-                _screenState.value.products.filter { it.isSelected }.toSet()
-            }
-            _screenState.update {
-                it.copy(isOptionsSheetVisible = false)
-            }
+            _screenState.update { it.copy(isOptionsSheetVisible = false) }
         }
     }
 
@@ -462,7 +483,9 @@ internal class ProductsViewModel(
     private fun showCopySheet() {
         viewModelScope.launch(Dispatchers.Main) {
             val progressMap = withContext(Dispatchers.IO) {
-                getShoppingListsUseCase().associateWith { getShoppingListProgressUseCase(it.id) }
+                getShoppingListsUseCase()
+                    .filter { it.id != shoppingListId }
+                    .associateWith { getShoppingListProgressUseCase(it.id) }
             }
 
             _screenState.update {
@@ -480,34 +503,57 @@ internal class ProductsViewModel(
         }
     }
 
-    private fun copyProducts(shoppingListId: Long) {
+    private fun copyProducts(targetShoppingListId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             val selectedProducts = _screenState.value.multiSelectProducts
 
-            val copiedProducts = selectedProducts.map { product ->
-                val newId = insertProductUseCase(
-                    remoteListId,
-                    product.copy(roomId = 0L, listId = shoppingListId)
-                )
-                product.copy(roomId = newId, listId = shoppingListId)
+            val targetRemoteListId = getShoppingListsUseCase()
+                .find { it.id == targetShoppingListId }
+                ?.remoteListId
+
+            // Существующие в целевом списке: name.lowercase -> Product
+            val existingByName = getProductListByListIdUseCase(targetShoppingListId)
+                .associateBy { it.name.trim().lowercase() }
+
+            selectedProducts.forEach { product ->
+                val key = product.name.trim().lowercase()
+                val existing = existingByName[key]
+
+                when {
+                    // Товара нет — вставляем
+                    existing == null -> {
+                        insertProductUseCase(
+                            targetRemoteListId,
+                            product.copy(
+                                roomId = 0L,
+                                listId = targetShoppingListId,
+                                firebaseId = null
+                            )
+                        )
+                    }
+
+                    // Товар есть, amount/unit совпадают — игнорим молча
+                    existing.amount.trim() == product.amount.trim() &&
+                            existing.unit.trim() == product.unit.trim() -> {
+                        // ничего не делаем
+                    }
+
+                    // Товар есть, amount/unit разные — перезаписываем
+                    else -> {
+                        updateProductCardUseCase(
+                            remoteListId = targetRemoteListId,
+                            product = existing,
+                            name = existing.name,
+                            amount = product.amount,
+                            unit = product.unit
+                        )
+                    }
+                }
             }
 
             withContext(Dispatchers.Main) {
-                _effect.emit(
-                    Effect.ShowSnackbarInfo(
-                        if (copiedProducts.size > 1) {
-                            res.getString(R.string.products_copied)
-                        } else {
-                            res.getString(R.string.product_copied)
-                        }
-                    )
-                )
-
                 _screenState.update {
-                    it.copy(
-                        isCopySheetVisible = false,
-                        multiSelectProducts = emptyList()
-                    )
+                    it.copy(isCopySheetVisible = false, multiSelectProducts = emptyList())
                 }
             }
         }

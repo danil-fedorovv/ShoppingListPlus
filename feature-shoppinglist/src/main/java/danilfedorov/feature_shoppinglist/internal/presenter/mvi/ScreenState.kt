@@ -1,8 +1,10 @@
 package danilfedorov.feature_shoppinglist.internal.presenter.mvi
 
+import androidx.compose.runtime.Immutable
 import danilfedorov.domain_core.model.ShoppingList
 import danilfedorov.feature_shoppinglist.internal.compose.sheet.deeplink.FetchListSheetState
 
+@Immutable
 data class ScreenState(
     val isLoading: Boolean = true,
     val shoppingLists: List<ShoppingList> = emptyList(),

@@ -5,8 +5,9 @@ import danilfedorov.domain_core.exceptions.TimeoutException
 import danilfedorov.domain_core.model.firebase.FetchRemoteListResult
 import danilfedorov.domain_core.repository.ProductRepository
 import danilfedorov.domain_core.repository.ShoppingListRepository
+import javax.inject.Inject
 
-class FetchListUseCase(
+class FetchListUseCase @Inject constructor(
     private val shoppingListRepository: ShoppingListRepository,
     private val productRepository: ProductRepository,
 ) {

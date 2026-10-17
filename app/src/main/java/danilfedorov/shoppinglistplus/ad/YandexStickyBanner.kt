@@ -1,6 +1,8 @@
 package danilfedorov.shoppinglistplus.ad
 
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -14,11 +16,7 @@ import com.yandex.mobile.ads.common.AdRequestError
 import com.yandex.mobile.ads.common.AdTheme
 import com.yandex.mobile.ads.common.ImpressionData
 import danilfedorov.shoppinglistplus.BuildConfig
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.util.UUID
 
 @Composable
 fun YandexStickyBanner(
@@ -39,7 +37,9 @@ fun YandexStickyBanner(
             setAdUnitId(BuildConfig.YANDEX_BANNER_KEY)
             setBannerAdEventListener(object : BannerAdEventListener {
                 override fun onAdLoaded() {}
-                override fun onAdFailedToLoad(error: AdRequestError) {}
+                override fun onAdFailedToLoad(error: AdRequestError) {
+                    Log.d("YandexBanner", "Load failed: ${error.description}")
+                }
                 override fun onAdClicked() {}
                 override fun onLeftApplication() {}
                 override fun onReturnedToApplication() {}
@@ -49,18 +49,19 @@ fun YandexStickyBanner(
     }
 
     LaunchedEffect(isDarkTheme) {
-        var counter = 1
         while (true) {
             val adRequest = AdRequest.Builder()
-                .setPreferredTheme(
-                    if (isDarkTheme) AdTheme.DARK else AdTheme.LIGHT
-                )
-                .setParameters(mapOf(counter.toString() to UUID.randomUUID().toString()))
+                .setPreferredTheme(if (isDarkTheme) AdTheme.DARK else AdTheme.LIGHT)
                 .build()
 
-            counter++
             bannerView.loadAd(adRequest)
-            delay(15_000)
+            delay(30_000)
+        }
+    }
+
+    DisposableEffect(bannerView) {
+        onDispose {
+            bannerView.destroy()
         }
     }
 
